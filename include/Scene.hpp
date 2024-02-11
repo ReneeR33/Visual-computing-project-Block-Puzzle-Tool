@@ -8,7 +8,7 @@
 
 struct Scene {
     std::vector<Model> models;
-    DirLight dirlight;
+    DirLight dirLight;
     std::vector<Object> objects;
     Camera camera;
 };

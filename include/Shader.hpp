@@ -15,7 +15,7 @@ public:
     Shader(Shader&& other) noexcept;
 	Shader& operator=(Shader&& other) noexcept;
 
-    void use();
+    void use() const;
 
     void setBool(const std::string& name, bool value) const;
     void setInt(const std::string& name, int value) const;
@@ -33,7 +33,7 @@ public:
 private:
     unsigned int ID;
 
-    void release();
+    void release() const;
 };
 
 #endif //SHADER_HPP

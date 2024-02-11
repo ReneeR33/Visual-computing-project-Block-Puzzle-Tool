@@ -10,13 +10,11 @@
 #include <iostream>
 
 int main() {
-    try
-    {
+    try {
         App app;
         app.run();
     }
-    catch(const std::exception& e)
-    {
+    catch(const std::exception& e) {
         std::cerr << e.what() << '\n';
     }
 }

@@ -23,42 +23,33 @@ void DebugWindow::render() {
     {
         ImGui::Begin("Settings");
 
-        if (ImGui::CollapsingHeader("Objects"))
-        {
-            for (unsigned int i = 0; i < scene.objects.size(); i++)
-            {
-                if (ImGui::TreeNode(("cube " + std::to_string(i + 1)).c_str()))
-                {
+        if (ImGui::CollapsingHeader("Objects")) {
+            for (unsigned int i = 0; i < scene.objects.size(); i++) {
+                if (ImGui::TreeNode(("cube " + std::to_string(i + 1)).c_str())) {
                     Object& object = scene.objects[i];
                     
                     static std::vector<int>item_current_idx(scene.objects.size());
 
-                    if (item_current_idx.size() < scene.objects.size())
-                    {
+                    if (item_current_idx.size() < scene.objects.size()) {
                         item_current_idx.push_back(0);
                     }
 
                     std::string combo_label = scene.models[item_current_idx[i]].name;
 
-                    if (combo_label != object.model->name)
-                    {
+                    if (combo_label != object.model->name) {
                         object.model = &scene.models[item_current_idx[i]];
                     }
 
                     ImGui::Text("Model");
-                    if (ImGui::BeginCombo("model", combo_label.c_str()))
-                    {
-                        for (unsigned int n = 0; n < scene.models.size(); n++)
-                        {
+                    if (ImGui::BeginCombo("model", combo_label.c_str())) {
+                        for (unsigned int n = 0; n < scene.models.size(); n++) {
                             const bool is_selected = (item_current_idx[i] == n);
 
-                            if (ImGui::Selectable(scene.models[n].name.c_str(), is_selected))
-                            {
+                            if (ImGui::Selectable(scene.models[n].name.c_str(), is_selected)) {
                                 item_current_idx[i] = n;
                             }
 
-                            if (is_selected)
-                            {
+                            if (is_selected) {
                                 ImGui::SetItemDefaultFocus();
                             }
                         }

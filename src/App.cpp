@@ -19,7 +19,7 @@ void App::run() {
     Shader shader("shaders/shader.vert", "shaders/shader.frag");
 
     Scene scene;
-    scene.dirlight = {
+    scene.dirLight = {
         .direction = glm::vec3(-1.0f, -1.0f, -1.0f),
         .diffuse = glm::vec3(1.0f, 1.0f, 1.0f)
     };

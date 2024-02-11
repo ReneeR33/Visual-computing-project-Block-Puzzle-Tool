@@ -33,8 +33,7 @@ void Renderer::load(Mesh &mesh) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
     glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(Vertex), &mesh.vertices[0], GL_STATIC_DRAW);
 
-    if (mesh.indices.size() > 0)
-    {
+    if (!mesh.indices.empty()) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(unsigned int), &mesh.indices[0], GL_STATIC_DRAW);
     }
@@ -54,8 +53,8 @@ void Renderer::render(Scene &scene) {
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
-    float width = static_cast<float>(m_viewport[2]);
-    float height = static_cast<float>(m_viewport[3]);
+    auto width = static_cast<float>(m_viewport[2]);
+    auto height = static_cast<float>(m_viewport[3]);
     float aspect = width / height;
 
     glm::mat4 projection = glm::perspective(camera.fov, aspect, camera.near, camera.far);
@@ -70,7 +69,7 @@ void Renderer::render(Scene &scene, Object &object, glm::mat4 &view, glm::mat4 &
     auto& transform = object.transform;
     auto& shader = object.shader;
 
-    glm::mat4 model = glm::mat4(1.0f);
+    auto model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
     model = glm::scale(model, transform.scale);
     model = glm::rotate(model, transform.rotation.x, glm::vec3(1, 0, 0));
@@ -86,8 +85,8 @@ void Renderer::render(Scene &scene, Object &object, glm::mat4 &view, glm::mat4 &
     shader->setVec3("color", object.color);
     shader->setVec3("viewPos", scene.camera.position);
 
-    shader->setVec3("dirLight.direction", scene.dirlight.direction);
-    shader->setVec3("dirLight.diffuse", scene.dirlight.diffuse);
+    shader->setVec3("dirLight.direction", scene.dirLight.direction);
+    shader->setVec3("dirLight.diffuse", scene.dirLight.diffuse);
 
     for(auto& mesh : object.model->meshes) {
         draw(mesh, *shader);
@@ -97,12 +96,10 @@ void Renderer::render(Scene &scene, Object &object, glm::mat4 &view, glm::mat4 &
 void Renderer::draw(Mesh &mesh, Shader &shader) {
     glBindVertexArray(mesh.VAO);
     
-    if (mesh.indices.size() > 0)
-    {
+    if (!mesh.indices.empty()) {
         glDrawElements(GL_TRIANGLES, (GLsizei)mesh.indices.size(), GL_UNSIGNED_INT, 0);
     }
-    else
-    {
+    else {
         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh.vertices.size());
     }
 
