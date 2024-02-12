@@ -26,6 +26,7 @@ void DebugWindow::render() {
 
     {
         ImGui::Begin("Debug");
+        ImGui::ColorEdit3("background", &scene.backgroundColor.x);
         ObjectInfo();
         CameraInfo();
         LightInfo();

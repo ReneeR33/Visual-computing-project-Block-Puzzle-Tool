@@ -9,6 +9,7 @@
 #include <map>
 
 struct Scene {
+    glm::vec3 backgroundColor;
     std::map<std::string, Model> models;
     DirLight dirLight;
     std::vector<Object> objects;

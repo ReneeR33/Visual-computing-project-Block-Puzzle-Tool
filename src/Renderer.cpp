@@ -10,8 +10,7 @@ Renderer::Renderer() {
 }
 
 void Renderer::newFrame() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 }
 
 void Renderer::load(Scene &scene) {
@@ -50,6 +49,10 @@ void Renderer::load(Mesh &mesh) {
 }
 
 void Renderer::render(Scene &scene) {
+    auto& backgroundColor = scene.backgroundColor;
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     Camera& camera = scene.camera;
 
     GLint m_viewport[4];

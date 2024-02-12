@@ -20,6 +20,8 @@ void App::run() {
     Shader shader("shaders/shader.vert", "shaders/shader.frag");
 
     Scene scene;
+    scene.backgroundColor = glm::vec3(0.05f);
+
     scene.dirLight = {
         .direction = glm::vec3(0.0f, 0.14f, -1.0f),
         .diffuse = glm::vec3(1.0f),
