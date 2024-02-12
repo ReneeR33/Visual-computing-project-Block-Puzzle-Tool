@@ -9,7 +9,7 @@
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
-#define WINDOW_NAME "puzzle"
+#define WINDOW_NAME "puzzle tool"
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
     

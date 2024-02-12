@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(lib-test)
+project(puzzle-tool)
 
 set(CMAKE_CXX_STANDARD 20)
 
