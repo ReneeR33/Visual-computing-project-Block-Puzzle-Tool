@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+
 Renderer::Renderer() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -58,8 +59,9 @@ void Renderer::render(Scene &scene) {
     auto height = static_cast<float>(m_viewport[3]);
     float aspect = width / height;
 
-    glm::mat4 projection = glm::perspective(camera.fov, aspect, camera.near, camera.far);
-    glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.direction, camera.up);
+    float fovRadians = (camera.fov / 180.0f) * glm::pi<float>();
+    glm::mat4 projection = glm::perspective(fovRadians, aspect, camera.near, camera.far);
+    glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.direction, glm::normalize(camera.up));
 
     for (auto& object : scene.objects) {
         render(scene, object, view, projection);
@@ -72,9 +74,12 @@ void Renderer::render(Scene &scene, Object &object, glm::mat4 &view, glm::mat4 &
 
     auto model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
-    model = glm::rotate(model, transform.rotation.x, glm::vec3(1, 0, 0));
-    model = glm::rotate(model, transform.rotation.y, glm::vec3(0, 1, 0));
-    model = glm::rotate(model, transform.rotation.z, glm::vec3(0, 0, 1));
+    float rotXRadians = (transform.rotation.x / 180.0f) * glm::pi<float>();
+    float rotYRadians = (transform.rotation.y / 180.0f) * glm::pi<float>();
+    float rotZRadians = (transform.rotation.z / 180.0f) * glm::pi<float>();
+    model = glm::rotate(model, rotXRadians, glm::vec3(1, 0, 0));
+    model = glm::rotate(model, rotYRadians, glm::vec3(0, 1, 0));
+    model = glm::rotate(model, rotZRadians, glm::vec3(0, 0, 1));
     model = glm::scale(model, transform.scale);
 
     shader->use();
@@ -93,6 +98,7 @@ void Renderer::render(Scene &scene, Object &object, glm::mat4 &view, glm::mat4 &
     shader->setVec3("dirLight.direction", scene.dirLight.direction);
     shader->setVec3("dirLight.diffuse", scene.dirLight.diffuse);
     shader->setVec3("dirLight.ambient", scene.dirLight.ambient);
+    shader->setVec3("dirLight.specular", scene.dirLight.specular);
 
     for(auto& mesh : object.model->meshes) {
         draw(mesh);

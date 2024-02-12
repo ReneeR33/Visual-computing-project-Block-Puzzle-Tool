@@ -16,6 +16,7 @@ struct DirLight {
     vec3 direction;
     vec3 diffuse;
     vec3 ambient;
+    vec3 specular;
 };
 
 uniform DirLight dirLight;
@@ -46,7 +47,7 @@ vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)
 
     vec3 reflectDir = reflect(-lightDir, normal);
     float specularStrength = pow(max(dot(-viewDir, reflectDir), 0.0), specularPow);
-    vec3 specular = (specularStrength * specular);
+    vec3 specular = (specularStrength * specular * dirLight.specular);
 
     vec3 result = diffuse + specular;
 

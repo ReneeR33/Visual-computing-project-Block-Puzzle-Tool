@@ -27,6 +27,8 @@ void DebugWindow::render() {
     {
         ImGui::Begin("Debug");
         ObjectInfo();
+        CameraInfo();
+        LightInfo();
         ImGui::End();
     }
 
@@ -80,5 +82,25 @@ void DebugWindow::ObjectInfo() {
                 ImGui::TreePop();
             }
         }
+    }
+}
+
+void DebugWindow::CameraInfo() {
+    if (ImGui::CollapsingHeader("Camera")) {
+        ImGui::SliderFloat3("cam position", &scene.camera.position.x, -5.0f, 5.0f);
+        ImGui::SliderFloat3("cam direction", &scene.camera.direction.x, -1.0f, 1.0f);
+        ImGui::SliderFloat3("up", &scene.camera.up.x, -1.0f, 1.0f);
+        ImGui::SliderFloat("near", &scene.camera.near, 0.0f, 200.0f);
+        ImGui::SliderFloat("far", &scene.camera.far, 0.0f, 200.0f);
+        ImGui::SliderFloat("fov", &scene.camera.fov, 0.0f, 360.0f);
+    }
+}
+
+void DebugWindow::LightInfo() {
+    if (ImGui::CollapsingHeader("Light")) {
+        ImGui::SliderFloat3("light direction", &scene.dirLight.direction.x, -1.0f, 1.0f);
+        ImGui::ColorEdit3("light ambient", &scene.dirLight.ambient.x);
+        ImGui::ColorEdit3("light diffuse", &scene.dirLight.diffuse.x);
+        ImGui::ColorEdit3("light specular", &scene.dirLight.specular.x);
     }
 }
