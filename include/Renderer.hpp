@@ -8,8 +8,6 @@ class Renderer {
 public:
     Renderer();
 
-    void newFrame();
-
     void load(Scene& scene);
     void load(Mesh& mesh);
 

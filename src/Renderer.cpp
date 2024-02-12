@@ -9,10 +9,6 @@ Renderer::Renderer() {
     glEnable(GL_MULTISAMPLE);
 }
 
-void Renderer::newFrame() {
-
-}
-
 void Renderer::load(Scene &scene) {
     for (auto& item : scene.models) {
         auto& model = item.second;

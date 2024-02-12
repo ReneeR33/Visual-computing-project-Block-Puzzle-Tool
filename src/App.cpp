@@ -82,9 +82,7 @@ void App::run() {
     DebugWindow debugWindow(window, scene);
 
     while (!window.windowShouldClose()) {
-        renderer.newFrame();
         renderer.render(scene);
-
         debugWindow.render();
 
         window.update();
