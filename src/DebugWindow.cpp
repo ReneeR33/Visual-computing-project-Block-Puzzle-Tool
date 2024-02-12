@@ -93,7 +93,7 @@ void DebugWindow::CameraInfo() {
         ImGui::SliderFloat3("up", &scene.camera.up.x, -1.0f, 1.0f);
         ImGui::SliderFloat("near", &scene.camera.near, 0.0f, 200.0f);
         ImGui::SliderFloat("far", &scene.camera.far, 0.0f, 200.0f);
-        ImGui::SliderFloat("fov", &scene.camera.fov, 0.0f, 360.0f);
+        ImGui::SliderFloat("fov", &scene.camera.fov, 0.0f, 180.0f);
     }
 }
 
