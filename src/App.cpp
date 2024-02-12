@@ -22,7 +22,8 @@ void App::run() {
     Scene scene;
     scene.dirLight = {
         .direction = glm::vec3(-1.0f, 0.0f, -1.0f),
-        .diffuse = glm::vec3(1.0f, 1.0f, 1.0f)
+        .diffuse = glm::vec3(1.0f),
+        .ambient = glm::vec3(1.0f)
     };
     scene.camera = {
         .position = glm::vec3(0.0f, 1.0f, 4.0f),
@@ -38,6 +39,7 @@ void App::run() {
         .model = &scene.models["cube"],
         .shader = &shader,
         .color = glm::vec3(1.0f, 0.0f, 0.0f),
+        .ambientColor = glm::vec3(0.1f, 0.0f, 0.0f),
         .transform = {
             .position = glm::vec3(0.0f, 2.0f, 0.0f),
             .rotation = glm::vec3(10.0f),
@@ -48,6 +50,7 @@ void App::run() {
         .model = &scene.models["cube"],
         .shader = &shader,
         .color = glm::vec3(0.0f, 1.0f, 0.0f),
+        .ambientColor = glm::vec3(0.0f, 0.1f, 0.0f),
         .transform = {
             .position = glm::vec3(2.0f, 0.0f, -1.0f),
             .rotation = glm::vec3(10.0f),

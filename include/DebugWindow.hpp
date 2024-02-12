@@ -22,6 +22,8 @@ private:
 
     // using a vector for the scene models since we need to access them by index
     std::vector<SceneModel> sceneModelsVector;
+
+    void ObjectInfo();
 };
 
 #endif //DEBUG_WINDOW_HPP

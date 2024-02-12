@@ -11,6 +11,7 @@ struct Object {
     Model* model;
     Shader* shader;
     glm::vec3 color;
+    glm::vec3 ambientColor;
     Transform transform;
 };
 

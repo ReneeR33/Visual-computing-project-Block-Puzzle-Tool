@@ -17,7 +17,7 @@ public:
 
 private:
     void render(Scene& scene, Object& object, glm::mat4& view, glm::mat4& projection);
-    void draw(Mesh& mesh, Shader& shader);
+    void draw(Mesh& mesh);
 };
 
 #endif //RENDERER_HPP

@@ -6,6 +6,7 @@
 struct DirLight {
     glm::vec3 direction;
     glm::vec3 diffuse;
+    glm::vec3 ambient;
 };
 
 #endif //DIR_LIGHT_HPP

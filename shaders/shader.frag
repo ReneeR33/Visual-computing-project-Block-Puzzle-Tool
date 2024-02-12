@@ -8,13 +8,13 @@ in vec3 FragPos;
 //uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 color;
+uniform vec3 ambient;
 
 struct DirLight {
     vec3 direction;
     vec3 diffuse;
+    vec3 ambient;
 };
-
-//uniform vec3 ambient;
 
 uniform DirLight dirLight;
 
@@ -29,7 +29,7 @@ void main()
 
     vec3 result = CalculateDirLight(norm, viewDir, diffuseColor);
 
-    vec3 ambientColor = diffuseColor * vec3(0.2, 0.2, 0.2);
+    vec3 ambientColor = dirLight.ambient * ambient;
     result += ambientColor;
 
     FragColor = vec4(result, 1.0);
