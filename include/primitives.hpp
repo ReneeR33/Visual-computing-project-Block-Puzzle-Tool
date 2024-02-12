@@ -1,13 +1,12 @@
-#ifndef CUBE_HPP
-#define CUBE_HPP
+#ifndef PRIMITIVES_HPP
+#define PRIMITIVES_HPP
 
 #include "Model.hpp"
 
-struct Cube : public Model {
-    Cube() {
-        this->name = "cube";
-        this->meshes = {{
-                .vertices = {
+namespace primitives {
+    static Model cube = {
+        .meshes = {{
+            .vertices = {
                     { .position = {-0.5f, -0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}},
                     { .position = {0.5f, -0.5f, -0.5f},  .normal = {0.0f, 0.0f, -1.0f}},
                     { .position = {0.5f,  0.5f, -0.5f},  .normal = {0.0f, 0.0f, -1.0f}},
@@ -51,9 +50,8 @@ struct Cube : public Model {
                     { .position = {-0.5f,  0.5f, -0.5f}, .normal = {0.0f,  1.0f,  0.0f}}
                 }
             }
-        };
-    }
-};
+        }
+    };
+}
 
-
-#endif //CUBE_HPP
+#endif //PRIMITIVES_HPP

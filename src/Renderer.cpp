@@ -14,7 +14,8 @@ void Renderer::newFrame() {
 }
 
 void Renderer::load(Scene &scene) {
-    for (auto& model : scene.models) {
+    for (auto& item : scene.models) {
+        auto& model = item.second;
         for (auto& mesh : model.meshes) {
             load(mesh);
         }

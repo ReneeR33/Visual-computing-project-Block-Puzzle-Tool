@@ -3,6 +3,7 @@
 
 #include "GlfwWindow.hpp"
 #include "Scene.hpp"
+#include <vector>
 
 class DebugWindow {
 public:
@@ -11,8 +12,16 @@ public:
     void render();
 
 private:
+    struct SceneModel {
+        std::string name;
+        Model* model;
+    };
+
     GlfwWindow& window;
     Scene& scene;
+
+    // using a vector for the scene models since we need to access them by index
+    std::vector<SceneModel> sceneModelsVector;
 };
 
 #endif //DEBUG_WINDOW_HPP

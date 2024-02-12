@@ -5,9 +5,11 @@
 #include "Camera.hpp"
 #include "DirLight.hpp"
 #include <vector>
+#include <string>
+#include <map>
 
 struct Scene {
-    std::vector<Model> models;
+    std::map<std::string, Model> models;
     DirLight dirLight;
     std::vector<Object> objects;
     Camera camera;

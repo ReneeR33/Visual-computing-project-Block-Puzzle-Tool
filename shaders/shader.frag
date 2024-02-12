@@ -37,7 +37,7 @@ void main()
 
 vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)
 {
-    vec3 lightDir = normalize(dirLight.direction);
+    vec3 lightDir = -normalize(dirLight.direction);
 
     float diffuseStrenght = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = (diffuseStrenght * diffuseColor) * dirLight.diffuse;

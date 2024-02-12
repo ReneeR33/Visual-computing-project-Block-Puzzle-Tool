@@ -13,6 +13,10 @@ DebugWindow::DebugWindow(GlfwWindow &window, Scene& scene)
 
     ImGui_ImplGlfw_InitForOpenGL(window.getHandle(), true);
     ImGui_ImplOpenGL3_Init("#version 410");
+
+    for (auto& item : scene.models) {
+        sceneModelsVector.push_back({ .name = item.first, .model = &item.second});
+    }
 }
 
 void DebugWindow::render() {
@@ -21,9 +25,10 @@ void DebugWindow::render() {
     ImGui::NewFrame();
 
     {
-        ImGui::Begin("Settings");
+        ImGui::Begin("Debug");
 
         if (ImGui::CollapsingHeader("Objects")) {
+
             for (unsigned int i = 0; i < scene.objects.size(); i++) {
                 if (ImGui::TreeNode(("cube " + std::to_string(i + 1)).c_str())) {
                     Object& object = scene.objects[i];
@@ -34,10 +39,10 @@ void DebugWindow::render() {
                         item_current_idx.push_back(0);
                     }
 
-                    std::string combo_label = scene.models[item_current_idx[i]].name;
+                    std::string combo_label = sceneModelsVector[item_current_idx[i]].name;
 
-                    if (combo_label != object.model->name) {
-                        object.model = &scene.models[item_current_idx[i]];
+                    if (sceneModelsVector[item_current_idx[i]].model != object.model) {
+                        object.model = sceneModelsVector[item_current_idx[i]].model;
                     }
 
                     ImGui::Text("Model");
@@ -45,7 +50,7 @@ void DebugWindow::render() {
                         for (unsigned int n = 0; n < scene.models.size(); n++) {
                             const bool is_selected = (item_current_idx[i] == n);
 
-                            if (ImGui::Selectable(scene.models[n].name.c_str(), is_selected)) {
+                            if (ImGui::Selectable(sceneModelsVector[n].name.c_str(), is_selected)) {
                                 item_current_idx[i] = n;
                             }
 

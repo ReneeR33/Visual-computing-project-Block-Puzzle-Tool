@@ -6,7 +6,6 @@
 #include "Mesh.hpp"
 
 struct Model {
-    std::string name;
     std::vector<Mesh> meshes;
 };
 

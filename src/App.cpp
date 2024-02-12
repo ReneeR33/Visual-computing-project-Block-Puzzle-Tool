@@ -1,10 +1,11 @@
 #include "App.hpp"
 
+#include <map>
 #include "Shader.hpp"
 #include "Scene.hpp"
-#include "Cube.hpp"
 #include "Renderer.hpp"
 #include "DebugWindow.hpp"
+#include "primitives.hpp"
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
@@ -20,7 +21,7 @@ void App::run() {
 
     Scene scene;
     scene.dirLight = {
-        .direction = glm::vec3(-1.0f, -1.0f, -1.0f),
+        .direction = glm::vec3(-1.0f, 0.0f, -1.0f),
         .diffuse = glm::vec3(1.0f, 1.0f, 1.0f)
     };
     scene.camera = {
@@ -30,11 +31,11 @@ void App::run() {
         .near = 0.1f,
         .far = 100.0f,
         .fov = 45.0f
-    };
+    }; 
 
-    scene.models.push_back(Cube());
+    scene.models["cube"] = primitives::cube;
     scene.objects.push_back({
-        .model = &scene.models[0],
+        .model = &scene.models["cube"],
         .shader = &shader,
         .color = glm::vec3(1.0f, 0.0f, 0.0f),
         .transform = {
@@ -44,7 +45,7 @@ void App::run() {
         }
     });
     scene.objects.push_back({
-        .model = &scene.models[0],
+        .model = &scene.models["cube"],
         .shader = &shader,
         .color = glm::vec3(0.0f, 1.0f, 0.0f),
         .transform = {
