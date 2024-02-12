@@ -9,6 +9,8 @@ in vec3 FragPos;
 uniform vec3 viewPos;
 uniform vec3 color;
 uniform vec3 ambient;
+uniform vec3 specular;
+uniform float specularPow;
 
 struct DirLight {
     vec3 direction;
@@ -37,12 +39,16 @@ void main()
 
 vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)
 {
-    vec3 lightDir = -normalize(dirLight.direction);
+    vec3 lightDir = normalize(dirLight.direction);
 
-    float diffuseStrenght = max(dot(lightDir, normal), 0.0);
+    float diffuseStrenght = max(dot(-lightDir, normal), 0.0);
     vec3 diffuse = (diffuseStrenght * diffuseColor) * dirLight.diffuse;
 
-    vec3 result = diffuse;
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float specularStrength = pow(max(dot(-viewDir, reflectDir), 0.0), specularPow);
+    vec3 specular = (specularStrength * specular);
+
+    vec3 result = diffuse + specular;
 
     return result;
 }

@@ -40,6 +40,8 @@ void App::run() {
         .shader = &shader,
         .color = glm::vec3(1.0f, 0.0f, 0.0f),
         .ambientColor = glm::vec3(0.1f, 0.0f, 0.0f),
+        .specularColor = glm::vec3(0.0f),
+        .specularPow = 1.0f,
         .transform = {
             .position = glm::vec3(0.0f, 2.0f, 0.0f),
             .rotation = glm::vec3(10.0f),
@@ -51,6 +53,8 @@ void App::run() {
         .shader = &shader,
         .color = glm::vec3(0.0f, 1.0f, 0.0f),
         .ambientColor = glm::vec3(0.0f, 0.1f, 0.0f),
+        .specularColor = glm::vec3(0.0f),
+        .specularPow = 1.0f,
         .transform = {
             .position = glm::vec3(2.0f, 0.0f, -1.0f),
             .rotation = glm::vec3(10.0f),

@@ -85,6 +85,8 @@ void Renderer::render(Scene &scene, Object &object, glm::mat4 &view, glm::mat4 &
 
     shader->setVec3("color", object.color);
     shader->setVec3("ambient", object.ambientColor);
+    shader->setVec3("specular", object.specularColor);
+    shader->setFloat("specularPow", object.specularPow);
 
     shader->setVec3("viewPos", scene.camera.position);
 

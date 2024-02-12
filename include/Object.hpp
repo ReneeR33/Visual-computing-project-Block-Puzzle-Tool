@@ -12,6 +12,8 @@ struct Object {
     Shader* shader;
     glm::vec3 color;
     glm::vec3 ambientColor;
+    glm::vec3 specularColor;
+    float specularPow;
     Transform transform;
 };
 

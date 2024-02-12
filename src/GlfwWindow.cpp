@@ -18,8 +18,8 @@ GlfwWindow::GlfwWindow(int width, int height, const std::string& name)
     // antialiasing
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
-    if (window == NULL)
+    window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+    if (window == nullptr)
     {
         throw std::runtime_error("GlfwWindow::GlfwWindow: failed to create window");
     }
