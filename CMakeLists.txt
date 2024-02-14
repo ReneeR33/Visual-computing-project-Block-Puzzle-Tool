@@ -23,9 +23,17 @@ file(GLOB_RECURSE LIB_sources CONFIGURE_DEPENDS
     "${LIB_DIR}/imgui/src/*.c"
 )
 
-set(LIBS 
-    ${LIB_DIR}/GLFW/lib/glfw3.lib
-)
+if (WIN32)
+    set(LIBS 
+        ${LIB_DIR}/GLFW/lib/glfw3.lib
+    )
+endif (WIN32)
+
+if (UNIX)
+    set(LIBS 
+        ${LIB_DIR}/glfw/lib_linux/glfw3.a
+    )
+endif (UNIX)
 
 #----------------------------------------------------------------------
 
