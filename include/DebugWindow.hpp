@@ -2,30 +2,21 @@
 #define DEBUG_WINDOW_HPP
 
 #include "GlfwWindow.hpp"
-#include "Scene.hpp"
+#include <entt/entt.hpp>
 #include <vector>
 
 class DebugWindow {
 public:
-    DebugWindow(GlfwWindow& window, Scene& scene);
+    DebugWindow(GlfwWindow& window);
 
-    void render();
+    void render(entt::registry& scene);
 
 private:
-    struct SceneModel {
-        std::string name;
-        Model* model;
-    };
-
     GlfwWindow& window;
-    Scene& scene;
 
-    // using a vector for the scene models since we need to access them by index
-    std::vector<SceneModel> sceneModelsVector;
-
-    void CameraInfo();
-    void ObjectInfo();
-    void LightInfo();
+    void CameraInfo(entt::registry& scene);
+    void ObjectInfo(entt::registry& scene);
+    void LightInfo(entt::registry& scene);
 };
 
 #endif //DEBUG_WINDOW_HPP

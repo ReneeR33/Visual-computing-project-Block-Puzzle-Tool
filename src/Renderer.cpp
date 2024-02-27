@@ -9,9 +9,9 @@ Renderer::Renderer() {
     glEnable(GL_MULTISAMPLE);
 }
 
-void Renderer::load(Scene &scene) {
-    for (auto& item : scene.models) {
-        auto& model = item.second;
+void Renderer::load(entt::registry &scene) {
+    auto view = scene.view<Model>();
+    for(auto [entity, model]: view.each()) {
         for (auto& mesh : model.meshes) {
             load(mesh);
         }
@@ -44,12 +44,13 @@ void Renderer::load(Mesh &mesh) {
     glBindVertexArray(0);
 }
 
-void Renderer::render(Scene &scene) {
-    auto& backgroundColor = scene.backgroundColor;
+void Renderer::render(entt::registry &scene) {
+    auto& background = scene.get<Background>(scene.view<Background>().front());
+    auto backgroundColor = background.color;
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    Camera& camera = scene.camera;
+    auto& camera = scene.get<Camera>(scene.view<Camera>().front());
 
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
@@ -62,44 +63,49 @@ void Renderer::render(Scene &scene) {
     glm::mat4 projection = glm::perspective(fovRadians, aspect, camera.near, camera.far);
     glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.direction, glm::normalize(camera.up));
 
-    for (auto& object : scene.objects) {
-        render(scene, object, view, projection);
+    auto& dirLight = scene.get<DirLight>(scene.view<DirLight>().front());
+
+    auto renderableEntitiesView = scene.view<Model, Material, Shader, Transform>();
+    for (auto& entity : renderableEntitiesView) {
+        render(scene, entity, camera, dirLight, view, projection);
     }
 }
 
-void Renderer::render(Scene &scene, Object &object, glm::mat4 &view, glm::mat4 &projection) {
-    auto& transform = object.transform;
-    auto& shader = object.shader;
+void Renderer::render(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection) {
+    auto& transform = scene.get<Transform>(object);
+    auto& shader = scene.get<Shader>(object);
+    auto& material = scene.get<Material>(object);
+    auto& model = scene.get<Model>(object);
 
-    auto model = glm::mat4(1.0f);
-    model = glm::translate(model, transform.position);
+    auto modelm = glm::mat4(1.0f);
+    modelm = glm::translate(modelm, transform.position);
     float rotXRadians = (transform.rotation.x / 180.0f) * glm::pi<float>();
     float rotYRadians = (transform.rotation.y / 180.0f) * glm::pi<float>();
     float rotZRadians = (transform.rotation.z / 180.0f) * glm::pi<float>();
-    model = glm::rotate(model, rotXRadians, glm::vec3(1, 0, 0));
-    model = glm::rotate(model, rotYRadians, glm::vec3(0, 1, 0));
-    model = glm::rotate(model, rotZRadians, glm::vec3(0, 0, 1));
-    model = glm::scale(model, transform.scale);
+    modelm = glm::rotate(modelm, rotXRadians, glm::vec3(1, 0, 0));
+    modelm = glm::rotate(modelm, rotYRadians, glm::vec3(0, 1, 0));
+    modelm = glm::rotate(modelm, rotZRadians, glm::vec3(0, 0, 1));
+    modelm = glm::scale(modelm, transform.scale);
 
-    shader->use();
+    shader.use();
 
-    shader->setMat4("view", view);
-    shader->setMat4("projection", projection);
-    shader->setMat4("model", model);
+    shader.setMat4("view", view);
+    shader.setMat4("projection", projection);
+    shader.setMat4("model", modelm);
 
-    shader->setVec3("color", object.color);
-    shader->setVec3("ambient", object.ambientColor);
-    shader->setVec3("specular", object.specularColor);
-    shader->setFloat("specularPow", object.specularPow);
+    shader.setVec3("color", material.color);
+    shader.setVec3("ambient", material.ambientColor);
+    shader.setVec3("specular", material.specularColor);
+    shader.setFloat("specularPow", material.specularPow);
 
-    shader->setVec3("viewPos", scene.camera.position);
+    shader.setVec3("viewPos", camera.position);
 
-    shader->setVec3("dirLight.direction", scene.dirLight.direction);
-    shader->setVec3("dirLight.diffuse", scene.dirLight.diffuse);
-    shader->setVec3("dirLight.ambient", scene.dirLight.ambient);
-    shader->setVec3("dirLight.specular", scene.dirLight.specular);
+    shader.setVec3("dirLight.direction", dirlight.direction);
+    shader.setVec3("dirLight.diffuse", dirlight.diffuse);
+    shader.setVec3("dirLight.ambient", dirlight.ambient);
+    shader.setVec3("dirLight.specular", dirlight.specular);
 
-    for(auto& mesh : object.model->meshes) {
+    for(auto& mesh : model.meshes) {
         draw(mesh);
     }
 }
