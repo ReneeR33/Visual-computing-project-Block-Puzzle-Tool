@@ -1,7 +1,7 @@
 #ifndef DIR_LIGHT_HPP
 #define DIR_LIGHT_HPP
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 
 struct DirLight {
     glm::vec3 direction;

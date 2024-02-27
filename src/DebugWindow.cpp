@@ -1,18 +1,18 @@
 #include "DebugWindow.hpp"
 
-#include "Background.hpp"
-#include "Material.hpp"
+#include "Components/Background.hpp"
+#include "Components/Material.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include "Background.hpp"
-#include "Model.hpp"
-#include "Transform.hpp"
-#include "Material.hpp"
-#include "Camera.hpp"
-#include "DirLight.hpp"
+#include "Components/Background.hpp"
+#include "Components/Model.hpp"
+#include "Components/Transform.hpp"
+#include "Components/Material.hpp"
+#include "Components/Camera.hpp"
+#include "Components/DirLight.hpp"
 
 DebugWindow::DebugWindow(GlfwWindow &window) 
     : window(window)

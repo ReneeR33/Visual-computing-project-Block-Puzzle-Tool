@@ -1,7 +1,7 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 #include <string>
 
 class Shader {

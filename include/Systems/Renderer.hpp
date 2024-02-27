@@ -1,16 +1,16 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include <glm/glm.hpp>
-#include <entt/entt.hpp>
+#include "glm/glm.hpp"
+#include "entt/entt.hpp"
 #include "Mesh.hpp"
-#include "Background.hpp"
-#include "Model.hpp"
-#include "Transform.hpp"
-#include "Material.hpp"
-#include "Camera.hpp"
-#include "DirLight.hpp"
-#include "Shader.hpp"
+#include "Components/Background.hpp"
+#include "Components/Model.hpp"
+#include "Components/Transform.hpp"
+#include "Components/Material.hpp"
+#include "Components/Camera.hpp"
+#include "Components/DirLight.hpp"
+#include "Components/Shader.hpp"
 
 class Renderer {
 public:

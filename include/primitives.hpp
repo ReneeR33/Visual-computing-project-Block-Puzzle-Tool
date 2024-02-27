@@ -1,7 +1,7 @@
 #ifndef PRIMITIVES_HPP
 #define PRIMITIVES_HPP
 
-#include "Model.hpp"
+#include "Components/Model.hpp"
 
 namespace primitives {
     static Model cube = {

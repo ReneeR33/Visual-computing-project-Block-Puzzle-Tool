@@ -1,12 +1,10 @@
 #include "App.hpp"
 
-#include <map>
-#include <entt/entt.hpp>
-#include "Background.hpp"
-#include "Shader.hpp"
-#include "Renderer.hpp"
+#include "Components/Background.hpp"
+#include "Components/Shader.hpp"
+#include "Systems/Renderer.hpp"
 #include "DebugWindow.hpp"
-#include "Material.hpp"
+#include "Components/Material.hpp"
 #include "primitives.hpp"
 
 #define WINDOW_WIDTH 1000
