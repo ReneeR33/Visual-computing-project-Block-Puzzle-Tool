@@ -18,7 +18,6 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 
 void App::run() {
     Renderer renderer;
-    Shader shader("shaders/shader.vert", "shaders/shader.frag");
 
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.05f));
