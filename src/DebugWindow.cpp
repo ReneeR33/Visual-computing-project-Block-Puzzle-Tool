@@ -7,12 +7,11 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include "Components/Background.hpp"
 #include "Components/Model.hpp"
 #include "Components/Transform.hpp"
-#include "Components/Material.hpp"
 #include "Components/Camera.hpp"
 #include "Components/DirLight.hpp"
+#include "Components/ExplodedView.hpp"
 
 DebugWindow::DebugWindow(GlfwWindow &window) 
     : window(window)
@@ -37,6 +36,7 @@ void DebugWindow::render(entt::registry& scene) {
         ObjectInfo(scene);
         CameraInfo(scene);
         LightInfo(scene);
+        ExplodedViewInfo(scene);
         ImGui::End();
     }
 
@@ -88,5 +88,16 @@ void DebugWindow::LightInfo(entt::registry& scene) {
         ImGui::ColorEdit3("light ambient", &dirLight.ambient.x);
         ImGui::ColorEdit3("light diffuse", &dirLight.diffuse.x);
         ImGui::ColorEdit3("light specular", &dirLight.specular.x);
+    }
+}
+
+void DebugWindow::ExplodedViewInfo(entt::registry &scene) {
+    if (ImGui::CollapsingHeader("Exploded View")) {
+        auto view = scene.view<ExplodedView>();
+        if (view.empty()) {
+            return;
+        }
+        auto& exploded_view = scene.get<ExplodedView>(view.front());
+        ImGui::SliderFloat("Exploded View Offset", &exploded_view.offset, 0.0f, 5.0f);
     }
 }

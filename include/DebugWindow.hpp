@@ -17,6 +17,7 @@ private:
     void CameraInfo(entt::registry& scene);
     void ObjectInfo(entt::registry& scene);
     void LightInfo(entt::registry& scene);
+    void ExplodedViewInfo(entt::registry& scene);
 };
 
 #endif //DEBUG_WINDOW_HPP

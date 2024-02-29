@@ -6,6 +6,7 @@
 #include "Systems/PuzzleViewSystem.hpp"
 #include "DebugWindow.hpp"
 #include "Components/Material.hpp"
+#include "Components/ExplodedView.hpp"
 #include "primitives.hpp"
 
 #define WINDOW_WIDTH 1500
@@ -19,6 +20,23 @@ void App::run() {
     Renderer renderer;
     PuzzleViewSystem puzzleViewSystem;
 
+    //initTestScene();
+    initExplodedViewTestScene();
+
+    renderer.load(scene);
+    DebugWindow debugWindow(window);
+
+    while (!window.windowShouldClose()) {
+        puzzleViewSystem.Update(scene);
+
+        renderer.render(scene);
+        debugWindow.render(scene);
+
+        window.update();
+    }
+}
+
+void App::initTestScene() {
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.05f));
 
@@ -38,22 +56,6 @@ void App::run() {
                           0.1f, 100.0f, 80.0f
     );
 
-    initTestScene();
-
-    renderer.load(scene);
-    DebugWindow debugWindow(window);
-
-    while (!window.windowShouldClose()) {
-        puzzleViewSystem.Update(scene);
-
-        renderer.render(scene);
-        debugWindow.render(scene);
-
-        window.update();
-    }
-}
-
-void App::initTestScene() {
     auto cube_1 = scene.create();
     scene.emplace<Model>(cube_1, primitives::cube);
     scene.emplace<Shader>(cube_1, "shaders/shader.vert", "shaders/shader.frag");
@@ -101,5 +103,46 @@ void App::initTestScene() {
 }
 
 void App::initExplodedViewTestScene() {
+    auto background = scene.create();
+    scene.emplace<Background>(background, glm::vec3(0.05f));
 
+    auto dirLight = scene.create();
+    scene.emplace<DirLight>(dirLight,
+                            glm::vec3(-0.4f, 0.14f, -1.0f),
+                            glm::vec3(1.0f),
+                            glm::vec3(1.0f),
+                            glm::vec3(1.0f)
+    );
+
+    auto camera = scene.create();
+    scene.emplace<Camera>(camera,
+                          glm::vec3(3.0f, 1.0f, 6.0f),
+                          glm::vec3(0.0f, 0.0f, -1.0f),
+                          glm::vec3(0.0f, 1.0f, 0.0f),
+                          0.1f, 100.0f, 80.0f
+    );
+
+    auto exploded_view = scene.create();
+    scene.emplace<ExplodedView>(exploded_view,0.0f);
+
+    for (int i_x = 0; i_x < 3; i_x++) {
+        for (int i_y = 0; i_y < 3; i_y++) {
+            for (int i_z = 0; i_z < 3; i_z++) {
+                auto cube = scene.create();
+                scene.emplace<Model>(cube, primitives::cube);
+                scene.emplace<Shader>(cube, "shaders/shader.vert", "shaders/shader.frag");
+                scene.emplace<Material>(cube,
+                                        glm::vec3(float(i_x) * 0.333333f, float(i_y) * 0.333333f, float(i_z) * 0.333333f),
+                                        glm::vec3(0.1f, 0.0f, 0.0f),
+                                        glm::vec3(0.0f),
+                                        1.0f
+                );
+                scene.emplace<Transform>(cube,
+                                         glm::vec3(-1.0f + float(i_x), -1.0f + float(i_y), -1.0f + float(i_z)),
+                                         glm::vec3(0.0f),
+                                         glm::vec3(1.0f, 1.0f, 1.0f)
+                );
+            }
+        }
+    }
 }
