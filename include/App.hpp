@@ -8,6 +8,8 @@ class App {
 public:
     App();
 
+    void initTestScene();
+
     void run();
 private:
     GlfwWindow window;
