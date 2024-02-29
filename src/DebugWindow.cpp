@@ -98,6 +98,6 @@ void DebugWindow::ExplodedViewInfo(entt::registry &scene) {
             return;
         }
         auto& exploded_view = scene.get<ExplodedView>(view.front());
-        ImGui::SliderFloat("Exploded View Offset", &exploded_view.offset, 0.0f, 5.0f);
+        ImGui::SliderFloat("Exploded View Offset", &exploded_view.offset, 0.0f, 1.2f);
     }
 }
