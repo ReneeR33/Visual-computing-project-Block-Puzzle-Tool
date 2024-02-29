@@ -4,7 +4,7 @@
 #include "Components/Transform.hpp"
 #include "Components/PuzzlePiece.hpp"
 
-void PuzzleViewSystem::Update(entt::registry& scene) {
+void PuzzleViewSystem::update(entt::registry& scene) {
     auto explodedViewView = scene.view<ExplodedView>();
     if (explodedViewView.empty()) {
         return;

@@ -5,7 +5,7 @@
 
 class PuzzleViewSystem {
 public:
-    void Update(entt::registry& scene);
+    void update(entt::registry& scene);
 };
 
 #endif //PUZZLE_VIEW_SYSTEM_HPP

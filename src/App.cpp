@@ -28,7 +28,7 @@ void App::run() {
     DebugWindow debugWindow(window);
 
     while (!window.windowShouldClose()) {
-        puzzleViewSystem.Update(scene);
+        puzzleViewSystem.update(scene);
 
         renderer.render(scene);
         debugWindow.render(scene);
