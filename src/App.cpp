@@ -3,6 +3,7 @@
 #include "Components/Background.hpp"
 #include "Components/Shader.hpp"
 #include "Systems/Renderer.hpp"
+#include "Systems/PuzzleViewSystem.hpp"
 #include "DebugWindow.hpp"
 #include "Components/Material.hpp"
 #include "primitives.hpp"
@@ -16,6 +17,7 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 
 void App::run() {
     Renderer renderer;
+    PuzzleViewSystem puzzleViewSystem;
 
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.05f));
@@ -42,6 +44,8 @@ void App::run() {
     DebugWindow debugWindow(window);
 
     while (!window.windowShouldClose()) {
+        puzzleViewSystem.Update(scene);
+
         renderer.render(scene);
         debugWindow.render(scene);
 
@@ -94,4 +98,8 @@ void App::initTestScene() {
                              glm::vec3(10.f),
                              glm::vec3(1.0f, 1.0f, 1.0f)
     );
+}
+
+void App::initExplodedViewTestScene() {
+
 }
