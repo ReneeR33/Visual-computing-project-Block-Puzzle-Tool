@@ -8,12 +8,12 @@ class App {
 public:
     App();
 
-    void initTestScene();
-
     void run();
 private:
     GlfwWindow window;
     entt::registry scene;
+
+    void initTestScene();
 };
 
 #endif //APP_HPP
