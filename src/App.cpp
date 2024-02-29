@@ -105,7 +105,7 @@ void App::initTestScene() {
 
 void App::initExplodedViewTestScene() {
     auto background = scene.create();
-    scene.emplace<Background>(background, glm::vec3(0.05f));
+    scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
 
     //TODO: Add this to puzzle entity
     auto exploded_view = scene.create();
