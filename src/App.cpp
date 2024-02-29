@@ -8,6 +8,9 @@
 #include "Components/Material.hpp"
 #include "Components/ExplodedView.hpp"
 #include "Components/PuzzlePiece.hpp"
+#include "Components/Parent.hpp"
+#include "Components/Children.hpp"
+#include "Components/Puzzle.hpp"
 #include "primitives.hpp"
 
 #define WINDOW_WIDTH 1500
@@ -107,9 +110,13 @@ void App::initExplodedViewTestScene() {
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
 
-    //TODO: Add this to puzzle entity
-    auto exploded_view = scene.create();
-    scene.emplace<ExplodedView>(exploded_view,0.0f);
+    auto puzzle = scene.create();
+    scene.emplace<Puzzle>(puzzle);
+    scene.emplace<Transform>(puzzle,
+                             glm::vec3(1.0f, 0.0f, 0.0f),
+                             glm::vec3(50.f),
+                             glm::vec3(1.0f));
+    scene.emplace<ExplodedView>(puzzle,0.0f);
 
     auto dirLight = scene.create();
     scene.emplace<DirLight>(dirLight,
@@ -127,10 +134,12 @@ void App::initExplodedViewTestScene() {
                           0.1f, 100.0f, 80.0f
     );
 
+    auto& puzzleChildren = scene.emplace<Children>(puzzle);
+
     for (int i_x = 0; i_x < 3; i_x++) {
         for (int i_y = 0; i_y < 3; i_y++) {
             for (int i_z = 0; i_z < 3; i_z++) {
-                auto cube = scene.create();
+                entt::entity cube = scene.create();
 
                 glm::vec3 color = glm::vec3(float(i_x) * 0.333333f, float(i_y) * 0.333333f, float(i_z) * 0.333333f);
                 glm::vec3 position = glm::vec3(-1.0f + float(i_x), -1.0f + float(i_y), -1.0f + float(i_z));
@@ -149,6 +158,9 @@ void App::initExplodedViewTestScene() {
                                          glm::vec3(0.0f),
                                          glm::vec3(1.0f, 1.0f, 1.0f)
                 );
+
+                puzzleChildren.children.push_front(cube);
+                scene.emplace<Parent>(cube, puzzle);
             }
         }
     }

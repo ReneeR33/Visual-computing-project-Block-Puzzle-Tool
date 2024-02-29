@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <stack>
+#include "Components/Parent.hpp"
 
 
 Renderer::Renderer() {
@@ -72,20 +74,42 @@ void Renderer::render(entt::registry &scene) {
 }
 
 void Renderer::render(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection) {
-    auto& transform = scene.get<Transform>(object);
     auto& shader = scene.get<Shader>(object);
     auto& material = scene.get<Material>(object);
     auto& model = scene.get<Model>(object);
 
+    std::list<glm::mat4> modelMatrices;
+
+    auto cEntity = &object;
+    while (cEntity != nullptr) {
+        auto transform = scene.try_get<Transform>(*cEntity);
+
+        if (transform != nullptr) {
+            auto modelm = glm::mat4(1.0f);
+            modelm = glm::translate(modelm, transform->position);
+            float rotXRadians = (transform->rotation.x / 180.0f) * glm::pi<float>();
+            float rotYRadians = (transform->rotation.y / 180.0f) * glm::pi<float>();
+            float rotZRadians = (transform->rotation.z / 180.0f) * glm::pi<float>();
+            modelm = glm::rotate(modelm, rotXRadians, glm::vec3(1, 0, 0));
+            modelm = glm::rotate(modelm, rotYRadians, glm::vec3(0, 1, 0));
+            modelm = glm::rotate(modelm, rotZRadians, glm::vec3(0, 0, 1));
+            modelm = glm::scale(modelm, transform->scale);
+
+            modelMatrices.push_back(modelm);
+        }
+
+        auto parentComponent = scene.try_get<Parent>(*cEntity);
+        if (parentComponent != nullptr) {
+            cEntity = &parentComponent->parent;
+        } else {
+            cEntity = nullptr;
+        }
+    }
+
     auto modelm = glm::mat4(1.0f);
-    modelm = glm::translate(modelm, transform.position);
-    float rotXRadians = (transform.rotation.x / 180.0f) * glm::pi<float>();
-    float rotYRadians = (transform.rotation.y / 180.0f) * glm::pi<float>();
-    float rotZRadians = (transform.rotation.z / 180.0f) * glm::pi<float>();
-    modelm = glm::rotate(modelm, rotXRadians, glm::vec3(1, 0, 0));
-    modelm = glm::rotate(modelm, rotYRadians, glm::vec3(0, 1, 0));
-    modelm = glm::rotate(modelm, rotZRadians, glm::vec3(0, 0, 1));
-    modelm = glm::scale(modelm, transform.scale);
+    for (const auto & modelMatrix : modelMatrices) {
+        modelm = modelMatrix * modelm;
+    }
 
     shader.use();
 

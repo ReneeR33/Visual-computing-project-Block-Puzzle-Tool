@@ -12,6 +12,9 @@
 #include "Components/Camera.hpp"
 #include "Components/DirLight.hpp"
 #include "Components/ExplodedView.hpp"
+#include "Components/PuzzlePiece.hpp"
+#include "Components/Puzzle.hpp"
+#include "Components/Children.hpp"
 
 DebugWindow::DebugWindow(GlfwWindow &window) 
     : window(window)
@@ -46,23 +49,37 @@ void DebugWindow::render(entt::registry& scene) {
 
 void DebugWindow::ObjectInfo(entt::registry& scene) {
     if (ImGui::CollapsingHeader("Objects")) {
-        auto view = scene.view<Model, Material, Transform>();
+        ImGui::Text("Puzzle");
+        auto puzzle = scene.view<Puzzle>().front();
+        auto& puzzleTransform = scene.get<Transform>(puzzle);
+        auto& children = scene.get<Children>(puzzle);
 
-        int i = 0;
-        for (auto [entity, model, material, transform]: view.each()) {
-            if (ImGui::TreeNode(("cube " + std::to_string(i + 1)).c_str())) {
-                ImGui::Text("Color");
-                ImGui::ColorEdit3("color", &material.color.x);
-                ImGui::ColorEdit3("ambient color", &material.ambientColor.x);
-                ImGui::ColorEdit3("specular color", &material.specularColor.x);
-                ImGui::SliderFloat("specular power", &material.specularPow, 1.0f, 5.0f);
-                ImGui::Text("Transform");
-                ImGui::SliderFloat3("position", &transform.position.x, -5.0f, 5.0f);
-                ImGui::SliderFloat3("rotation", &transform.rotation.x, -360.0f, 360.0f);
-                ImGui::SliderFloat3("scale", &transform.scale.x, 0.1f, 10.0f);
-                ImGui::TreePop();
+        ImGui::SliderFloat3("puzzle position", &puzzleTransform.position.x, -5.0f, 5.0f);
+        ImGui::SliderFloat3("puzzle rotation", &puzzleTransform.rotation.x, -360.0f, 360.0f);
+        ImGui::SliderFloat3("puzzle scale", &puzzleTransform.scale.x, 0.1f, 10.0f);
+
+        if (ImGui::TreeNode("Pieces")) {
+            auto view = scene.view<PuzzlePiece, Material, Transform>();
+
+            int i = 0;
+            for (auto entity : children.children) {
+                auto& transform = scene.get<Transform>(entity);
+                auto& material = scene.get<Material>(entity);
+                if (ImGui::TreeNode(("cube " + std::to_string(i + 1)).c_str())) {
+                    ImGui::Text("Color");
+                    ImGui::ColorEdit3("color", &material.color.x);
+                    ImGui::ColorEdit3("ambient color", &material.ambientColor.x);
+                    ImGui::ColorEdit3("specular color", &material.specularColor.x);
+                    ImGui::SliderFloat("specular power", &material.specularPow, 1.0f, 5.0f);
+                    ImGui::Text("Transform");
+                    ImGui::SliderFloat3("position", &transform.position.x, -5.0f, 5.0f);
+                    ImGui::SliderFloat3("rotation", &transform.rotation.x, -360.0f, 360.0f);
+                    ImGui::SliderFloat3("scale", &transform.scale.x, 0.1f, 10.0f);
+                    ImGui::TreePop();
+                }
+                i++;
             }
-            i++;
+            ImGui::TreePop();
         }
     }
 }
