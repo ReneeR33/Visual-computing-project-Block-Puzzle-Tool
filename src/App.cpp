@@ -22,7 +22,7 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 
 void App::run() {
     Renderer renderer;
-    PuzzleViewSystem puzzleViewSystem;
+    PuzzleViewSystem::init(scene, window);
 
     //initTestScene();
     initExplodedViewTestScene();
@@ -31,7 +31,8 @@ void App::run() {
     DebugWindow debugWindow(window);
 
     while (!window.windowShouldClose()) {
-        puzzleViewSystem.update(scene);
+        glfwPollEvents();
+        PuzzleViewSystem::update();
 
         renderer.render(scene);
         debugWindow.render(scene);
@@ -113,7 +114,7 @@ void App::initExplodedViewTestScene() {
     auto puzzle = scene.create();
     scene.emplace<Puzzle>(puzzle);
     scene.emplace<Transform>(puzzle,
-                             glm::vec3(1.0f, 0.0f, 0.0f),
+                             glm::vec3(0.0f, 0.0f, 0.0f),
                              glm::vec3(50.f),
                              glm::vec3(1.0f));
     scene.emplace<ExplodedView>(puzzle,0.0f);
@@ -128,7 +129,7 @@ void App::initExplodedViewTestScene() {
 
     auto camera = scene.create();
     scene.emplace<Camera>(camera,
-                          glm::vec3(3.0f, 1.0f, 6.0f),
+                          glm::vec3(0.0f, 0.0f, 6.0f),
                           glm::vec3(0.0f, 0.0f, -1.0f),
                           glm::vec3(0.0f, 1.0f, 0.0f),
                           0.1f, 100.0f, 80.0f

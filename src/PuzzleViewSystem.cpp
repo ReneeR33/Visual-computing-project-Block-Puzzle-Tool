@@ -4,7 +4,33 @@
 #include "Components/Transform.hpp"
 #include "Components/PuzzlePiece.hpp"
 
-void PuzzleViewSystem::update(entt::registry& scene) {
+#include <iostream>
+
+PuzzleViewSystem* PuzzleViewSystem::puzzleViewSystem = nullptr;
+
+PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene, GlfwWindow &window)
+    : scene(scene)
+    , window(window)
+{
+    glfwSetScrollCallback(window.getHandle(), scrollCallback);
+}
+
+void PuzzleViewSystem::init(entt::registry &scene, GlfwWindow &window) {
+    delete puzzleViewSystem;
+    puzzleViewSystem = new PuzzleViewSystem(scene, window);
+}
+
+void PuzzleViewSystem::update() {
+    if (puzzleViewSystem == nullptr) {
+        return;
+    }
+    updateExplodedView();
+    //auto windowHandle = puzzleViewSystem->window.getHandle();
+}
+
+void PuzzleViewSystem::updateExplodedView() {
+    auto& scene = puzzleViewSystem->scene;
+
     auto explodedViewView = scene.view<ExplodedView>();
     if (explodedViewView.empty()) {
         return;
@@ -34,4 +60,8 @@ void PuzzleViewSystem::update(entt::registry& scene) {
 
         transform.position = piece.initialPosition + translationDirection * explodedView.offset;
     }
+}
+
+void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+    std::cout << xoffset << ", " << yoffset << std::endl;
 }
