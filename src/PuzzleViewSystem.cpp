@@ -81,8 +81,7 @@ void PuzzleViewSystem::updatePuzzleRotation() {
             auto puzzleEntity = puzzleView.front();
             auto transform = scene.try_get<Transform>(puzzleEntity);
             if (transform != nullptr) {
-                transform->rotation.y = transform->rotation.y + 0.25f * offset.x;
-                transform->rotation.x = transform->rotation.x + 0.25f * offset.y;
+                transform->rotate(offset.y * 0.25f, offset.x * 0.25f,0.0f);
             }
         }
 
