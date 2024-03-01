@@ -3,6 +3,7 @@
 #include "Components/ExplodedView.hpp"
 #include "Components/Transform.hpp"
 #include "Components/PuzzlePiece.hpp"
+#include "Components/Camera.hpp"
 
 #include <iostream>
 
@@ -63,5 +64,13 @@ void PuzzleViewSystem::updateExplodedView() {
 }
 
 void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
-    std::cout << xoffset << ", " << yoffset << std::endl;
+    auto& scene = puzzleViewSystem->scene;
+
+    auto cameraView = scene.view<Camera>();
+    if (cameraView.empty()) {
+        return;
+    }
+
+    auto& camera = scene.get<Camera>(cameraView.back());
+    camera.fov = glm::clamp(camera.fov + float(yoffset) * 5.0f, 5.0f, 180.0f);
 }
