@@ -49,20 +49,22 @@ void DebugWindow::render(entt::registry& scene) {
 
 void DebugWindow::ObjectInfo(entt::registry& scene) {
     if (ImGui::CollapsingHeader("Objects")) {
-        ImGui::Text("Puzzle");
-        auto puzzle = scene.view<Puzzle>().front();
-        auto& puzzleTransform = scene.get<Transform>(puzzle);
-        auto& children = scene.get<Children>(puzzle);
+        auto puzzleView = scene.view<Puzzle>();
+        if (!puzzleView.empty()) {
+            ImGui::Text("Puzzle");
+            auto puzzle = puzzleView.front();
+            auto& puzzleTransform = scene.get<Transform>(puzzle);
 
-        ImGui::SliderFloat3("puzzle position", &puzzleTransform.position.x, -5.0f, 5.0f);
-        ImGui::SliderFloat3("puzzle rotation", &puzzleTransform.rotation.x, -360.0f, 360.0f);
-        ImGui::SliderFloat3("puzzle scale", &puzzleTransform.scale.x, 0.1f, 10.0f);
+            ImGui::SliderFloat3("puzzle position", &puzzleTransform.position.x, -5.0f, 5.0f);
+            ImGui::SliderFloat3("puzzle rotation", &puzzleTransform.rotation.x, -360.0f, 360.0f);
+            ImGui::SliderFloat3("puzzle scale", &puzzleTransform.scale.x, 0.1f, 10.0f);
+        }
 
         if (ImGui::TreeNode("Pieces")) {
-            auto view = scene.view<PuzzlePiece, Material, Transform>();
+            auto view = scene.view<PuzzlePiece>();
 
             int i = 0;
-            for (auto entity : children.children) {
+            for (auto [entity, piece] : view.each()) {
                 auto& transform = scene.get<Transform>(entity);
                 auto& material = scene.get<Material>(entity);
                 if (ImGui::TreeNode(("cube " + std::to_string(i + 1)).c_str())) {

@@ -6,7 +6,8 @@
 #include "Components/Camera.hpp"
 #include "Components/Puzzle.hpp"
 
-#include <iostream>
+#define ZOOM_SPEED 0.5f
+#define ROTATE_SPEED 0.25f
 
 PuzzleViewSystem* PuzzleViewSystem::puzzleViewSystem = nullptr;
 
@@ -81,7 +82,7 @@ void PuzzleViewSystem::updatePuzzleRotation() {
             auto puzzleEntity = puzzleView.front();
             auto transform = scene.try_get<Transform>(puzzleEntity);
             if (transform != nullptr) {
-                transform->rotate(offset.y * 0.25f, offset.x * 0.25f,0.0f);
+                transform->rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
             }
         }
 
@@ -98,7 +99,7 @@ void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double
     }
 
     auto& camera = scene.get<Camera>(cameraView.back());
-    camera.fov = glm::clamp(camera.fov + float(yoffset) * 5.0f, 5.0f, 175.0f);
+    camera.fov = glm::clamp(camera.fov + float(yoffset) * ZOOM_SPEED, 5.0f, 175.0f);
 }
 
 void PuzzleViewSystem::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {

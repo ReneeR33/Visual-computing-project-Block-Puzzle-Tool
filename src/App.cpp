@@ -75,6 +75,7 @@ void App::initTestScene() {
                              glm::vec3(10.0f),
                              glm::vec3(1.0f, 1.0f, 1.0f)
     );
+    scene.emplace<PuzzlePiece>(cube_1, glm::vec3(1.5f, 2.0f, 0.0f));
 
     auto cube_2 = scene.create();
     scene.emplace<Model>(cube_2, primitives::cube);
@@ -90,6 +91,7 @@ void App::initTestScene() {
                              glm::vec3(10.0f),
                              glm::vec3(1.0f, 1.0f, 1.0f)
     );
+    scene.emplace<PuzzlePiece>(cube_2, glm::vec3(1.5f, 0.0f, -1.0f));
 
     auto cube_3 = scene.create();
     scene.emplace<Model>(cube_3, primitives::cube);
@@ -105,6 +107,7 @@ void App::initTestScene() {
                              glm::vec3(10.f),
                              glm::vec3(1.0f, 1.0f, 1.0f)
     );
+    scene.emplace<PuzzlePiece>(cube_3, glm::vec3(3.5f, 0.5f, -1.0f));
 }
 
 void App::initExplodedViewTestScene() {
