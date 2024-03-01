@@ -6,7 +6,7 @@
 #include "Components/Camera.hpp"
 #include "Components/Puzzle.hpp"
 
-#define ZOOM_SPEED 0.5f
+#define ZOOM_SPEED 5.0f
 #define ROTATE_SPEED 0.25f
 
 PuzzleViewSystem* PuzzleViewSystem::puzzleViewSystem = nullptr;
