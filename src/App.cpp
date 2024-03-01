@@ -6,6 +6,7 @@
 #include "DebugWindow.hpp"
 #include "Components/Material.hpp"
 #include "primitives.hpp"
+#include "ModelLoader.hpp"
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
@@ -16,9 +17,12 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 
 void App::run() {
     Renderer renderer;
+    ModelLoader loader;
 
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.05f));
+
+    auto model = loader.LoadModel("data/testblock.json");
 
     auto dirLight = scene.create();
     scene.emplace<DirLight>(dirLight, 
@@ -37,7 +41,7 @@ void App::run() {
     );
 
     auto cube_1 = scene.create();
-    scene.emplace<Model>(cube_1, primitives::cube);
+    scene.emplace<Model>(cube_1, model);
     scene.emplace<Shader>(cube_1, "shaders/shader.vert", "shaders/shader.frag");
     scene.emplace<Material>(cube_1, 
         glm::vec3(1.0f, 0.0f, 0.0f),

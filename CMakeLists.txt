@@ -15,6 +15,7 @@ include_directories(
     ${LIB_DIR}/stb/include
     ${LIB_DIR}/imgui/include
     ${LIB_DIR}/entt/include
+    ${LIB_DIR}/nlohmann_json/include/
 )
 
 file(GLOB_RECURSE LIB_sources CONFIGURE_DEPENDS
