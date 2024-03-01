@@ -31,11 +31,18 @@ void DebugWindow::render(entt::registry& scene) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    auto& background = scene.get<Background>(scene.view<Background>().front());
-
     {
         ImGui::Begin("Debug");
+
+        auto& background = scene.get<Background>(scene.view<Background>().front());
         ImGui::ColorEdit3("background", &background.color.x);
+
+        auto puzzleView = scene.view<Puzzle>();
+        if (!puzzleView.empty()) {
+            auto& puzzle = scene.get<Puzzle>(puzzleView.front());
+            ImGui::Checkbox("disable puzzle mouse rotation", &puzzle.disableMouseRotation);
+        }
+
         ObjectInfo(scene);
         CameraInfo(scene);
         LightInfo(scene);

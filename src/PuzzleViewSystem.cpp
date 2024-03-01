@@ -71,19 +71,26 @@ void PuzzleViewSystem::updatePuzzleRotation() {
     auto& scene = puzzleViewSystem->scene;
     auto& prevMousePos = puzzleViewSystem->prevMousePos;
 
+    auto puzzleView = scene.view<Puzzle>();
+    if (puzzleView.empty()) {
+        return;
+    }
+
+    auto puzzleEntity = puzzleView.front();
+    auto& puzzle = scene.get<Puzzle>(puzzleEntity);
+    if (puzzle.disableMouseRotation) {
+        return;
+    }
+
     int state = glfwGetMouseButton(window.getHandle(), GLFW_MOUSE_BUTTON_LEFT);
     if (state == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window.getHandle(), &xpos, &ypos);
         auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
 
-        auto puzzleView = scene.view<Puzzle>();
-        if (!puzzleView.empty()) {
-            auto puzzleEntity = puzzleView.front();
-            auto transform = scene.try_get<Transform>(puzzleEntity);
-            if (transform != nullptr) {
-                transform->rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
-            }
+        auto transform = scene.try_get<Transform>(puzzleEntity);
+        if (transform != nullptr) {
+            transform->rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
         }
 
         prevMousePos = glm::vec2 (xpos, ypos);

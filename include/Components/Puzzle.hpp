@@ -2,8 +2,7 @@
 #define PUZZLE_HPP
 
 struct Puzzle {
-    // empty for now
-    bool data; //dummy data since it without it it won't compile...
+    bool disableMouseRotation;
 };
 
 #endif //PUZZLE_HPP
