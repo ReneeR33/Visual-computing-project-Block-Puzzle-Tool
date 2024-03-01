@@ -4,6 +4,7 @@
 #include "Components/Transform.hpp"
 #include "Components/PuzzlePiece.hpp"
 #include "Components/Camera.hpp"
+#include "Components/Puzzle.hpp"
 
 #include <iostream>
 
@@ -14,6 +15,7 @@ PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene, GlfwWindow &window)
     , window(window)
 {
     glfwSetScrollCallback(window.getHandle(), scrollCallback);
+    glfwSetMouseButtonCallback(window.getHandle(), mouseButtonCallback);
 }
 
 void PuzzleViewSystem::init(entt::registry &scene, GlfwWindow &window) {
@@ -26,6 +28,7 @@ void PuzzleViewSystem::update() {
         return;
     }
     updateExplodedView();
+    updatePuzzleRotation();
 }
 
 void PuzzleViewSystem::updateExplodedView() {
@@ -62,6 +65,31 @@ void PuzzleViewSystem::updateExplodedView() {
     }
 }
 
+void PuzzleViewSystem::updatePuzzleRotation() {
+    auto& window = puzzleViewSystem->window;
+    auto& scene = puzzleViewSystem->scene;
+    auto& prevMousePos = puzzleViewSystem->prevMousePos;
+
+    int state = glfwGetMouseButton(window.getHandle(), GLFW_MOUSE_BUTTON_LEFT);
+    if (state == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window.getHandle(), &xpos, &ypos);
+        auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
+
+        auto puzzleView = scene.view<Puzzle>();
+        if (!puzzleView.empty()) {
+            auto puzzleEntity = puzzleView.front();
+            auto transform = scene.try_get<Transform>(puzzleEntity);
+            if (transform != nullptr) {
+                transform->rotation.y = transform->rotation.y + 0.25f * offset.x;
+                transform->rotation.x = transform->rotation.x + 0.25f * offset.y;
+            }
+        }
+
+        prevMousePos = glm::vec2 (xpos, ypos);
+    }
+}
+
 void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto& scene = puzzleViewSystem->scene;
 
@@ -72,4 +100,13 @@ void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double
 
     auto& camera = scene.get<Camera>(cameraView.back());
     camera.fov = glm::clamp(camera.fov + float(yoffset) * 5.0f, 5.0f, 175.0f);
+}
+
+void PuzzleViewSystem::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        auto& prevMousePos = puzzleViewSystem->prevMousePos;
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        prevMousePos = glm::vec2 (xpos, ypos);
+    }
 }
