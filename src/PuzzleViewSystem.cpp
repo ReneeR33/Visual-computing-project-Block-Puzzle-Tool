@@ -26,7 +26,6 @@ void PuzzleViewSystem::update() {
         return;
     }
     updateExplodedView();
-    //auto windowHandle = puzzleViewSystem->window.getHandle();
 }
 
 void PuzzleViewSystem::updateExplodedView() {
@@ -72,5 +71,5 @@ void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double
     }
 
     auto& camera = scene.get<Camera>(cameraView.back());
-    camera.fov = glm::clamp(camera.fov + float(yoffset) * 5.0f, 5.0f, 180.0f);
+    camera.fov = glm::clamp(camera.fov + float(yoffset) * 5.0f, 5.0f, 175.0f);
 }
