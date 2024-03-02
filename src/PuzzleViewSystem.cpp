@@ -59,7 +59,7 @@ void PuzzleViewSystem::updateExplodedView() {
         if (centerPiece == &piece) {
             translationDirection = glm::vec3(0.0f);
         } else {
-            translationDirection = glm::normalize(piece.initialPosition - centerPiece->initialPosition);
+            translationDirection = piece.initialPosition - centerPiece->initialPosition;
         }
 
         transform.position = piece.initialPosition + translationDirection * explodedView.offset;
