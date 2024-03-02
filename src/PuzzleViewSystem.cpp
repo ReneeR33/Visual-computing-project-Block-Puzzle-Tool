@@ -106,7 +106,7 @@ void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double
     }
 
     auto& camera = scene.get<Camera>(cameraView.back());
-    camera.fov = glm::clamp(camera.fov + float(yoffset) * ZOOM_SPEED, 5.0f, 175.0f);
+    camera.fov = glm::clamp(camera.fov - float(yoffset) * ZOOM_SPEED, 5.0f, 175.0f);
 }
 
 void PuzzleViewSystem::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
