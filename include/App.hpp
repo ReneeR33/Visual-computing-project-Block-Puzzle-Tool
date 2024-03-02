@@ -14,6 +14,7 @@ private:
     entt::registry scene;
 
     void initTestScene();
+    void initExplodedViewTestScene();
 };
 
 #endif //APP_HPP
