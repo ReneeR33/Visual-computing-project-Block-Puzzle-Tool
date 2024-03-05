@@ -5,6 +5,17 @@
 
 class ModelLoader {
 public:
+    struct LoaderPieceResult {
+        Piece piece;
+        Material material;
+        Model mode;
+    };
+
+    struct LoaderPuzzleResult {
+        // etc ...
+        std::vector<LoaderPieceResult> pieces;
+    };
+
     ModelLoader(entt::registry& scene);
    ~ModelLoader();
 
