@@ -12,6 +12,8 @@
 #include "Components/Children.hpp"
 #include "Components/Puzzle.hpp"
 #include "primitives.hpp"
+#include "ModelLoader.hpp"
+#include <iostream>
 
 #define WINDOW_WIDTH 1500
 #define WINDOW_HEIGHT 950
@@ -26,6 +28,32 @@ void App::run() {
 
     //initTestScene();
     initExplodedViewTestScene();
+    ModelLoader loader = ModelLoader(scene);
+
+    //---------------------------------------
+
+    /*auto background = scene.create();
+    scene.emplace<Background>(background, glm::vec3(0.05f));
+
+    loader.LoadSolution("resources/data/puzzle_test.json");
+
+    auto dirLight = scene.create();
+    scene.emplace<DirLight>(dirLight, 
+        glm::vec3(0.0f, 0.14f, -1.0f),
+        glm::vec3(1.0f),
+        glm::vec3(1.0f),
+        glm::vec3(1.0f)
+    );
+
+    auto camera = scene.create();
+    scene.emplace<Camera>(camera,
+        glm::vec3(0.0f, 1.0f, 4.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        0.1f, 100.0f, 80.0f
+    );*/
+
+    //----------------------------------------
 
     renderer.load(scene);
     DebugWindow debugWindow(window);
