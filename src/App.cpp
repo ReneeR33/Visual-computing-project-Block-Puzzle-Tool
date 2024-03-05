@@ -110,15 +110,15 @@ void App::addTestPuzzle() {
     addBlock(piece_4, glm::vec3(-1.0f,0.0f,0.0f), color);
     addBlock(piece_4, glm::vec3(1.0f,0.0f,0.0f), color);
 
-    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 1.0f));
+    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 0.5f));
     color = glm::vec3(0.3f, 0.3f, 0.6f);
-    addBlock(piece_5, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_5, glm::vec3(0.0f,0.0f,-1.0f), color);
+    addBlock(piece_5, glm::vec3(0.0f,0.0f,0.5f), color);
+    addBlock(piece_5, glm::vec3(0.0f,0.0f,-0.5f), color);
 
-    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 1.0f));
+    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 0.5f));
     color = glm::vec3(0.3f, 0.6f, 0.0f);
-    addBlock(piece_6, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_6, glm::vec3(0.0f,0.0f,-1.0f), color);
+    addBlock(piece_6, glm::vec3(0.0f,0.0f,0.5f), color);
+    addBlock(piece_6, glm::vec3(0.0f,0.0f,-0.5f), color);
 
     auto piece_7 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, 0.0f));
     color = glm::vec3(0.3f, 0.6f, 0.3f);
@@ -127,8 +127,6 @@ void App::addTestPuzzle() {
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,1.0f,1.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);
-    //addBlock(piece_6, glm::vec3(0.0f,0.0f,-1.0f), color);
-
 
 
     /*for (int i_x = 0; i_x < 3; i_x++) {
