@@ -4,10 +4,11 @@
 #include "glm/glm.hpp"
 
 struct Material {
-    glm::vec4 color;
+    glm::vec3 color;
     glm::vec3 ambientColor;
     glm::vec3 specularColor;
     float specularPow;
+    float transparency;
 };
 
 #endif //MATERIAL_HPP

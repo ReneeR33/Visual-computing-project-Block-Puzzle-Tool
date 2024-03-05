@@ -9,6 +9,8 @@
 Renderer::Renderer() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Renderer::load(entt::registry &scene) {
@@ -117,10 +119,11 @@ void Renderer::render(entt::registry& scene, const entt::entity &object, Camera 
     shader.setMat4("projection", projection);
     shader.setMat4("model", modelm);
 
-    shader.setVec4("color", material.color);
+    shader.setVec3("color", material.color);
     shader.setVec3("ambient", material.ambientColor);
     shader.setVec3("specular", material.specularColor);
     shader.setFloat("specularPow", material.specularPow);
+    shader.setFloat("transparency", material.transparency);
 
     shader.setVec3("viewPos", camera.position);
 

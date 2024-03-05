@@ -80,6 +80,7 @@ void DebugWindow::ObjectInfo(entt::registry& scene) {
                     ImGui::ColorEdit3("ambient color", &material.ambientColor.x);
                     ImGui::ColorEdit3("specular color", &material.specularColor.x);
                     ImGui::SliderFloat("specular power", &material.specularPow, 1.0f, 5.0f);
+                    ImGui::SliderFloat("transparency", &material.transparency, 0.0f, 1.0f);
                     ImGui::Text("Transform");
                     ImGui::SliderFloat3("position", &transform.position.x, -5.0f, 5.0f);
                     ImGui::SliderFloat3("rotation", &transform.rotation.x, -360.0f, 360.0f);

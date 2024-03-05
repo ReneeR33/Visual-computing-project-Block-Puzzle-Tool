@@ -24,11 +24,7 @@ void App::run() {
     Renderer renderer;
     PuzzleViewSystem::init(scene, window);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA , GL_ONE_MINUS_SRC_ALPHA);
-//    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-
-//    initTestScene();
+    //initTestScene();
     initExplodedViewTestScene();
 
     renderer.load(scene);
@@ -116,7 +112,7 @@ void App::initTestScene() {
 
 void App::initExplodedViewTestScene() {
     auto background = scene.create();
-    scene.emplace<Background>(background, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
 
     auto puzzle = scene.create();
     scene.emplace<Puzzle>(puzzle);
@@ -158,6 +154,7 @@ void App::initExplodedViewTestScene() {
                                         color,
                                         glm::vec3(0.1f, 0.1f, 0.12f),
                                         glm::vec3(0.0f),
+                                        1.0f,
                                         1.0f
                 );
                 scene.emplace<PuzzlePiece>(cube, position);
