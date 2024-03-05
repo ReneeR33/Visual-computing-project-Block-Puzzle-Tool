@@ -13,8 +13,10 @@ private:
     GlfwWindow window;
     entt::registry scene;
 
-    void initTestScene();
     void initExplodedViewTestScene();
+
+    void addTestPuzzle();
+    void addPuzzleFromModel();
 };
 
 #endif //APP_HPP
