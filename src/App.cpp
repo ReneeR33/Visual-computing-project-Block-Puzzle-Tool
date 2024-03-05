@@ -23,7 +23,7 @@ void App::run() {
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.05f));
 
-    loader.LoadSolution("data/puzzle_test.json");
+    loader.LoadSolution("resources/data/puzzle_test.json");
 
     auto dirLight = scene.create();
     scene.emplace<DirLight>(dirLight, 

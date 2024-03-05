@@ -12,14 +12,14 @@
 ModelLoader::ModelLoader(entt::registry& scene)
 : scene(scene) 
 {
-    LoadModel("data/block_0.json");
-    LoadModel("data/block_1.json");
-    LoadModel("data/block_2.json");
-    LoadModel("data/block_3.json");
-    LoadModel("data/block_4.json");
-    LoadModel("data/block_5.json");
-    LoadModel("data/block_6.json");
-    LoadModel("data/block_7.json");
+    LoadModel("resources/data/block_1.json");
+    LoadModel("resources/data/block_2.json");
+    LoadModel("resources/data/block_0.json");
+    LoadModel("resources/data/block_3.json");
+    LoadModel("resources/data/block_4.json");
+    LoadModel("resources/data/block_5.json");
+    LoadModel("resources/data/block_6.json");
+    LoadModel("resources/data/block_7.json");
 }
 
 ModelLoader::~ModelLoader()
