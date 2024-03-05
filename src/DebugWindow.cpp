@@ -57,33 +57,57 @@ void DebugWindow::render(entt::registry& scene) {
 void DebugWindow::ObjectInfo(entt::registry& scene) {
     if (ImGui::CollapsingHeader("Objects")) {
         auto puzzleView = scene.view<Puzzle>();
-        if (!puzzleView.empty()) {
-            ImGui::Text("Puzzle");
-            auto puzzle = puzzleView.front();
-            auto& puzzleTransform = scene.get<Transform>(puzzle);
+        if (puzzleView.empty()) {
+            return;
+        }
 
-            ImGui::SliderFloat3("puzzle position", &puzzleTransform.position.x, -5.0f, 5.0f);
-            ImGui::SliderFloat3("puzzle rotation", &puzzleTransform.rotation.x, -360.0f, 360.0f);
-            ImGui::SliderFloat3("puzzle scale", &puzzleTransform.scale.x, 0.1f, 10.0f);
+        ImGui::Text("Puzzle");
+        auto puzzle = puzzleView.front();
+        auto& puzzleTransform = scene.get<Transform>(puzzle);
+
+        ImGui::SliderFloat3("puzzle position", &puzzleTransform.position.x, -5.0f, 5.0f);
+        ImGui::SliderFloat3("puzzle rotation", &puzzleTransform.rotation.x, -360.0f, 360.0f);
+        ImGui::SliderFloat3("puzzle scale", &puzzleTransform.scale.x, 0.1f, 10.0f);
+
+        auto puzzleChildren = scene.try_get<Children>(puzzle);
+        if (puzzleChildren == nullptr) {
+            return;
         }
 
         if (ImGui::TreeNode("Pieces")) {
-            auto view = scene.view<PuzzlePiece>();
-
             int i = 0;
-            for (auto [entity, piece] : view.each()) {
-                auto& transform = scene.get<Transform>(entity);
-                auto& material = scene.get<Material>(entity);
-                if (ImGui::TreeNode(("cube " + std::to_string(i + 1)).c_str())) {
-                    ImGui::Text("Color");
-                    ImGui::ColorEdit3("color", &material.color.x);
-                    ImGui::ColorEdit3("ambient color", &material.ambientColor.x);
-                    ImGui::ColorEdit3("specular color", &material.specularColor.x);
-                    ImGui::SliderFloat("specular power", &material.specularPow, 1.0f, 5.0f);
+            for (auto piece : puzzleChildren->children) {
+                auto& transform = scene.get<Transform>(piece);
+                if (ImGui::TreeNode(("piece " + std::to_string(i + 1)).c_str())) {
                     ImGui::Text("Transform");
                     ImGui::SliderFloat3("position", &transform.position.x, -5.0f, 5.0f);
                     ImGui::SliderFloat3("rotation", &transform.rotation.x, -360.0f, 360.0f);
                     ImGui::SliderFloat3("scale", &transform.scale.x, 0.1f, 10.0f);
+
+                    auto pieceChildren = scene.try_get<Children>(piece);
+                    if (pieceChildren != nullptr) {
+                        int j = 0;
+                        for (auto block : pieceChildren->children) {
+                            if (ImGui::TreeNode(("block " + std::to_string(j + 1)).c_str())) {
+                                auto& blockTransform = scene.get<Transform>(block);
+                                auto& material = scene.get<Material>(block);
+
+                                ImGui::Text("Transform");
+                                ImGui::SliderFloat3("position", &transform.position.x, -5.0f, 5.0f);
+                                ImGui::SliderFloat3("rotation", &transform.rotation.x, -360.0f, 360.0f);
+                                ImGui::SliderFloat3("scale", &transform.scale.x, 0.1f, 10.0f);
+
+                                ImGui::Text("Color");
+                                ImGui::ColorEdit3("color", &material.color.x);
+                                ImGui::ColorEdit3("ambient color", &material.ambientColor.x);
+                                ImGui::ColorEdit3("specular color", &material.specularColor.x);
+                                ImGui::SliderFloat("specular power", &material.specularPow, 1.0f, 5.0f);
+
+                                ImGui::TreePop();
+                            }
+                        }
+                    }
+
                     ImGui::TreePop();
                 }
                 i++;

@@ -16,7 +16,7 @@ struct DirLight {
     vec3 direction;
     vec3 diffuse;
     vec3 ambient;
-    vec3 specular;
+vec3 specular;
 };
 
 uniform DirLight dirLight;
