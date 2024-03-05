@@ -9,17 +9,8 @@
 #include "Components/Transform.hpp"
 #include "Components/Shader.hpp"
 
-ModelLoader::ModelLoader(entt::registry& scene)
-: scene(scene) 
+ModelLoader::ModelLoader()
 {
-    LoadModel("resources/data/block_1.json");
-    LoadModel("resources/data/block_2.json");
-    LoadModel("resources/data/block_0.json");
-    LoadModel("resources/data/block_3.json");
-    LoadModel("resources/data/block_4.json");
-    LoadModel("resources/data/block_5.json");
-    LoadModel("resources/data/block_6.json");
-    LoadModel("resources/data/block_7.json");
 }
 
 ModelLoader::~ModelLoader()
@@ -28,29 +19,34 @@ ModelLoader::~ModelLoader()
 }
 
 
-void ModelLoader::LoadSolution(std::string path)
+ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
 {
-    std::ifstream check(path);
+    LoaderPuzzleResult result;
+    std::vector<LoaderPieceResult> pieces;
+    pieces.push_back(LoadModel(path + "block_1.json"));
+    pieces.push_back(LoadModel(path + "block_2.json"));
+    pieces.push_back(LoadModel(path + "block_0.json"));
+    pieces.push_back(LoadModel(path + "block_3.json"));
+    pieces.push_back(LoadModel(path + "block_4.json"));
+    pieces.push_back(LoadModel(path + "block_5.json"));
+    pieces.push_back(LoadModel(path + "block_6.json"));
+    pieces.push_back(LoadModel(path + "block_7.json"));
+    auto path_puzzle = path + "puzzle_test.json";
+
+    std::ifstream check(path_puzzle);
 
     if(!nlohmann::json::accept(check))
     {
-        std:: cout << "malformed json file for " << path << std::endl;
-        return;
+        std:: cout << "malformed json file for " << path_puzzle << std::endl;
+        return result;
     }
 
-    std::ifstream read(path);
+    std::ifstream read(path_puzzle);
     nlohmann::json data =  nlohmann::json::parse(read);
+
 
     for (auto & block : data["solution"])
     {
-        auto pos = block[1];
-
-        auto output = scene.create();
-        scene.emplace<Model>(output, blocks[block[0]]);
-        scene.emplace<Piece>(output, shape[0]);
-        scene.emplace<Material>(output, colors[block[0]]);
-        scene.emplace<Shader>(output, "shaders/shader.vert", "shaders/shader.frag");
-
         auto x = block[1][0].template get<double>();
         auto y = block[1][1].template get<double>();
         auto z = block[1][2].template get<double>();
@@ -59,26 +55,29 @@ void ModelLoader::LoadSolution(std::string path)
         auto ry = block[2][1].template get<double>();
         auto rz = block[2][2].template get<double>();
 
-        scene.emplace<Transform>(output,
-            glm::vec3(x, y, z),
-            glm::vec3(rx, ry, rz),
-            glm::vec3(1.0f, 1.0f, 1.0f)
-        );
+        LoaderPieceResult output = pieces[block[0]];
+        output.piece.initialPosition = glm::vec3(x, y, z);
+        output.piece.initialRotation = glm::vec3(rx, ry, rz);
+
+        result.pieces.push_back(output);
     }
+
+    return result;
 }
 
 
-void ModelLoader::LoadModel(std::string path)
+ModelLoader::LoaderPieceResult ModelLoader::LoadModel(std::string path)
 {
     std::ifstream check(path);
-    Model model;
+    LoaderPieceResult result;
+    Material material;
+    PuzzlePiece piece;
     Mesh mesh;
-    Piece piece;
 
     if(!nlohmann::json::accept(check))
     {
         std:: cout << "malformed json file for " << path << std::endl;
-        return;
+        return result;
     }
 
     std::ifstream read(path);
@@ -91,10 +90,9 @@ void ModelLoader::LoadModel(std::string path)
         !data.contains(std::string {"normals"}))
     {
         std:: cout << "json file is missing info for " << path << std::endl;
-        return;
+        return result;
     }
 
-    std::vector<Piece> test;
     std::vector<Mesh> meshes;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -115,7 +113,7 @@ void ModelLoader::LoadModel(std::string path)
         indices.push_back(data["polygons"][i]);
     }
 
-    piece.SolutionPosition = {0.0, 0.0, 0.0};
+    piece.initialPosition = {0.0, 0.0, 0.0};
     piece.selected = false;
     for (int i = 0; i < data["shape"].size(); i++) 
     {
@@ -126,16 +124,17 @@ void ModelLoader::LoadModel(std::string path)
     auto r = data["color"][0].template get<double>();
     auto g = data["color"][1].template get<double>();
     auto b = data["color"][2].template get<double>();
-    colors.push_back({.color = {r, g, b},
-                      .ambientColor = {r * .1, g * .1, b * .1},
-                      .specularColor = glm::vec3(0.0f), 
-                      .specularPow = 1.0f});
+    material = {.color = {r, g, b},
+                .ambientColor = {r * .1, g * .1, b * .1},
+                .specularColor = glm::vec3(0.0f), 
+                .specularPow = 1.0f};
     
     mesh.vertices = vertices;
     mesh.indices = indices;
     meshes.push_back(mesh);
-    model.meshes = meshes;
 
-    blocks.push_back(model);
-    shape.push_back(piece);
+    result.piece = piece;
+    result.material = material;
+    result.model.meshes = meshes;
+    return result;
 }
