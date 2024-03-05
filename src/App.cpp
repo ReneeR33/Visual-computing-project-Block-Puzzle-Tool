@@ -127,36 +127,6 @@ void App::addTestPuzzle() {
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,1.0f,1.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);
-
-
-    /*for (int i_x = 0; i_x < 3; i_x++) {
-        for (int i_y = 0; i_y < 3; i_y++) {
-            for (int i_z = 0; i_z < 3; i_z++) {
-                entt::entity cube = scene.create();
-
-                glm::vec3 color = glm::vec3(float(i_x) * 0.333333f, float(i_y) * 0.333333f, float(i_z) * 0.333333f);
-                glm::vec3 position = glm::vec3(-1.0f + float(i_x), -1.0f + float(i_y), -1.0f + float(i_z));
-
-                scene.emplace<Model>(cube, primitives::cube);
-                scene.emplace<Shader>(cube, "shaders/shader.vert", "shaders/shader.frag");
-                scene.emplace<Material>(cube,
-                                        color,
-                                        glm::vec3(0.1f, 0.1f, 0.12f),
-                                        glm::vec3(0.0f),
-                                        1.0f
-                );
-                scene.emplace<PuzzlePiece>(cube, position);
-                scene.emplace<Transform>(cube,
-                                         glm::vec3(position),
-                                         glm::vec3(0.0f),
-                                         glm::vec3(1.0f, 1.0f, 1.0f)
-                );
-
-                puzzleChildren.children.push_front(cube);
-                scene.emplace<Parent>(cube, puzzle);
-            }
-        }
-    }*/
 }
 
 void App::addPuzzleFromModel() {
