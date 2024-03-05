@@ -156,7 +156,7 @@ void App::initExplodedViewTestScene() {
                 scene.emplace<Shader>(cube, "shaders/shader.vert", "shaders/shader.frag");
                 scene.emplace<Material>(cube,
                                         color,
-                                        glm::vec3(0.1f, 0.0f, 0.0f),
+                                        glm::vec3(0.1f, 0.1f, 0.12f),
                                         glm::vec3(0.0f),
                                         1.0f
                 );
