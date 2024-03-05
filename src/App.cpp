@@ -24,7 +24,11 @@ void App::run() {
     Renderer renderer;
     PuzzleViewSystem::init(scene, window);
 
-    //initTestScene();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA , GL_ONE_MINUS_SRC_ALPHA);
+//    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
+//    initTestScene();
     initExplodedViewTestScene();
 
     renderer.load(scene);
@@ -65,7 +69,7 @@ void App::initTestScene() {
     scene.emplace<Model>(cube_1, primitives::cube);
     scene.emplace<Shader>(cube_1, "shaders/shader.vert", "shaders/shader.frag");
     scene.emplace<Material>(cube_1,
-                            glm::vec3(1.0f, 0.0f, 0.0f),
+                            glm::vec4(1.0f, 0.0f, 0.0f, 0.7f),
                             glm::vec3(0.1f, 0.0f, 0.0f),
                             glm::vec3(0.0f),
                             1.0f
@@ -81,7 +85,7 @@ void App::initTestScene() {
     scene.emplace<Model>(cube_2, primitives::cube);
     scene.emplace<Shader>(cube_2, "shaders/shader.vert", "shaders/shader.frag");
     scene.emplace<Material>(cube_2,
-                            glm::vec3(0.0f, 1.0f, 0.0f),
+                            glm::vec4(0.0f, 1.0f, 0.0f, 0.7f),
                             glm::vec3(0.0f, 0.1f, 0.0f),
                             glm::vec3(0.0f),
                             1.0f
@@ -97,7 +101,7 @@ void App::initTestScene() {
     scene.emplace<Model>(cube_3, primitives::cube);
     scene.emplace<Shader>(cube_3, "shaders/shader.vert", "shaders/shader.frag");
     scene.emplace<Material>(cube_3,
-                            glm::vec3(0.0f, 0.0f, 1.0f),
+                            glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
                             glm::vec3(0.0f, 0.0f, 0.1f),
                             glm::vec3(0.0f),
                             1.0f
@@ -112,7 +116,7 @@ void App::initTestScene() {
 
 void App::initExplodedViewTestScene() {
     auto background = scene.create();
-    scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
+    scene.emplace<Background>(background, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     auto puzzle = scene.create();
     scene.emplace<Puzzle>(puzzle);
@@ -145,7 +149,7 @@ void App::initExplodedViewTestScene() {
             for (int i_z = 0; i_z < 3; i_z++) {
                 entt::entity cube = scene.create();
 
-                glm::vec3 color = glm::vec3(float(i_x) * 0.333333f, float(i_y) * 0.333333f, float(i_z) * 0.333333f);
+                glm::vec4 color = glm::vec4(float(i_x) * 0.33333f, float(i_y) * 0.33333f, float(i_z) * 0.33333f, 0.6f);
                 glm::vec3 position = glm::vec3(-1.0f + float(i_x), -1.0f + float(i_y), -1.0f + float(i_z));
 
                 scene.emplace<Model>(cube, primitives::cube);

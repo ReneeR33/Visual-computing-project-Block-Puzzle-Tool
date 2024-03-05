@@ -117,7 +117,7 @@ void Renderer::render(entt::registry& scene, const entt::entity &object, Camera 
     shader.setMat4("projection", projection);
     shader.setMat4("model", modelm);
 
-    shader.setVec3("color", material.color);
+    shader.setVec4("color", material.color);
     shader.setVec3("ambient", material.ambientColor);
     shader.setVec3("specular", material.specularColor);
     shader.setFloat("specularPow", material.specularPow);

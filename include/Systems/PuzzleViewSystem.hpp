@@ -4,6 +4,7 @@
 #include "glm/glm.hpp"
 #include <entt/entt.hpp>
 #include "GlfwWindow.hpp"
+#include "Components/PuzzlePiece.hpp"
 
 class PuzzleViewSystem {
 public:
