@@ -77,12 +77,12 @@ void DebugWindow::ObjectInfo(entt::registry& scene) {
         if (ImGui::TreeNode("Pieces")) {
             int i = 0;
             for (auto piece : puzzleChildren->children) {
-                auto& transform = scene.get<Transform>(piece);
+                auto& pieceTransform = scene.get<Transform>(piece);
                 if (ImGui::TreeNode(("piece " + std::to_string(i + 1)).c_str())) {
                     ImGui::Text("Transform");
-                    ImGui::SliderFloat3("position", &transform.position.x, -5.0f, 5.0f);
-                    ImGui::SliderFloat3("rotation", &transform.rotation.x, -360.0f, 360.0f);
-                    ImGui::SliderFloat3("scale", &transform.scale.x, 0.1f, 10.0f);
+                    ImGui::SliderFloat3("position", &pieceTransform.position.x, -5.0f, 5.0f);
+                    ImGui::SliderFloat3("rotation", &pieceTransform.rotation.x, -360.0f, 360.0f);
+                    ImGui::SliderFloat3("scale", &pieceTransform.scale.x, 0.1f, 10.0f);
 
                     auto pieceChildren = scene.try_get<Children>(piece);
                     if (pieceChildren != nullptr) {
@@ -93,9 +93,9 @@ void DebugWindow::ObjectInfo(entt::registry& scene) {
                                 auto& material = scene.get<Material>(block);
 
                                 ImGui::Text("Transform");
-                                ImGui::SliderFloat3("position", &transform.position.x, -5.0f, 5.0f);
-                                ImGui::SliderFloat3("rotation", &transform.rotation.x, -360.0f, 360.0f);
-                                ImGui::SliderFloat3("scale", &transform.scale.x, 0.1f, 10.0f);
+                                ImGui::SliderFloat3("position", &blockTransform.position.x, -5.0f, 5.0f);
+                                ImGui::SliderFloat3("rotation", &blockTransform.rotation.x, -360.0f, 360.0f);
+                                ImGui::SliderFloat3("scale", &blockTransform.scale.x, 0.1f, 10.0f);
 
                                 ImGui::Text("Color");
                                 ImGui::ColorEdit3("color", &material.color.x);
@@ -105,6 +105,7 @@ void DebugWindow::ObjectInfo(entt::registry& scene) {
 
                                 ImGui::TreePop();
                             }
+                            j++;
                         }
                     }
 
