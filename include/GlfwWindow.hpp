@@ -14,10 +14,10 @@ public:
 
     bool windowShouldClose();
     void update();
-private:
-    GLFWwindow *window;
     int width;
     int height;
+private:
+    GLFWwindow *window;
     std::string name;
 };
 

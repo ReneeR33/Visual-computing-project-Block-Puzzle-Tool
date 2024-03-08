@@ -4,6 +4,7 @@
 #include "glm/glm.hpp"
 #include <entt/entt.hpp>
 #include "GlfwWindow.hpp"
+#include "Components/PuzzlePiece.hpp"
 
 class PuzzleViewSystem {
 public:
@@ -19,10 +20,14 @@ private:
 
     glm::vec2 prevMousePos;
 
+    PuzzlePiece selectedBlock;
+    glm::vec2 lastClickedPos;
+
     PuzzleViewSystem(entt::registry& scene, GlfwWindow& window);
 
     static void updateExplodedView();
     static void updatePuzzleRotation();
+    static void updateSelectedBlock();
 
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);

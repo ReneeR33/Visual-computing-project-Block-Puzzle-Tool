@@ -97,6 +97,39 @@ void PuzzleViewSystem::updatePuzzleRotation() {
     }
 }
 
+void PuzzleViewSystem::updateSelectedBlock() {
+    auto& window = puzzleViewSystem->window;
+    auto& scene = puzzleViewSystem->scene;
+    auto& selectedBlock = puzzleViewSystem->selectedBlock;
+    auto & lastClickedPos = puzzleViewSystem->lastClickedPos;
+
+    auto puzzleView = scene.view<Puzzle>();
+    if (puzzleView.empty()) {
+        return;
+    }
+
+    auto puzzleEntity = puzzleView.front();
+
+    int state = glfwGetMouseButton(window.getHandle(), GLFW_MOUSE_BUTTON_LEFT);
+    if (state == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window.getHandle(), &xpos, &ypos);
+        lastClickedPos = glm::vec2 (xpos,ypos);
+
+        // viewport to NDC
+        float ndc_x = (2.0f * lastClickedPos.x) / window.width - 1.0f;
+        float ndc_y = 1.0f - (2.0f * lastClickedPos.y) / window.height;
+
+        // NDC to view
+        float focal_length = 1.0f/tanf(float(((45.0f / 2.0f)*3.1415f) /180.0f));
+        float ar = (float)window.height / float(window.width);
+        auto ray_view = glm::vec3 (ndc_x / focal_length, (ndc_y*ar) / focal_length, 1.0f);
+
+        // intersect view vec with object
+    }
+}
+
+
 void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto& scene = puzzleViewSystem->scene;
 
