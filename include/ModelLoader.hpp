@@ -7,6 +7,7 @@ class ModelLoader {
 public:
     struct LoaderPieceResult {
         std::vector<glm::vec3> blocks;
+        glm::vec3 origin;
         glm::vec3 color;
     };
 
@@ -19,7 +20,7 @@ public:
 
     LoaderPuzzleResult LoadSolution(std::string path);
 private:
-    std::vector<glm::vec3> LoadPiece(std::string line);
+    LoaderPieceResult LoadPiece(std::string line);
     LoaderPieceResult LoadModel(std::string path);
 
     std::vector<Model> blocks;

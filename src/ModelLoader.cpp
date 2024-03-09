@@ -22,7 +22,7 @@ ModelLoader::~ModelLoader()
 
 ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
 {
-    std::vector<std::vector<glm::vec3>> file_result;
+    std::vector<LoaderPieceResult> file_result;
     LoaderPuzzleResult result;
 
     std::string line;
@@ -36,7 +36,6 @@ ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
                 continue;
             }
             file_result.push_back(LoadPiece(line));
-            std::cout << line << std::endl;
         }
         myfile.close();
     }
@@ -60,36 +59,35 @@ ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
 
     for (uint i = 0; i < file_result.size(); i++)
     {
-        LoaderPieceResult piece;
-        piece.blocks = file_result[i];
-        piece.color = input_colors[i];
-
-        result.pieces.push_back(piece);
+        file_result[i].color = input_colors[i];
+        result.pieces.push_back(file_result[i]);
     }
 
     return result;
 }
 
 
-std::vector<glm::vec3> ModelLoader::LoadPiece(std::string line)
+ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line)
 {
-    std::vector<glm::vec3> piece;
+    LoaderPieceResult piece;
     std::stringstream ss(line);
     std::istream_iterator<std::string> begin(ss);
     std::istream_iterator<std::string> end;
     std::vector<std::string> xyz(begin, end);
     
+    // deal with offset
+    float off_x = std::stoi(xyz[0]);
+    float off_y = std::stoi(xyz[1]);
+    float off_z = std::stoi(xyz[2]);
+    piece.origin = glm::vec3(off_x, off_y, off_z);
+    
     for(uint i = 0; i < xyz.size(); i +=3)
     {
-        float x = std::stoi(xyz[i]);
-        float y = std::stoi(xyz[i+1]);
-        float z = std::stoi(xyz[i+2]);
-        piece.push_back(glm::vec3(x, y, z));
-    }
-
-    for (auto & block : piece)
-    {
-        std::cout << block.x << block.y << block.z << std::endl;
+        // add offset as well to get puzzle in center
+        float x = std::stoi(xyz[i]) - (off_x + 2);
+        float y = std::stoi(xyz[i+1]) - (off_y + 2);
+        float z = std::stoi(xyz[i+2]) - (off_z + 2);
+        piece.blocks.push_back(glm::vec3(x, y, z));
     }
 
     return piece;

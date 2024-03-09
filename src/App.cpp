@@ -144,8 +144,7 @@ void App::addPuzzleFromModel() {
 
     for (auto & item : result.pieces)
     {
-        // TODO: figure out root
-        auto piece = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
+        auto piece = addPiece(puzzle, item.origin);
 
         for (auto & block : item.blocks)
         {
