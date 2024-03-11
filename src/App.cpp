@@ -14,7 +14,7 @@
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 
-#define WINDOW_WIDTH 1600
+#define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
 #define WINDOW_NAME "puzzle tool"
 
@@ -201,7 +201,7 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position, glm::vec3 col
     scene.emplace<Transform>(block,
                              glm::vec3(position),
                              glm::vec3(0.0f),
-                             glm::vec3(0.98f)
+                             glm::vec3(1.0f)
     );
 
     pieceChildren->children.push_front(block);
