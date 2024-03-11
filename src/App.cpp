@@ -11,6 +11,11 @@
 #include "Components/Parent.hpp"
 #include "Components/Children.hpp"
 #include "Components/Puzzle.hpp"
+#include "Components/UICanvas.hpp"
+#include "Components/PiecesView.hpp"
+#include "Components/Transform2D.hpp"
+#include "Components/CanvasElement.hpp"
+#include "Components/Fill2D.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 
@@ -63,14 +68,23 @@ void App::initExplodedViewTestScene() {
                           0.1f, 100.0f, 80.0f
     );
 
-#ifdef LOAD_TEST_PUZZLE
-    addTestPuzzle();
-#else
-    addPuzzleFromModel();
-#endif
+    auto puzzle = addTestPuzzle();
+
+    auto uiCanvas = scene.create();
+    scene.emplace<UICanvas>(uiCanvas);
+    auto& uiCanvasChildren = scene.emplace<Children>(uiCanvas);
+
+    auto pieceView = scene.create();
+    auto& pieceViewParent = scene.emplace<Parent>(pieceView);
+    pieceViewParent.parent = uiCanvas;
+    uiCanvasChildren.children.push_front(pieceView);
+    scene.emplace<TransForm2D>(pieceView, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
+    scene.emplace<PiecesView>(pieceView, puzzle, 0.0f);
+    scene.emplace<CanvasElement>(pieceView, 0);
+    scene.emplace<Fill2D>(pieceView, glm::vec3(1.0f, 0.0f, 0.0f), 100.0f, 100.0f);
 }
 
-void App::addTestPuzzle() {
+entt::entity App::addTestPuzzle() {
     auto puzzle = scene.create();
     scene.emplace<Puzzle>(puzzle);
     scene.emplace<Transform>(puzzle,
@@ -127,6 +141,8 @@ void App::addTestPuzzle() {
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,1.0f,1.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);
+
+    return puzzle;
 }
 
 void App::addPuzzleFromModel() {
