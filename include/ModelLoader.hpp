@@ -6,9 +6,9 @@
 class ModelLoader {
 public:
     struct LoaderPieceResult {
-        PuzzlePiece piece;
-        Material material;
-        Model model;
+        std::vector<glm::vec3> blocks;
+        glm::vec3 origin;
+        glm::vec3 color;
     };
 
     struct LoaderPuzzleResult {
@@ -19,8 +19,10 @@ public:
    ~ModelLoader();
 
     LoaderPuzzleResult LoadSolution(std::string path);
-    LoaderPieceResult LoadModel(std::string path);
 private:
+    LoaderPieceResult LoadPiece(std::string line);
+    LoaderPieceResult LoadModel(std::string path);
+
     std::vector<Model> blocks;
     std::vector<PuzzlePiece> shape;
     std::vector<Material> colors;

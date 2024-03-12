@@ -18,7 +18,7 @@
 #define WINDOW_HEIGHT 950
 #define WINDOW_NAME "puzzle tool"
 
-#define LOAD_TEST_PUZZLE
+// #define LOAD_TEST_PUZZLE
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 }
@@ -134,30 +134,22 @@ void App::addPuzzleFromModel() {
     scene.emplace<Puzzle>(puzzle);
     scene.emplace<Transform>(puzzle,
                              glm::vec3(0.0f, 0.0f, 0.0f),
-                             glm::vec3(50.f),
+                             glm::vec3(0.0f),
                              glm::vec3(1.0f));
     scene.emplace<ExplodedView>(puzzle,0.0f);
-
-    auto& puzzleChildren = scene.emplace<Children>(puzzle);
+    scene.emplace<Children>(puzzle);
 
     ModelLoader loader = ModelLoader();
-    auto result = loader.LoadSolution("resources/data/");
+    auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
 
-    for (auto & block : result.pieces)
+    for (auto & item : result.pieces)
     {
-        entt::entity piece = scene.create();
-        scene.emplace<Model>(piece, block.model);
-        scene.emplace<Material>(piece, block.material);
-        scene.emplace<PuzzlePiece>(piece, block.piece);
-        scene.emplace<Shader>(piece, "shaders/shader.vert", "shaders/shader.frag");
-        scene.emplace<Transform>(piece,
-                                 glm::vec3(block.piece.initialPosition),
-                                 glm::vec3(block.piece.initialRotation),
-                                 glm::vec3(1.0f, 1.0f, 1.0f)
-        );
+        auto piece = addPiece(puzzle, item.origin);
 
-        puzzleChildren.children.push_front(piece);
-        scene.emplace<Parent>(piece, puzzle);
+        for (auto & block : item.blocks)
+        {
+            addBlock(piece, block, item.color);
+        }
     }
 }
 
