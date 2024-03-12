@@ -75,18 +75,44 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line)
     std::istream_iterator<std::string> end;
     std::vector<std::string> xyz(begin, end);
     
-    // deal with offset
-    float off_x = std::stoi(xyz[0]);
-    float off_y = std::stoi(xyz[1]);
-    float off_z = std::stoi(xyz[2]);
-    piece.origin = glm::vec3(off_x, off_y, off_z);
+    // calculate center
+    glm::vec3 center = glm::vec3(0, 0, 0);
+    for(uint i = 0; i < xyz.size(); i +=3)
+    {
+        center.x += std::stoi(xyz[i]);
+        center.y += std::stoi(xyz[i+1]);
+        center.z += std::stoi(xyz[i+2]);
+    }
+    center = center / glm::vec3(xyz.size() / 3.0);
+
+    // get block closest to center for origin
+    glm::vec3 origin = glm::vec3(0, 0, 0);
+    float distance = 10000.0;
+    for(uint i = 0; i < xyz.size(); i +=3)
+    {
+        glm::vec3 block = glm::vec3(0, 0, 0);
+        block.x += std::stoi(xyz[i]);
+        block.y += std::stoi(xyz[i+1]);
+        block.z += std::stoi(xyz[i+2]);
+
+        if(glm::distance(block, center) < distance)
+        {
+            std::cout << "found closer block" << std::endl;
+            std::cout << block.x << "-" << block.y << "-" << block.z << std::endl;
+            distance = glm::distance(block, center);
+            origin = block;
+        }
+    }
+
+    origin = origin - glm::vec3(1.5);
+    piece.origin = origin;
     
     for(uint i = 0; i < xyz.size(); i +=3)
     {
         // add offset as well to get puzzle in center
-        float x = std::stoi(xyz[i]) - (off_x + 2);
-        float y = std::stoi(xyz[i+1]) - (off_y + 2);
-        float z = std::stoi(xyz[i+2]) - (off_z + 2);
+        float x = std::stoi(xyz[i]) - (origin.x + 1.5);
+        float y = std::stoi(xyz[i+1]) - (origin.y + 1.5);
+        float z = std::stoi(xyz[i+2]) - (origin.z + 1.5);
         piece.blocks.push_back(glm::vec3(x, y, z));
     }
 
