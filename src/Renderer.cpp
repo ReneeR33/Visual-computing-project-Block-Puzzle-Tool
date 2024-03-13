@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stack>
 #include "Components/Parent.hpp"
+#include "Components/Fill2D.hpp"
+#include "Components/Transform2D.hpp"
 
 Mesh Renderer::fillMesh = {
     .vertices = {
@@ -13,15 +15,17 @@ Mesh Renderer::fillMesh = {
             { .position = glm::vec3(0.5f, 0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
             },
     .indices = {
-            1, 2, 3,
-            4, 2, 3
+            0, 1, 2,
+            3, 1, 2
     }
 };
 
-Renderer::Renderer() {
+Renderer::Renderer()
+    : fillShader("shaders/fill/fill.vert", "shaders/fill/fill.frag") {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
+    //TODO: clearing mesh?
     load(fillMesh);
 }
 
@@ -61,39 +65,55 @@ void Renderer::load(Mesh &mesh) {
 }
 
 void Renderer::render(entt::registry &scene) {
-    renderWorld(scene);
-    renderUI(scene);
-}
-
-void Renderer::renderWorld(entt::registry &scene) {
     auto& background = scene.get<Background>(scene.view<Background>().front());
     auto backgroundColor = background.color;
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    auto& camera = scene.get<Camera>(scene.view<Camera>().front());
 
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
     auto width = static_cast<float>(m_viewport[2]);
     auto height = static_cast<float>(m_viewport[3]);
-    float aspect = width / height;
 
-    float fovRadians = (camera.fov / 180.0f) * glm::pi<float>();
-    glm::mat4 projection = glm::perspective(fovRadians, aspect, camera.near, camera.far);
+    renderWorld(scene, width, height);
+    renderUI(scene, width, height);
+}
+
+void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float viewportHeight) {
+    auto& camera = scene.get<Camera>(scene.view<Camera>().front());
+
+    float aspect = viewportWidth / viewportHeight;
+
+    glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect, camera.near, camera.far);
     glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.direction, glm::normalize(camera.up));
 
     auto& dirLight = scene.get<DirLight>(scene.view<DirLight>().front());
 
-    auto renderableEntitiesView = scene.view<Model, Material, Shader, Transform>();
-    for (auto& entity : renderableEntitiesView) {
+    auto entitiesView = scene.view<Model, Material, Shader, Transform>();
+    for (auto& entity : entitiesView) {
         renderWorldObject(scene, entity, camera, dirLight, view, projection);
     }
 }
 
-void Renderer::renderUI(entt::registry &scene) {
-    
+void Renderer::renderUI(entt::registry &scene, float viewportWidth, float viewportHeight) {
+    glm::mat4 projection = glm::ortho(0.0f, viewportWidth, 0.0f, viewportHeight, -1.0f, 1.0f);
+
+    auto entitiesView = scene.view<Fill2D, Transform2D>();
+    for (auto [entity, fill, transform] : entitiesView.each()) {
+        glm::mat4 modelm(1.0f);
+        modelm = glm::translate(modelm, glm::vec3(transform.position, 0.0f));
+        modelm = glm::rotate(modelm, glm::radians(transform.rotation), glm::vec3(0, 0, 1));
+        modelm = glm::scale(modelm, glm::vec3(transform.scale.x * fill.width, transform.scale.y * fill.height, 1.0f));
+
+        fillShader.use();
+        fillShader.setMat4("projection", projection);
+        fillShader.setMat4("model", modelm);
+
+        fillShader.setVec3("color", fill.color);
+
+        draw(fillMesh);
+    }
 }
 
 void Renderer::renderWorldObject(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection) {

@@ -78,10 +78,10 @@ void App::initExplodedViewTestScene() {
     auto& pieceViewParent = scene.emplace<Parent>(pieceView);
     pieceViewParent.parent = uiCanvas;
     uiCanvasChildren.children.push_front(pieceView);
-    scene.emplace<TransForm2D>(pieceView, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
+    scene.emplace<Transform2D>(pieceView, glm::vec2((float(WINDOW_WIDTH) / 8.0f) * 7.0f, float(WINDOW_HEIGHT) / 2.0f), 0.0f, glm::vec2(1.0f));
     scene.emplace<PiecesView>(pieceView, puzzle, 0.0f);
     scene.emplace<CanvasElement>(pieceView, 0);
-    scene.emplace<Fill2D>(pieceView, glm::vec3(1.0f, 0.0f, 0.0f), 100.0f, 100.0f);
+    scene.emplace<Fill2D>(pieceView, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 4.0f, float(WINDOW_HEIGHT));
 }
 
 entt::entity App::addTestPuzzle() {

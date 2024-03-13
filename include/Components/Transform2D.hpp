@@ -3,7 +3,7 @@
 
 #include "glm/glm.hpp"
 
-struct TransForm2D {
+struct Transform2D {
     glm::vec2 position;
     float rotation;
     glm::vec2 scale;

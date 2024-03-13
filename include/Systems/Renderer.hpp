@@ -21,12 +21,13 @@ public:
     void render(entt::registry& scene);
 
 private:
+    Shader fillShader;
     static Mesh fillMesh;
 
     void load(Mesh& mesh);
 
-    void renderWorld(entt::registry& scene);
-    void renderUI(entt::registry& scene);
+    void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight);
+    void renderUI(entt::registry& scene, float viewportWidth, float viewportHeight);
     void renderWorldObject(entt::registry& scene, const entt::entity& object, Camera camera, DirLight dirlight, glm::mat4& view, glm::mat4& projection);
 
     void draw(Mesh& mesh);
