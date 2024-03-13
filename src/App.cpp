@@ -16,6 +16,8 @@
 #include "Components/Transform2D.hpp"
 #include "Components/CanvasElement.hpp"
 #include "Components/Fill2D.hpp"
+#include "Components/UIScene.hpp"
+#include "Components/RenderInfo.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 
@@ -159,12 +161,46 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     scene.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
     scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 4.0f, float(WINDOW_HEIGHT));
 
-    auto pieceViewPiece = scene.create();
+    /*auto pieceViewPiece = scene.create();
     scene.emplace<Parent>(pieceViewPiece, pieceView);
     pieceViewChildren.children.push_front(pieceViewPiece);
     scene.emplace<CanvasElement>(pieceViewPiece, 1);
     scene.emplace<Transform2D>(pieceViewPiece, glm::vec2(0.0f, 200.0f), 0.0f, glm::vec3(1.0f));
-    scene.emplace<Fill2D>(pieceViewPiece, glm::vec3(0.5f, 0.5f, 0.08f), float(WINDOW_WIDTH) / 8.0f, float(WINDOW_HEIGHT) / 2.0f);
+    scene.emplace<Fill2D>(pieceViewPiece, glm::vec3(0.5f, 0.5f, 0.08f), float(WINDOW_WIDTH) / 8.0f, float(WINDOW_HEIGHT) / 3.0f);*/
+
+    auto pieceUIScene = scene.create();
+    scene.emplace<Parent>(pieceUIScene, pieceView);
+    pieceViewChildren.children.push_front(pieceUIScene);
+    scene.emplace<CanvasElement>(pieceUIScene, 1);
+    scene.emplace<Transform2D>(pieceUIScene, glm::vec2(0.0f, 200.0f), 0.0f, glm::vec3(1.0f));
+    auto& uiScene = scene.emplace<UIScene>(pieceUIScene);
+    uiScene.width = float(WINDOW_WIDTH) / 8.0f;
+    uiScene.height = float(WINDOW_HEIGHT) / 3.0f;
+
+    auto& puzzleChildren = scene.get<Children>(puzzle);
+    auto piece = puzzleChildren.children.front();
+    auto& pieceChildren = scene.get<Children>(piece);
+
+    auto uiScenePiece = scene.create();
+    scene.emplace<Transform>(uiScenePiece, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+    scene.emplace<RenderInfo>(uiScenePiece, true);
+    auto& uiScenePieceChildren = scene.emplace<Children>(uiScenePiece);
+
+    for (auto block : pieceChildren.children) {
+        auto uiScenePieceBlock = scene.create();
+        scene.emplace<RenderInfo>(uiScenePieceBlock, true);
+        scene.emplace<Parent>(uiScenePieceBlock, uiScenePiece);
+        scene.emplace<Model>(uiScenePieceBlock, primitives::cube);
+        scene.emplace<Shader>(uiScenePieceBlock, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
+
+        auto& transform = scene.get<Transform>(block);
+        auto& material = scene.get<Material>(block);
+
+        scene.emplace<Material>(uiScenePieceBlock, material);
+        scene.emplace<Transform>(uiScenePieceBlock, transform);
+    }
+
+    uiScene.entities.push_back(uiScenePiece);
 
     return pieceView;
 }

@@ -9,6 +9,7 @@
 #include "Components/UICanvas.hpp"
 #include "Components/Children.hpp"
 #include "Components/CanvasElement.hpp"
+#include "Components/RenderInfo.hpp"
 
 Mesh Renderer::fillMesh = {
     .vertices = {
@@ -107,22 +108,6 @@ void Renderer::renderUI(entt::registry &scene, float viewportWidth, float viewpo
     for (auto [canvasEntity, uiCanvas] : canvasView.each()) {
         renderUIElement(scene, canvasEntity, viewportWidth, viewportHeight, glm::mat4(1.0f), projection);
     }
-
-    /*auto entitiesView = scene.view<Fill2D, Transform2D>();
-    for (auto [entity, fill, transform] : entitiesView.each()) {
-        glm::mat4 modelm(1.0f);
-        modelm = glm::translate(modelm, glm::vec3(transform.position, 0.0f));
-        modelm = glm::rotate(modelm, glm::radians(transform.rotation), glm::vec3(0, 0, 1));
-        modelm = glm::scale(modelm, glm::vec3(transform.scale.x * fill.width, transform.scale.y * fill.height, 1.0f));
-
-        fillShader.use();
-        fillShader.setMat4("projection", projection);
-        fillShader.setMat4("model", modelm);
-
-        fillShader.setVec3("color", fill.color);
-
-        draw(fillMesh);
-    }*/
 }
 
 void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object, float viewportWidth, float viewportHeight, glm::mat4 model, glm::mat4 &projection) {
@@ -159,6 +144,13 @@ void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object
 }
 
 void Renderer::renderWorldObject(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection) {
+    auto renderInfo = scene.try_get<RenderInfo>(object);
+    if (renderInfo != nullptr) {
+        if (renderInfo->renderInsideUI) {
+            return;
+        }
+    }
+
     auto& shader = scene.get<Shader>(object);
     auto& material = scene.get<Material>(object);
     auto& model = scene.get<Model>(object);
