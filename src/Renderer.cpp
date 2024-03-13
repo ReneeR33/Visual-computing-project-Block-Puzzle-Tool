@@ -5,10 +5,24 @@
 #include <stack>
 #include "Components/Parent.hpp"
 
+Mesh Renderer::fillMesh = {
+    .vertices = {
+            { .position = glm::vec3(-0.5f, -0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
+            { .position = glm::vec3(-0.5f, 0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
+            { .position = glm::vec3(0.5f, -0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
+            { .position = glm::vec3(0.5f, 0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
+            },
+    .indices = {
+            1, 2, 3,
+            4, 2, 3
+    }
+};
 
 Renderer::Renderer() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+
+    load(fillMesh);
 }
 
 void Renderer::load(entt::registry &scene) {
@@ -47,6 +61,11 @@ void Renderer::load(Mesh &mesh) {
 }
 
 void Renderer::render(entt::registry &scene) {
+    renderWorld(scene);
+    renderUI(scene);
+}
+
+void Renderer::renderWorld(entt::registry &scene) {
     auto& background = scene.get<Background>(scene.view<Background>().front());
     auto backgroundColor = background.color;
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
@@ -69,11 +88,15 @@ void Renderer::render(entt::registry &scene) {
 
     auto renderableEntitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto& entity : renderableEntitiesView) {
-        render(scene, entity, camera, dirLight, view, projection);
+        renderWorldObject(scene, entity, camera, dirLight, view, projection);
     }
 }
 
-void Renderer::render(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection) {
+void Renderer::renderUI(entt::registry &scene) {
+    
+}
+
+void Renderer::renderWorldObject(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection) {
     auto& shader = scene.get<Shader>(object);
     auto& material = scene.get<Material>(object);
     auto& model = scene.get<Model>(object);

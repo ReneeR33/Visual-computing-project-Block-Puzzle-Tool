@@ -1,6 +1,7 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
+#include <vector>
 #include "glm/glm.hpp"
 #include "entt/entt.hpp"
 #include "Mesh.hpp"
@@ -20,9 +21,14 @@ public:
     void render(entt::registry& scene);
 
 private:
+    static Mesh fillMesh;
+
     void load(Mesh& mesh);
 
-    void render(entt::registry& scene, const entt::entity& object, Camera camera, DirLight dirlight, glm::mat4& view, glm::mat4& projection);
+    void renderWorld(entt::registry& scene);
+    void renderUI(entt::registry& scene);
+    void renderWorldObject(entt::registry& scene, const entt::entity& object, Camera camera, DirLight dirlight, glm::mat4& view, glm::mat4& projection);
+
     void draw(Mesh& mesh);
 };
 

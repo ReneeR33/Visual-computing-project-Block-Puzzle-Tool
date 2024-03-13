@@ -165,7 +165,7 @@ void App::addPuzzleFromModel() {
         scene.emplace<Model>(piece, block.model);
         scene.emplace<Material>(piece, block.material);
         scene.emplace<PuzzlePiece>(piece, block.piece);
-        scene.emplace<Shader>(piece, "shaders/shader.vert", "shaders/shader.frag");
+        scene.emplace<Shader>(piece, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
         scene.emplace<Transform>(piece,
                                  glm::vec3(block.piece.initialPosition),
                                  glm::vec3(block.piece.initialRotation),
@@ -207,7 +207,7 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position, glm::vec3 col
     auto block = scene.create();
 
     scene.emplace<Model>(block, primitives::cube);
-    scene.emplace<Shader>(block, "shaders/shader.vert", "shaders/shader.frag");
+    scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
     scene.emplace<Material>(block,
                             color,
                             glm::vec3(0.1f, 0.1f, 0.12f),
