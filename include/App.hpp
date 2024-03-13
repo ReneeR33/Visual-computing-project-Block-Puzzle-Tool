@@ -17,6 +17,7 @@ private:
     void initExplodedViewTestScene();
 
     entt::entity addTestPuzzle();
+    entt::entity addPieceView(entt::entity canvas, entt::entity puzzle);
     void addPuzzleFromModel();
 
     entt::entity addPiece(entt::entity puzzle, glm::vec3 position);
