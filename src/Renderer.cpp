@@ -122,6 +122,8 @@ void Renderer::renderUI(entt::registry &scene, float viewportWidth, float viewpo
 }
 
 void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object, float viewportWidth, float viewportHeight, glm::mat4 model, glm::mat4 &projection) {
+    glClear(GL_DEPTH_BUFFER_BIT);
+
     auto& transform = scene.get<Transform2D>(object);
     model = glm::translate(model, glm::vec3(transform.position, 0.0f));
     model = glm::rotate(model, glm::radians(transform.rotation), glm::vec3(0, 0, 1));
@@ -142,14 +144,12 @@ void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object
 
     auto uiScene = scene.try_get<UIScene>(object);
     if (uiScene != nullptr) {
-        model = glm::scale(model, glm::vec3(uiScene->width, uiScene->height, 1.0f));
+        model = glm::scale(model, glm::vec3(uiScene->width / 2, uiScene->height / 2, 1.0f));
 
         glm::mat4 eTransform(1.0f);
-        eTransform = glm::translate(eTransform, glm::vec3(-1.0, -1.0, 0));
+        eTransform = glm::translate(eTransform, glm::vec3(-1, -1, 0));
         eTransform = glm::scale(eTransform, glm::vec3(2 / viewportWidth, 2 / viewportHeight, 1.0f));
         eTransform = eTransform * model;
-
-        glClear(GL_DEPTH_BUFFER_BIT);
 
         renderWorld(uiScene->scene, uiScene->width, uiScene->height, eTransform);
     }

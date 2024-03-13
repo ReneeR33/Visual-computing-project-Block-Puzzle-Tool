@@ -191,7 +191,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     auto pieceViewBackground = scene.create();
     scene.emplace<Parent>(pieceViewBackground, pieceView);
     pieceViewChildren.children.push_front(pieceViewBackground);
-    scene.emplace<CanvasElement>(pieceViewBackground, 0);
+    scene.emplace<CanvasElement>(pieceViewBackground, -1);
     scene.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
     scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 4.0f, float(WINDOW_HEIGHT));
 
@@ -202,9 +202,23 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     scene.emplace<Transform2D>(pieceViewPiece, glm::vec2(0.0f, 200.0f), 0.0f, glm::vec3(1.0f));
     scene.emplace<Fill2D>(pieceViewPiece, glm::vec3(0.5f, 0.5f, 0.08f), float(WINDOW_WIDTH) / 8.0f, float(WINDOW_HEIGHT) / 3.0f);*/
 
+    auto pieceViewSinglePieceView = scene.create();
+    scene.emplace<Parent>(pieceViewSinglePieceView, pieceView);
+    pieceViewChildren.children.push_front(pieceViewSinglePieceView);
+    scene.emplace<CanvasElement>(pieceViewSinglePieceView, 1);
+    scene.emplace<Transform2D>(pieceViewSinglePieceView, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
+    auto& pieceViewSinglePieceViewChildren = scene.emplace<Children>(pieceViewSinglePieceView);
+
+    auto pieceViewSinglePieceViewBackGround = scene.create();
+    scene.emplace<Parent>(pieceViewSinglePieceViewBackGround, pieceViewSinglePieceView);
+    pieceViewChildren.children.push_front(pieceViewSinglePieceViewBackGround);
+    scene.emplace<CanvasElement>(pieceViewSinglePieceViewBackGround, 0);
+    scene.emplace<Transform2D>(pieceViewSinglePieceViewBackGround, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
+    scene.emplace<Fill2D>(pieceViewSinglePieceViewBackGround, glm::vec3(0.15f, 0.15f, 0.18f), float(WINDOW_WIDTH) / 7.0f, float(WINDOW_HEIGHT) / 2.0f);
+
     auto pieceUIScene = scene.create();
-    scene.emplace<Parent>(pieceUIScene, pieceView);
-    pieceViewChildren.children.push_front(pieceUIScene);
+    scene.emplace<Parent>(pieceUIScene, pieceViewSinglePieceView);
+    pieceViewSinglePieceViewChildren.children.push_front(pieceUIScene);
     scene.emplace<CanvasElement>(pieceUIScene, 1);
     scene.emplace<Transform2D>(pieceUIScene, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
     auto& uiScene = scene.emplace<UIScene>(pieceUIScene);
@@ -227,7 +241,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
                           0.1f, 100.0f, 80.0f
     );
 
-    auto block = uiScene.scene.create();
+    /*auto block = uiScene.scene.create();
 
     uiScene.scene.emplace<Model>(block, primitives::cube);
     uiScene.scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
@@ -241,14 +255,14 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
                              glm::vec3(glm::vec3(0.0f)),
                              glm::vec3(0.0f, 50.0f, 0.0f),
                              glm::vec3(1.0f)
-    );
+    );*/
 
-    /*auto& puzzleChildren = scene.get<Children>(puzzle);
+    auto& puzzleChildren = scene.get<Children>(puzzle);
     auto piece = puzzleChildren.children.front();
     auto& pieceChildren = scene.get<Children>(piece);
 
     auto uiScenePiece = uiScene.scene.create();
-    uiScene.scene.emplace<Transform>(uiScenePiece, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+    uiScene.scene.emplace<Transform>(uiScenePiece, glm::vec3(0.0f), glm::vec3(0.0f, 40.0f, 0.0f), glm::vec3(1.0f));
     auto& uiScenePieceChildren = uiScene.scene.emplace<Children>(uiScenePiece);
 
     for (auto block : pieceChildren.children) {
@@ -262,7 +276,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
 
         uiScene.scene.emplace<Material>(uiScenePieceBlock, material);
         uiScene.scene.emplace<Transform>(uiScenePieceBlock, transform);
-    }*/
+    }
 
     //uiScene.entities.push_back(uiScenePiece);
 
