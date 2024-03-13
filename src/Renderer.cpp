@@ -2,10 +2,13 @@
 
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <stack>
+#include <algorithm>
 #include "Components/Parent.hpp"
 #include "Components/Fill2D.hpp"
 #include "Components/Transform2D.hpp"
+#include "Components/UICanvas.hpp"
+#include "Components/Children.hpp"
+#include "Components/CanvasElement.hpp"
 
 Mesh Renderer::fillMesh = {
     .vertices = {
@@ -99,7 +102,13 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 void Renderer::renderUI(entt::registry &scene, float viewportWidth, float viewportHeight) {
     glm::mat4 projection = glm::ortho(0.0f, viewportWidth, 0.0f, viewportHeight, -1.0f, 1.0f);
 
-    auto entitiesView = scene.view<Fill2D, Transform2D>();
+    auto canvasView = scene.view<UICanvas>();
+
+    for (auto [canvasEntity, uiCanvas] : canvasView.each()) {
+        renderUIElement(scene, canvasEntity, viewportWidth, viewportHeight, glm::mat4(1.0f), projection);
+    }
+
+    /*auto entitiesView = scene.view<Fill2D, Transform2D>();
     for (auto [entity, fill, transform] : entitiesView.each()) {
         glm::mat4 modelm(1.0f);
         modelm = glm::translate(modelm, glm::vec3(transform.position, 0.0f));
@@ -113,6 +122,39 @@ void Renderer::renderUI(entt::registry &scene, float viewportWidth, float viewpo
         fillShader.setVec3("color", fill.color);
 
         draw(fillMesh);
+    }*/
+}
+
+void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object, float viewportWidth, float viewportHeight, glm::mat4 model, glm::mat4 &projection) {
+    auto& transform = scene.get<Transform2D>(object);
+    model = glm::translate(model, glm::vec3(transform.position, 0.0f));
+    model = glm::rotate(model, glm::radians(transform.rotation), glm::vec3(0, 0, 1));
+    model = glm::scale(model, glm::vec3(transform.scale.x, transform.scale.y, 1.0f));
+
+    auto fill = scene.try_get<Fill2D>(object);
+    if (fill != nullptr) {
+        model = glm::scale(model, glm::vec3(fill->width, fill->height, 1.0f));
+
+        fillShader.use();
+        fillShader.setMat4("projection", projection);
+        fillShader.setMat4("model", model);
+
+        fillShader.setVec3("color", fill->color);
+
+        draw(fillMesh);
+    }
+
+    auto children = scene.try_get<Children>(object);
+    if (children != nullptr) {
+        children->children.sort([&] (entt::entity& e1, entt::entity& e2) {
+            auto& canvasElement1 = scene.get<CanvasElement>(e1);
+            auto& canvasElement2 = scene.get<CanvasElement>(e2);
+
+            return canvasElement1.layer > canvasElement2.layer;
+        });
+        for (auto child : children->children) {
+            renderUIElement(scene, child, viewportWidth, viewportHeight, model, projection);
+        }
     }
 }
 

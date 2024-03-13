@@ -70,18 +70,33 @@ void App::initExplodedViewTestScene() {
 
     auto puzzle = addTestPuzzle();
 
+    // UI
     auto uiCanvas = scene.create();
     scene.emplace<UICanvas>(uiCanvas);
+    scene.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
     auto& uiCanvasChildren = scene.emplace<Children>(uiCanvas);
 
     auto pieceView = scene.create();
-    auto& pieceViewParent = scene.emplace<Parent>(pieceView);
-    pieceViewParent.parent = uiCanvas;
+    scene.emplace<Parent>(pieceView, uiCanvas);
     uiCanvasChildren.children.push_front(pieceView);
     scene.emplace<Transform2D>(pieceView, glm::vec2((float(WINDOW_WIDTH) / 8.0f) * 7.0f, float(WINDOW_HEIGHT) / 2.0f), 0.0f, glm::vec2(1.0f));
     scene.emplace<PiecesView>(pieceView, puzzle, 0.0f);
     scene.emplace<CanvasElement>(pieceView, 0);
-    scene.emplace<Fill2D>(pieceView, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 4.0f, float(WINDOW_HEIGHT));
+    auto& pieceViewChildren = scene.emplace<Children>(pieceView);
+
+    auto pieceViewBackground = scene.create();
+    scene.emplace<Parent>(pieceViewBackground, pieceView);
+    pieceViewChildren.children.push_front(pieceViewBackground);
+    scene.emplace<CanvasElement>(pieceViewBackground, 0);
+    scene.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
+    scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 4.0f, float(WINDOW_HEIGHT));
+
+    auto pieceViewPiece = scene.create();
+    scene.emplace<Parent>(pieceViewPiece, pieceView);
+    pieceViewChildren.children.push_front(pieceViewPiece);
+    scene.emplace<CanvasElement>(pieceViewPiece, 1);
+    scene.emplace<Transform2D>(pieceViewPiece, glm::vec2(0.0f, 200.0f), 0.0f, glm::vec3(1.0f));
+    scene.emplace<Fill2D>(pieceViewPiece, glm::vec3(0.5f, 0.5f, 0.08f), float(WINDOW_WIDTH) / 8.0f, float(WINDOW_HEIGHT) / 2.0f);
 }
 
 entt::entity App::addTestPuzzle() {

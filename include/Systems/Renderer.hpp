@@ -28,6 +28,7 @@ private:
 
     void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight);
     void renderUI(entt::registry& scene, float viewportWidth, float viewportHeight);
+    void renderUIElement(entt::registry& scene, const entt::entity& object, float viewportWidth, float viewportHeight, glm::mat4 model, glm::mat4& projection);
     void renderWorldObject(entt::registry& scene, const entt::entity& object, Camera camera, DirLight dirlight, glm::mat4& view, glm::mat4& projection);
 
     void draw(Mesh& mesh);
