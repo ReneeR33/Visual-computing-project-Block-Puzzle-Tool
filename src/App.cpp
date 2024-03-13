@@ -17,7 +17,6 @@
 #include "Components/CanvasElement.hpp"
 #include "Components/Fill2D.hpp"
 #include "Components/UIScene.hpp"
-#include "Components/RenderInfo.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 
@@ -35,6 +34,41 @@ void App::run() {
     PuzzleViewSystem::init(scene, window);
 
     initExplodedViewTestScene();
+
+    /*auto background = scene.create();
+    scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
+
+    auto dirLight = scene.create();
+    scene.emplace<DirLight>(dirLight,
+                            glm::vec3(-0.4f, 0.14f, -1.0f),
+                            glm::vec3(1.0f),
+                            glm::vec3(1.0f),
+                            glm::vec3(1.0f)
+    );
+
+    auto camera = scene.create();
+    scene.emplace<Camera>(camera,
+                          glm::vec3(0.0f, 0.0f, 6.0f),
+                          glm::vec3(0.0f, 0.0f, -1.0f),
+                          glm::vec3(0.0f, 1.0f, 0.0f),
+                          0.1f, 100.0f, 80.0f
+    );
+
+    auto block = scene.create();
+
+    scene.emplace<Model>(block, primitives::cube);
+    scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
+    scene.emplace<Material>(block,
+                            glm::vec3(1.0f, 0.0f, 0.0f),
+                            glm::vec3(0.1f, 0.1f, 0.12f),
+                            glm::vec3(0.0f),
+                            1.0f
+    );
+    scene.emplace<Transform>(block,
+                             glm::vec3(glm::vec3(0.0f)),
+                             glm::vec3(0.0f, 50.0f, 0.0f),
+                             glm::vec3(1.0f)
+    );*/
 
     renderer.load(scene);
     DebugWindow debugWindow(window);
@@ -172,35 +206,65 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     scene.emplace<Parent>(pieceUIScene, pieceView);
     pieceViewChildren.children.push_front(pieceUIScene);
     scene.emplace<CanvasElement>(pieceUIScene, 1);
-    scene.emplace<Transform2D>(pieceUIScene, glm::vec2(0.0f, 200.0f), 0.0f, glm::vec3(1.0f));
+    scene.emplace<Transform2D>(pieceUIScene, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
     auto& uiScene = scene.emplace<UIScene>(pieceUIScene);
-    uiScene.width = float(WINDOW_WIDTH) / 8.0f;
-    uiScene.height = float(WINDOW_HEIGHT) / 3.0f;
+    uiScene.width = float(WINDOW_WIDTH) / 7.0f;
+    uiScene.height = float(WINDOW_HEIGHT) / 2.0f;
 
-    auto& puzzleChildren = scene.get<Children>(puzzle);
+    auto dirLight = uiScene.scene.create();
+    uiScene.scene.emplace<DirLight>(dirLight,
+                            glm::vec3(-0.4f, 0.14f, -1.0f),
+                            glm::vec3(1.0f),
+                            glm::vec3(1.0f),
+                            glm::vec3(1.0f)
+    );
+
+    auto camera = uiScene.scene.create();
+    uiScene.scene.emplace<Camera>(camera,
+                          glm::vec3(0.0f, 0.0f, 6.0f),
+                          glm::vec3(0.0f, 0.0f, -1.0f),
+                          glm::vec3(0.0f, 1.0f, 0.0f),
+                          0.1f, 100.0f, 80.0f
+    );
+
+    auto block = uiScene.scene.create();
+
+    uiScene.scene.emplace<Model>(block, primitives::cube);
+    uiScene.scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
+    uiScene.scene.emplace<Material>(block,
+                            glm::vec3(1.0f, 0.0f, 0.0f),
+                            glm::vec3(0.1f, 0.1f, 0.12f),
+                            glm::vec3(0.0f),
+                            1.0f
+    );
+    uiScene.scene.emplace<Transform>(block,
+                             glm::vec3(glm::vec3(0.0f)),
+                             glm::vec3(0.0f, 50.0f, 0.0f),
+                             glm::vec3(1.0f)
+    );
+
+    /*auto& puzzleChildren = scene.get<Children>(puzzle);
     auto piece = puzzleChildren.children.front();
     auto& pieceChildren = scene.get<Children>(piece);
 
-    auto uiScenePiece = scene.create();
-    scene.emplace<Transform>(uiScenePiece, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
-    scene.emplace<RenderInfo>(uiScenePiece, true);
-    auto& uiScenePieceChildren = scene.emplace<Children>(uiScenePiece);
+    auto uiScenePiece = uiScene.scene.create();
+    uiScene.scene.emplace<Transform>(uiScenePiece, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+    auto& uiScenePieceChildren = uiScene.scene.emplace<Children>(uiScenePiece);
 
     for (auto block : pieceChildren.children) {
-        auto uiScenePieceBlock = scene.create();
-        scene.emplace<RenderInfo>(uiScenePieceBlock, true);
-        scene.emplace<Parent>(uiScenePieceBlock, uiScenePiece);
-        scene.emplace<Model>(uiScenePieceBlock, primitives::cube);
-        scene.emplace<Shader>(uiScenePieceBlock, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
+        auto uiScenePieceBlock = uiScene.scene.create();
+        uiScene.scene.emplace<Parent>(uiScenePieceBlock, uiScenePiece);
+        uiScene.scene.emplace<Model>(uiScenePieceBlock, primitives::cube);
+        uiScene.scene.emplace<Shader>(uiScenePieceBlock, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
 
         auto& transform = scene.get<Transform>(block);
         auto& material = scene.get<Material>(block);
 
-        scene.emplace<Material>(uiScenePieceBlock, material);
-        scene.emplace<Transform>(uiScenePieceBlock, transform);
-    }
+        uiScene.scene.emplace<Material>(uiScenePieceBlock, material);
+        uiScene.scene.emplace<Transform>(uiScenePieceBlock, transform);
+    }*/
 
-    uiScene.entities.push_back(uiScenePiece);
+    //uiScene.entities.push_back(uiScenePiece);
 
     return pieceView;
 }

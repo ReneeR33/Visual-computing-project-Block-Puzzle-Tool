@@ -7,7 +7,7 @@
 struct UIScene {
     float width;
     float height;
-    std::vector<entt::entity> entities;
+    entt::registry scene;
 };
 
 #endif //UI_SCENE_HPP

@@ -10,6 +10,9 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+// for rendering a scene inside the UI
+uniform mat4 eTransform;
+
 void main()
 {
     vec4 iPosH = vec4(iPos, 1.0);
@@ -17,5 +20,5 @@ void main()
     FragPos = vec3(model * iPosH);
     Normal = mat3(transpose(inverse(model))) * iNormal;
 
-    gl_Position = projection * view * model * iPosH;
+    gl_Position = eTransform * projection * view * model * iPosH;
 }
