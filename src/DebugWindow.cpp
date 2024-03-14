@@ -15,6 +15,7 @@
 #include "Components/PuzzlePiece.hpp"
 #include "Components/Puzzle.hpp"
 #include "Components/Children.hpp"
+#include "Components/ScrollView.hpp"
 
 DebugWindow::DebugWindow(GlfwWindow &window) 
     : window(window)
@@ -36,6 +37,12 @@ void DebugWindow::render(entt::registry& scene) {
 
         auto& background = scene.get<Background>(scene.view<Background>().front());
         ImGui::ColorEdit3("background", &background.color.x);
+
+        auto scrollViewView = scene.view<ScrollView>();
+        if (!scrollViewView.empty()) {
+            auto& scrollView = scene.get<ScrollView>(scrollViewView.front());
+            ImGui::SliderFloat("scroll view", &scrollView.value, scrollView.minValue, scrollView.maxValue);
+        }
 
         auto puzzleView = scene.view<Puzzle>();
         if (!puzzleView.empty()) {

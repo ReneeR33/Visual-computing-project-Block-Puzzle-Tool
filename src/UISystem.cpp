@@ -1,7 +1,7 @@
 #include "Systems/UISystem.hpp"
 
 #include "Components/ScrollView.hpp"
-#include "Components/Transform.hpp"
+#include "Components/Transform2D.hpp"
 
 
 void UISystem::update(entt::registry &scene) {
@@ -16,7 +16,7 @@ void UISystem::updateScrollView(entt::registry &scene) {
             scrollView.value = scrollView.maxValue;
         }
 
-        auto transform = scene.try_get<Transform>(entity);
+        auto transform = scene.try_get<Transform2D>(entity);
         if (transform != nullptr) {
             transform->position.y = scrollView.value;
         }
