@@ -38,41 +38,6 @@ void App::run() {
 
     initExplodedViewTestScene();
 
-    /*auto background = scene.create();
-    scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
-
-    auto dirLight = scene.create();
-    scene.emplace<DirLight>(dirLight,
-                            glm::vec3(-0.4f, 0.14f, -1.0f),
-                            glm::vec3(1.0f),
-                            glm::vec3(1.0f),
-                            glm::vec3(1.0f)
-    );
-
-    auto camera = scene.create();
-    scene.emplace<Camera>(camera,
-                          glm::vec3(0.0f, 0.0f, 6.0f),
-                          glm::vec3(0.0f, 0.0f, -1.0f),
-                          glm::vec3(0.0f, 1.0f, 0.0f),
-                          0.1f, 100.0f, 80.0f
-    );
-
-    auto block = scene.create();
-
-    scene.emplace<Model>(block, primitives::cube);
-    scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
-    scene.emplace<Material>(block,
-                            glm::vec3(1.0f, 0.0f, 0.0f),
-                            glm::vec3(0.1f, 0.1f, 0.12f),
-                            glm::vec3(0.0f),
-                            1.0f
-    );
-    scene.emplace<Transform>(block,
-                             glm::vec3(glm::vec3(0.0f)),
-                             glm::vec3(0.0f, 50.0f, 0.0f),
-                             glm::vec3(1.0f)
-    );*/
-
     renderer.load(scene);
     DebugWindow debugWindow(window);
 
