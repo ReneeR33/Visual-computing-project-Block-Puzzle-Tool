@@ -4,6 +4,7 @@
 #include "Components/Shader.hpp"
 #include "Systems/Renderer.hpp"
 #include "Systems/PuzzleViewSystem.hpp"
+#include "Systems/UISystem.hpp"
 #include "DebugWindow.hpp"
 #include "Components/Material.hpp"
 #include "Components/ExplodedView.hpp"
@@ -32,6 +33,7 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 
 void App::run() {
     Renderer renderer;
+    UISystem uiSystem;
     PuzzleViewSystem::init(scene, window);
 
     initExplodedViewTestScene();
@@ -76,6 +78,7 @@ void App::run() {
 
     while (!window.windowShouldClose()) {
         glfwPollEvents();
+        uiSystem.update(scene);
         PuzzleViewSystem::update();
 
         renderer.render(scene);
