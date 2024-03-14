@@ -1,3 +1,6 @@
+#ifndef MODELLOADER_HPP
+#define MODELLOADER_HPP
+
 #include <entt/entt.hpp>
 #include "Components/Model.hpp"
 #include "Components/Material.hpp"
@@ -27,3 +30,5 @@ private:
     std::vector<PuzzlePiece> shape;
     std::vector<Material> colors;
 };
+
+#endif //MODELLOADER_HPP

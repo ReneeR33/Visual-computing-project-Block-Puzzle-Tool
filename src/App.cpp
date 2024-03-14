@@ -8,11 +8,13 @@
 #include "Components/Material.hpp"
 #include "Components/ExplodedView.hpp"
 #include "Components/PuzzlePiece.hpp"
+#include "Components/Solution.hpp"
 #include "Components/Parent.hpp"
 #include "Components/Children.hpp"
 #include "Components/Puzzle.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
+#include "SolutionFinder.hpp"
 
 #define WINDOW_WIDTH 1600
 #define WINDOW_HEIGHT 950
@@ -141,6 +143,11 @@ void App::addPuzzleFromModel() {
 
     ModelLoader loader = ModelLoader();
     auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
+
+    // TODO: load size dynamically
+    glm::vec3 size = glm::vec3(4);
+    SolutionFinder finder = SolutionFinder(size);
+    auto solutions = finder.GetSolution(result);    
 
     for (auto & item : result.pieces)
     {
