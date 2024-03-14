@@ -17,6 +17,7 @@
 #include "Components/CanvasElement.hpp"
 #include "Components/Fill2D.hpp"
 #include "Components/UIScene.hpp"
+#include "Components/ScrollView.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 
@@ -200,16 +201,27 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
 
     auto& puzzleChildren = scene.get<Children>(puzzle);
 
+    auto pieceViewScrollView = scene.create();
+    scene.emplace<Parent>(pieceViewScrollView, pieceView);
+    pieceViewChildren.children.push_front(pieceViewScrollView);
+    scene.emplace<CanvasElement>(pieceViewScrollView, 2);
+    scene.emplace<Transform2D>(pieceViewScrollView, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
+    auto& pieceViewScrollViewChildren = scene.emplace<Children>(pieceViewScrollView);
+    scene.emplace<ScrollView>(pieceViewScrollView, 0.0f,
+        0.0f,
+        float(puzzleChildren.children.size()) * (pieceViewSinglePieceViewHeight + 50.0f)
+    );
+
     int i = 0;
     for (auto pieceEntity : puzzleChildren.children) {
         auto& pieceChildren = scene.get<Children>(pieceEntity);
 
         auto pieceViewSinglePieceView = scene.create();
-        scene.emplace<Parent>(pieceViewSinglePieceView, pieceView);
-        pieceViewChildren.children.push_front(pieceViewSinglePieceView);
+        scene.emplace<Parent>(pieceViewSinglePieceView, pieceViewScrollView);
+        pieceViewScrollViewChildren.children.push_front(pieceViewSinglePieceView);
         scene.emplace<CanvasElement>(pieceViewSinglePieceView, 1);
         scene.emplace<Transform2D>(pieceViewSinglePieceView, 
-            glm::vec2(0.0f, 300.0f + -(float(i) * (pieceViewSinglePieceViewHeight + 50.0f))), 
+            glm::vec2(0.0f, -(float(i) * (pieceViewSinglePieceViewHeight + 50.0f))), 
             0.0f, 
             glm::vec3(1.0f)
         );
