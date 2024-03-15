@@ -18,7 +18,7 @@ private:
 
     entt::entity addTestPuzzle();
     entt::entity addPieceView(entt::entity canvas, entt::entity puzzle);
-    void addPuzzleFromModel();
+    entt::entity addPuzzleFromModel();
 
     entt::entity addPiece(entt::entity puzzle, glm::vec3 position);
     entt::entity addBlock(entt::entity piece, glm::vec3 position, glm::vec3 color);

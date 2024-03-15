@@ -31,8 +31,7 @@
 
 #define PIECE_VIEW_WIDTH WINDOW_WIDTH / 5
 
-#define LOAD_TEST_PUZZLE
-// #define LOAD_TEST_PUZZLE
+//#define LOAD_TEST_PUZZLE
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 }
@@ -78,13 +77,19 @@ void App::initExplodedViewTestScene() {
 
     auto camera = scene.create();
     scene.emplace<Camera>(camera,
-                          glm::vec3(0.0f, 0.0f, 6.0f),
+                          glm::vec3(0.0f, 0.0f, 10.0f),
                           glm::vec3(0.0f, 0.0f, -1.0f),
                           glm::vec3(0.0f, 1.0f, 0.0f),
-                          0.1f, 100.0f, 80.0f
+                          0.1f, 100.0f, 45.0f
     );
 
-    auto puzzle = addTestPuzzle();
+    entt::entity puzzle;
+
+    #ifndef LOAD_TEST_PUZZLE
+    puzzle = addPuzzleFromModel();
+    #else
+    puzzle = addTestPuzzle();
+    #endif
 
     // UI
     auto uiCanvas = scene.create();
@@ -277,8 +282,9 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     return pieceView;
 }
 
-void App::addPuzzleFromModel() {
+entt::entity App::addPuzzleFromModel() {
     auto puzzle = scene.create();
+
     scene.emplace<Puzzle>(puzzle);
     scene.emplace<Transform>(puzzle,
                              glm::vec3(0.0f, 0.0f, 0.0f),
@@ -299,6 +305,8 @@ void App::addPuzzleFromModel() {
             addBlock(piece, block, item.color);
         }
     }
+
+    return puzzle;
 }
 
 entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position) {

@@ -129,7 +129,7 @@ void DebugWindow::CameraInfo(entt::registry& scene) {
     auto& camera = scene.get<Camera>(scene.view<Camera>().front());
 
     if (ImGui::CollapsingHeader("Camera")) {
-        ImGui::SliderFloat3("cam position", &camera.position.x, -5.0f, 5.0f);
+        ImGui::SliderFloat3("cam position", &camera.position.x, -15.0f, 15.0f);
         ImGui::SliderFloat3("cam direction", &camera.direction.x, -1.0f, 1.0f);
         ImGui::SliderFloat3("up", &camera.up.x, -1.0f, 1.0f);
         ImGui::SliderFloat("near", &camera.near, 0.0f, 200.0f);
