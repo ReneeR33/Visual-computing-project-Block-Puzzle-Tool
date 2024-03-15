@@ -3,11 +3,14 @@
 #include <iostream>
 #include <fstream>
 #include <typeinfo>
+#include <string>
 
 #include "ModelLoader.hpp"
 #include "Components/Material.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Shader.hpp"
+
+#define uint unsigned int
 
 ModelLoader::ModelLoader()
 {
@@ -21,50 +24,102 @@ ModelLoader::~ModelLoader()
 
 ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
 {
+    std::vector<LoaderPieceResult> file_result;
     LoaderPuzzleResult result;
-    std::vector<LoaderPieceResult> pieces;
-    pieces.push_back(LoadModel(path + "block_1.json"));
-    pieces.push_back(LoadModel(path + "block_2.json"));
-    pieces.push_back(LoadModel(path + "block_0.json"));
-    pieces.push_back(LoadModel(path + "block_3.json"));
-    pieces.push_back(LoadModel(path + "block_4.json"));
-    pieces.push_back(LoadModel(path + "block_5.json"));
-    pieces.push_back(LoadModel(path + "block_6.json"));
-    pieces.push_back(LoadModel(path + "block_7.json"));
-    auto path_puzzle = path + "puzzle_test.json";
 
-    std::ifstream check(path_puzzle);
-
-    if(!nlohmann::json::accept(check))
+    std::string line;
+    std::ifstream myfile (path);
+    if (myfile.is_open())
     {
-        std:: cout << "malformed json file for " << path_puzzle << std::endl;
-        return result;
+        while (std::getline(myfile, line))
+        {
+            if(line.length() == 0 || line[0] == '#')
+            {
+                continue;
+            }
+            file_result.push_back(LoadPiece(line));
+        }
+        myfile.close();
     }
-
-    std::ifstream read(path_puzzle);
-    nlohmann::json data =  nlohmann::json::parse(read);
-
-
-    for (auto & block : data["solution"])
+    else 
     {
-        auto x = block[1][0].template get<double>();
-        auto y = block[1][1].template get<double>();
-        auto z = block[1][2].template get<double>();
+        std::cout << "Unable to open file" << std::endl;
+        return result;
+    } 
 
-        auto rx = block[2][0].template get<double>();
-        auto ry = block[2][1].template get<double>();
-        auto rz = block[2][2].template get<double>();
+    glm::vec3 input_colors[] = 
+    {
+        glm::vec3(1.000000, 0.106535, 0.151241),
+        glm::vec3(0.064279, 0.242948, 1.000000),
+        glm::vec3(1.000000, 0.023907, 0.932830),
+        glm::vec3(0.019089, 1.000000, 0.049019),
+        glm::vec3(1.000000, 1.000000, 1.000000),
+        glm::vec3(0.147655, 0.099908, 0.025475),
+        glm::vec3(0.057968, 0.057968, 0.057968),
+        glm::vec3(0.008985, 0.309690, 0.274033),
+    };
 
-        LoaderPieceResult output = pieces[block[0]];
-        output.piece.initialPosition = glm::vec3(x, y, z);
-        output.piece.initialRotation = glm::vec3(rx, ry, rz);
-
-        result.pieces.push_back(output);
+    for (uint i = 0; i < file_result.size(); i++)
+    {
+        file_result[i].color = input_colors[i];
+        result.pieces.push_back(file_result[i]);
     }
 
     return result;
 }
 
+
+ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line)
+{
+    LoaderPieceResult piece;
+    std::stringstream ss(line);
+    std::istream_iterator<std::string> begin(ss);
+    std::istream_iterator<std::string> end;
+    std::vector<std::string> xyz(begin, end);
+    
+    // calculate center
+    glm::vec3 center = glm::vec3(0, 0, 0);
+    for(uint i = 0; i < xyz.size(); i +=3)
+    {
+        center.x += std::stoi(xyz[i]);
+        center.y += std::stoi(xyz[i+1]);
+        center.z += std::stoi(xyz[i+2]);
+    }
+    center = center / glm::vec3(xyz.size() / 3.0);
+
+    // get block closest to center for origin
+    glm::vec3 origin = glm::vec3(0, 0, 0);
+    float distance = 10000.0;
+    for(uint i = 0; i < xyz.size(); i +=3)
+    {
+        glm::vec3 block = glm::vec3(0, 0, 0);
+        block.x += std::stoi(xyz[i]);
+        block.y += std::stoi(xyz[i+1]);
+        block.z += std::stoi(xyz[i+2]);
+
+        if(glm::distance(block, center) < distance)
+        {
+            std::cout << "found closer block" << std::endl;
+            std::cout << block.x << "-" << block.y << "-" << block.z << std::endl;
+            distance = glm::distance(block, center);
+            origin = block;
+        }
+    }
+
+    origin = origin - glm::vec3(1.5);
+    piece.origin = origin;
+    
+    for(uint i = 0; i < xyz.size(); i +=3)
+    {
+        // add offset as well to get puzzle in center
+        float x = std::stoi(xyz[i]) - (origin.x + 1.5);
+        float y = std::stoi(xyz[i+1]) - (origin.y + 1.5);
+        float z = std::stoi(xyz[i+2]) - (origin.z + 1.5);
+        piece.blocks.push_back(glm::vec3(x, y, z));
+    }
+
+    return piece;
+}
 
 ModelLoader::LoaderPieceResult ModelLoader::LoadModel(std::string path)
 {
@@ -133,8 +188,8 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadModel(std::string path)
     mesh.indices = indices;
     meshes.push_back(mesh);
 
-    result.piece = piece;
-    result.material = material;
-    result.model.meshes = meshes;
+    // result.piece = piece;
+    // result.material = material;
+    // result.model.meshes = meshes;
     return result;
 }
