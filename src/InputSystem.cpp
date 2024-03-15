@@ -9,6 +9,11 @@ InputSystem::InputSystem(GlfwWindow& window)
 }
 
 void InputSystem::init(GlfwWindow& window) {
+    if (inputSystem == nullptr) {
+        glfwSetScrollCallback(window.getHandle(), scrollCallback);
+        glfwSetMouseButtonCallback(window.getHandle(), mouseButtonCallback);
+    }
+
     delete inputSystem;
     inputSystem = new InputSystem(window);
 }
@@ -17,13 +22,15 @@ void InputSystem::update() {
     glfwPollEvents();
 }
 
-template<class T>
-entt::sink<entt::sigh<void (T &), std::allocator<void>>> InputSystem::event() {
+void InputSystem::getCursorPos(double& xpos, double& ypos) {
     if (inputSystem == nullptr) {
-        throw std::runtime_error("InputSystem::event: inputSystem is not initialized");
+        throw std::runtime_error("InputSystem::getCursorPos: inputSystem is not initialized");
     }
 
-    return inputSystem->dispatcher.sink<T>();
+    auto& window = inputSystem->window;
+
+    glfwGetCursorPos(window.getHandle(), &xpos, &ypos);
+    ypos = window.getHeight() - ypos;
 }
 
 void InputSystem::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {

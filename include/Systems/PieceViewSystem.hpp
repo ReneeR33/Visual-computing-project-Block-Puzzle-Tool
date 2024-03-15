@@ -2,22 +2,17 @@
 #define PIECE_VIEW_SYSTEM
 
 #include <entt/entt.hpp>
-#include "GlfwWindow.hpp"
+#include "InputSystem.hpp"
 
 class PieceViewSystem {
 public:
-    static void init(entt::registry& scene, GlfwWindow& window);
-    static void update();
+    PieceViewSystem(entt::registry& scene);
+    void update();
 
 private:
-    static PieceViewSystem* pieceViewSystem;
+    entt::registry& scene;
 
-    entt::registry &scene;
-    GlfwWindow& window;
-
-    PieceViewSystem(entt::registry& scene, GlfwWindow& window);
-
-    static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    void scrollCallback(InputSystem::ScrollEvent scrollEvent);
 };
 
 #endif //PIECE_VIEW_SYSTEM

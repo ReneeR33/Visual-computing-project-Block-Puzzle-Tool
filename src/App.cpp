@@ -37,10 +37,12 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 }
 
 void App::run() {
+    InputSystem::init(window);
+
     Renderer renderer;
     UISystem uiSystem;
-    PuzzleViewSystem::init(scene, window);
-    PieceViewSystem::init(scene, window);
+    //PuzzleViewSystem::init(scene, window);
+    PieceViewSystem pieceViewSystem(scene);
 
     initExplodedViewTestScene();
 
@@ -48,10 +50,10 @@ void App::run() {
     DebugWindow debugWindow(window);
 
     while (!window.windowShouldClose()) {
-        glfwPollEvents();
+        InputSystem::update();
         uiSystem.update(scene);
-        PuzzleViewSystem::update();
-        PieceViewSystem::update();
+        //PuzzleViewSystem::update();
+        pieceViewSystem.update();
 
         renderer.render(scene);
         debugWindow.render(scene);

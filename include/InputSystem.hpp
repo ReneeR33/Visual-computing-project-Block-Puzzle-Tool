@@ -20,8 +20,16 @@ public:
     static void init(GlfwWindow& window);
     static void update();
 
-    template<class T>
-    static entt::sink<entt::sigh<void (T &), std::allocator<void>>> event();
+    static void getCursorPos(double& xpos, double& ypos);
+
+    template<typename T>
+    static entt::sink<entt::sigh<void (T &), std::allocator<void>>> event() {
+        if (inputSystem == nullptr) {
+            throw std::runtime_error("InputSystem::event: inputSystem is not initialized");
+        }
+
+        return inputSystem->dispatcher.sink<T>();
+    }
 
 private:
     static InputSystem* inputSystem;
