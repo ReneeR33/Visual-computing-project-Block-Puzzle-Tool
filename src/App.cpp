@@ -21,6 +21,7 @@
 #include "Components/ScrollView.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
+#include "UI.hpp"
 
 #define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
@@ -164,7 +165,18 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     scene.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
     scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 4.0f, float(WINDOW_HEIGHT));
 
-    const float pieceViewSinglePieceViewWidth = float(WINDOW_WIDTH) / 7.0f;
+    auto pieceViewScrollView = addScrollView(scene,
+        1,
+        -float(WINDOW_HEIGHT) / 2.0f, float(WINDOW_HEIGHT) / 2.0f,
+        -float(WINDOW_WIDTH) / 8.0f, float(WINDOW_WIDTH) / 8.0f,
+        glm::vec2(0.0f)
+    );
+    scene.emplace<Parent>(pieceViewScrollView, pieceView);
+    pieceViewChildren.children.push_front(pieceViewScrollView);
+    
+    //???????????????
+
+    /*const float pieceViewSinglePieceViewWidth = float(WINDOW_WIDTH) / 7.0f;
     const float pieceViewSinglePieceViewHeight = float(WINDOW_HEIGHT) / 3.0f;
 
     auto& puzzleChildren = scene.get<Children>(puzzle);
@@ -203,15 +215,24 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     );
 
     scrollViewComponent.scrollIndicator = pieceViewScrollViewScrollIndicator;
+    */
+
+    const float pieceViewSinglePieceViewWidth = float(WINDOW_WIDTH) / 7.0f;
+    const float pieceViewSinglePieceViewHeight = float(WINDOW_HEIGHT) / 3.0f;
+
+    auto& puzzleChildren = scene.get<Children>(puzzle);
 
     int i = 0;
     for (auto pieceEntity : puzzleChildren.children) {
         auto& pieceChildren = scene.get<Children>(pieceEntity);
 
         auto pieceViewSinglePieceView = scene.create();
-        scene.emplace<Parent>(pieceViewSinglePieceView, pieceViewScrollViewScrollBox);
-        pieceViewScrollViewScrollBoxChildren.children.push_front(pieceViewSinglePieceView);
-        scene.emplace<CanvasElement>(pieceViewSinglePieceView, 1);
+        //scene.emplace<Parent>(pieceViewSinglePieceView, pieceViewScrollViewScrollBox);
+        //pieceViewScrollViewScrollBoxChildren.children.push_front(pieceViewSinglePieceView);
+        scene.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
+            pieceViewSinglePieceViewHeight / 2.0f, -pieceViewSinglePieceViewHeight / 2.0f,
+            -pieceViewSinglePieceViewWidth / 2.0f, pieceViewSinglePieceViewWidth / 2.0f
+        );
         scene.emplace<Transform2D>(pieceViewSinglePieceView, 
             glm::vec2(0.0f, -(float(i) * (pieceViewSinglePieceViewHeight + 50.0f))), 
             0.0f, 
@@ -272,16 +293,18 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
             uiScene.scene.emplace<Transform>(uiScenePieceBlock, transform);
         }
 
+        addUIEntityToScrollView(scene, pieceViewScrollView, pieceViewSinglePieceView);
+
         i++;
     }
 
-    scrollBoxCanvasElement.top = pieceViewSinglePieceViewHeight / 2;
+    /*scrollBoxCanvasElement.top = pieceViewSinglePieceViewHeight / 2;
     scrollBoxCanvasElement.bottom = -(pieceViewSinglePieceViewHeight / 2 + float(i - 1) * (pieceViewSinglePieceViewHeight + 50.0f));
 
     scrollViewComponent.maxValue = scrollBoxCanvasElement.top - scrollBoxCanvasElement.bottom - scrollViewComponent.height;
 
     scrollIndicatorfill.height = scrollViewComponent.height * (scrollViewComponent.height / (scrollBoxCanvasElement.top - scrollBoxCanvasElement.bottom));
-    scrollIndicatorTransform.position.y = scrollViewComponent.height / 2 - (scrollIndicatorfill.height / 2);
+    scrollIndicatorTransform.position.y = scrollViewComponent.height / 2 - (scrollIndicatorfill.height / 2);*/
 
     return pieceView;
 }

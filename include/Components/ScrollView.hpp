@@ -10,10 +10,6 @@ struct ScrollView {
 
     entt::entity scrollBox;
     entt::entity scrollIndicator;
-
-    //TODO: move this to canvas element component
-    float width;
-    float height;
 };
 
 #endif //SCROLL_VIEW_HPP
