@@ -25,14 +25,15 @@ void UISystem::updateScrollView(entt::registry &scene) {
         auto scrollBoxtTransform = scene.try_get<Transform2D>(scrollView.scrollBox);
         auto scrollBoxCanvasElement = scene.try_get<CanvasElement>(scrollView.scrollBox);
         if (scrollBoxtTransform != nullptr && scrollBoxCanvasElement != nullptr) {
-            scrollBoxtTransform->position.y = scrollViewHeight / 2 - scrollBoxCanvasElement->top + scrollView.value;
+            scrollBoxtTransform->position.y = scrollViewCanvas.top - scrollBoxCanvasElement->top + scrollView.value;
         }
 
         auto indicatorTransform = scene.try_get<Transform2D>(scrollView.scrollIndicator);
-        auto indicatorFill = scene.try_get<Fill2D>(scrollView.scrollIndicator);
-        if (indicatorTransform != nullptr && indicatorFill != nullptr) {
-            float indicatorOffset = (scrollView.value / scrollView.maxValue) * ((scrollViewHeight / indicatorFill->height) - 1) * indicatorFill->height;
-            indicatorTransform->position.y = scrollViewHeight / 2 - (indicatorFill->height / 2) - indicatorOffset;
+        auto indicatorCanvas = scene.try_get<CanvasElement>(scrollView.scrollIndicator);
+        if (indicatorTransform != nullptr && indicatorCanvas != nullptr) {
+            auto indicatorHeight = indicatorCanvas->top - indicatorCanvas->bottom;
+            float indicatorOffset = (scrollView.value / scrollView.maxValue) * (scrollViewHeight - indicatorHeight);
+            indicatorTransform->position.y = scrollViewCanvas.top - indicatorCanvas->top - indicatorOffset;
         }
     }
 }
