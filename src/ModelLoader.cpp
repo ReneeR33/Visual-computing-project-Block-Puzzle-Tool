@@ -10,6 +10,8 @@
 #include "Components/Transform.hpp"
 #include "Components/Shader.hpp"
 
+#define uint unsigned int
+
 ModelLoader::ModelLoader()
 {
 }
