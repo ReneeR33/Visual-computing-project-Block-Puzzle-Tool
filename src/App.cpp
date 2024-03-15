@@ -41,7 +41,6 @@ void App::run() {
 
     Renderer renderer;
     UISystem uiSystem;
-    //PuzzleViewSystem::init(scene, window);
     PuzzleViewSystem puzzleViewSystem(scene);
     PieceViewSystem pieceViewSystem(scene);
 
@@ -52,8 +51,8 @@ void App::run() {
 
     while (!window.windowShouldClose()) {
         InputSystem::update();
+
         uiSystem.update(scene);
-        //PuzzleViewSystem::update();
         puzzleViewSystem.update();
         pieceViewSystem.update();
 
