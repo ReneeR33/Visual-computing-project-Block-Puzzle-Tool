@@ -8,7 +8,7 @@
 #include "Components/Transform2D.hpp"
 #include "Components/Fill2D.hpp"
 
-#define SCROLL_INDICATOR_WIDTH 20.0f
+#define SCROLL_INDICATOR_WIDTH 10.0f
 #define SCROLL_INDICATOR_OFFSET 3.0f
 
 //TODO: canvas layer

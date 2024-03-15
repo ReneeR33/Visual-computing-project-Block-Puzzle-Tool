@@ -153,7 +153,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     auto pieceView = scene.create();
     scene.emplace<Parent>(pieceView, canvas);
     canvasChildren.children.push_front(pieceView);
-    scene.emplace<Transform2D>(pieceView, glm::vec2((float(WINDOW_WIDTH) / 8.0f) * 7.0f, float(WINDOW_HEIGHT) / 2.0f), 0.0f, glm::vec2(1.0f));
+    scene.emplace<Transform2D>(pieceView, glm::vec2((float(WINDOW_WIDTH) / 10.0f) * 9.0f, float(WINDOW_HEIGHT) / 2.0f), 0.0f, glm::vec2(1.0f));
     scene.emplace<PiecesView>(pieceView, puzzle, 0.0f);
     scene.emplace<CanvasElement>(pieceView, 0);
     auto& pieceViewChildren = scene.emplace<Children>(pieceView);
@@ -163,12 +163,12 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     pieceViewChildren.children.push_front(pieceViewBackground);
     scene.emplace<CanvasElement>(pieceViewBackground, 0);
     scene.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
-    scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 4.0f, float(WINDOW_HEIGHT));
+    scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(WINDOW_WIDTH) / 5.0f, float(WINDOW_HEIGHT));
 
     auto pieceViewScrollView = addScrollView(scene,
         1,
         -float(WINDOW_HEIGHT) / 2.0f, float(WINDOW_HEIGHT) / 2.0f,
-        -float(WINDOW_WIDTH) / 8.0f, float(WINDOW_WIDTH) / 8.0f,
+        -float(WINDOW_WIDTH) / 10.0f, float(WINDOW_WIDTH) / 10.0f,
         glm::vec2(0.0f)
     );
     scene.emplace<Parent>(pieceViewScrollView, pieceView);
