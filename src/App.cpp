@@ -4,6 +4,7 @@
 #include "Components/Shader.hpp"
 #include "Systems/Renderer.hpp"
 #include "Systems/PuzzleViewSystem.hpp"
+#include "Systems/PieceViewSystem.hpp"
 #include "Systems/UISystem.hpp"
 #include "DebugWindow.hpp"
 #include "Components/Material.hpp"
@@ -38,6 +39,7 @@ void App::run() {
     Renderer renderer;
     UISystem uiSystem;
     PuzzleViewSystem::init(scene, window);
+    PieceViewSystem::init(scene, window);
 
     initExplodedViewTestScene();
 
@@ -48,6 +50,7 @@ void App::run() {
         glfwPollEvents();
         uiSystem.update(scene);
         PuzzleViewSystem::update();
+        PieceViewSystem::update();
 
         renderer.render(scene);
         debugWindow.render(scene);
@@ -160,8 +163,13 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         float(WINDOW_HEIGHT) / 2.0f), 0.0f, 
         glm::vec2(1.0f)
     );
-    scene.emplace<PiecesView>(pieceView, puzzle, 0.0f);
-    scene.emplace<CanvasElement>(pieceView, 0);
+    auto& pieceViewComponent = scene.emplace<PiecesView>(pieceView);
+    pieceViewComponent.puzzle = puzzle;
+
+    scene.emplace<CanvasElement>(pieceView, 0,
+        float(WINDOW_HEIGHT) / 2.0f, -float(WINDOW_HEIGHT) / 2.0f,
+        -float(PIECE_VIEW_WIDTH) / 2.0f, float(PIECE_VIEW_WIDTH) / 2.0f
+    );
     auto& pieceViewChildren = scene.emplace<Children>(pieceView);
 
     auto pieceViewBackground = scene.create();
@@ -170,6 +178,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     scene.emplace<CanvasElement>(pieceViewBackground, 0);
     scene.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
     scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
+    pieceViewComponent.background = pieceViewBackground;
 
     auto pieceViewScrollView = addScrollView(scene,
         1,
@@ -179,6 +188,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     );
     scene.emplace<Parent>(pieceViewScrollView, pieceView);
     pieceViewChildren.children.push_front(pieceViewScrollView);
+    pieceViewComponent.scrollView = pieceViewScrollView;
 
     const float pieceViewSinglePieceViewWidth = float(WINDOW_WIDTH) / 7.0f;
     const float pieceViewSinglePieceViewHeight = float(WINDOW_HEIGHT) / 3.0f;

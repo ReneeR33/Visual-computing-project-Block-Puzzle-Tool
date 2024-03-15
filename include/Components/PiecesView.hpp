@@ -5,7 +5,9 @@
 
 struct PiecesView {
     entt::entity puzzle;
-    float sliderValue;
+
+    entt::entity background;
+    entt::entity scrollView;
 };
 
 #endif //PIECES_VIEW_HPP
