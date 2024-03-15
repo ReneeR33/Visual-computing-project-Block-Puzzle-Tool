@@ -6,29 +6,18 @@
 #include "Components/Camera.hpp"
 #include "Components/Puzzle.hpp"
 
+#include "Components/PiecesView.hpp"
+#include "Components/CanvasElement.hpp"
+#include "Components/Transform2D.hpp"
+
 #define ZOOM_SPEED 5.0f
 #define ROTATE_SPEED 0.25f
-
-// PuzzleViewSystem* PuzzleViewSystem::puzzleViewSystem = nullptr;
-
-/*PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene, GlfwWindow &window)
-    : scene(scene)
-    , window(window)
-{
-    glfwSetScrollCallback(window.getHandle(), scrollCallback);
-    glfwSetMouseButtonCallback(window.getHandle(), mouseButtonCallback);
-}*/
 
 PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene)
     : scene(scene) {
     InputSystem::event<InputSystem::ScrollEvent>().connect<&PuzzleViewSystem::scrollCallback>(*this);
     InputSystem::event<InputSystem::MouseButtonCallBackEvent>().connect<&PuzzleViewSystem::mouseButtonCallback>(*this);
 }
-
-/*void PuzzleViewSystem::init(entt::registry &scene, GlfwWindow &window) {
-    delete puzzleViewSystem;
-    puzzleViewSystem = new PuzzleViewSystem(scene, window);
-}*/
 
 void PuzzleViewSystem::update() {
     updateExplodedView();
@@ -83,19 +72,48 @@ void PuzzleViewSystem::updatePuzzleRotation() {
     if (state == GLFW_PRESS) {
         double xpos, ypos;
         InputSystem::getCursorPos(xpos, ypos);
-        auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
-        offset.y = -offset.y;
 
-        auto transform = scene.try_get<Transform>(puzzleEntity);
-        if (transform != nullptr) {
-            transform->rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
+        if (!mouseHoveringOverPieceView()) {
+            auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
+            offset.y = -offset.y;
+
+            auto transform = scene.try_get<Transform>(puzzleEntity);
+            if (transform != nullptr) {
+                transform->rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
+            }
         }
 
         prevMousePos = glm::vec2 (xpos, ypos);
     }
 }
 
+bool PuzzleViewSystem::mouseHoveringOverPieceView() {
+    auto pieceViewView = scene.view<PiecesView>();
+    if (pieceViewView.empty()) {
+        return false;
+    }
+
+    double xpos, ypos;
+    InputSystem::getCursorPos(xpos, ypos);
+
+    auto pieceView = pieceViewView.front();
+    auto& pieceViewTransform = scene.get<Transform2D>(pieceView);
+    auto& pieceViewCanvas = scene.get<CanvasElement>(pieceView);
+
+    auto pieceViewLeft = pieceViewCanvas.left + pieceViewTransform.position.x;
+    auto pieceViewRight = pieceViewCanvas.right + pieceViewTransform.position.x;
+    auto pieceViewTop = pieceViewCanvas.top + pieceViewTransform.position.y;
+    auto pieceViewBottom = pieceViewCanvas.bottom + pieceViewTransform.position.y;
+
+    return ((xpos > pieceViewLeft && xpos < pieceViewRight) &&
+            (ypos > pieceViewBottom && ypos < pieceViewTop));
+}
+
 void PuzzleViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {
+    if (mouseHoveringOverPieceView()) {
+        return;
+    }
+
     auto cameraView = scene.view<Camera>();
     if (cameraView.empty()) {
         return;
@@ -112,24 +130,3 @@ void PuzzleViewSystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent
         prevMousePos = glm::vec2(xpos, ypos);
     }
 }
-
-/*void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
-    auto& scene = puzzleViewSystem->scene;
-
-    auto cameraView = scene.view<Camera>();
-    if (cameraView.empty()) {
-        return;
-    }
-
-    auto& camera = scene.get<Camera>(cameraView.back());
-    camera.fov = glm::clamp(camera.fov - float(yoffset) * ZOOM_SPEED, 5.0f, 175.0f);
-}
-
-void PuzzleViewSystem::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        auto& prevMousePos = puzzleViewSystem->prevMousePos;
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        prevMousePos = glm::vec2 (xpos, ypos);
-    }
-}*/
