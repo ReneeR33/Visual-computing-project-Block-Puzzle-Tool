@@ -20,6 +20,7 @@
 #include "Components/Fill2D.hpp"
 #include "Components/UIScene.hpp"
 #include "Components/ScrollView.hpp"
+#include "InputSystem.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 #include "UI.hpp"
