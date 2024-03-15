@@ -21,6 +21,7 @@ public:
     static void update();
 
     static void getCursorPos(double& xpos, double& ypos);
+    static int getMouseButton(int button);
 
     template<typename T>
     static entt::sink<entt::sigh<void (T &), std::allocator<void>>> event() {

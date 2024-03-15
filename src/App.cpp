@@ -42,6 +42,7 @@ void App::run() {
     Renderer renderer;
     UISystem uiSystem;
     //PuzzleViewSystem::init(scene, window);
+    PuzzleViewSystem puzzleViewSystem(scene);
     PieceViewSystem pieceViewSystem(scene);
 
     initExplodedViewTestScene();
@@ -53,6 +54,7 @@ void App::run() {
         InputSystem::update();
         uiSystem.update(scene);
         //PuzzleViewSystem::update();
+        puzzleViewSystem.update();
         pieceViewSystem.update();
 
         renderer.render(scene);

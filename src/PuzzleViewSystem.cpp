@@ -9,32 +9,33 @@
 #define ZOOM_SPEED 5.0f
 #define ROTATE_SPEED 0.25f
 
-PuzzleViewSystem* PuzzleViewSystem::puzzleViewSystem = nullptr;
+// PuzzleViewSystem* PuzzleViewSystem::puzzleViewSystem = nullptr;
 
-PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene, GlfwWindow &window)
+/*PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene, GlfwWindow &window)
     : scene(scene)
     , window(window)
 {
     glfwSetScrollCallback(window.getHandle(), scrollCallback);
     glfwSetMouseButtonCallback(window.getHandle(), mouseButtonCallback);
+}*/
+
+PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene)
+    : scene(scene) {
+    InputSystem::event<InputSystem::ScrollEvent>().connect<&PuzzleViewSystem::scrollCallback>(*this);
+    InputSystem::event<InputSystem::MouseButtonCallBackEvent>().connect<&PuzzleViewSystem::mouseButtonCallback>(*this);
 }
 
-void PuzzleViewSystem::init(entt::registry &scene, GlfwWindow &window) {
+/*void PuzzleViewSystem::init(entt::registry &scene, GlfwWindow &window) {
     delete puzzleViewSystem;
     puzzleViewSystem = new PuzzleViewSystem(scene, window);
-}
+}*/
 
 void PuzzleViewSystem::update() {
-    if (puzzleViewSystem == nullptr) {
-        return;
-    }
     updateExplodedView();
     updatePuzzleRotation();
 }
 
 void PuzzleViewSystem::updateExplodedView() {
-    auto& scene = puzzleViewSystem->scene;
-
     auto explodedViewView = scene.view<ExplodedView>();
     if (explodedViewView.empty()) {
         return;
@@ -67,10 +68,6 @@ void PuzzleViewSystem::updateExplodedView() {
 }
 
 void PuzzleViewSystem::updatePuzzleRotation() {
-    auto& window = puzzleViewSystem->window;
-    auto& scene = puzzleViewSystem->scene;
-    auto& prevMousePos = puzzleViewSystem->prevMousePos;
-
     auto puzzleView = scene.view<Puzzle>();
     if (puzzleView.empty()) {
         return;
@@ -82,11 +79,12 @@ void PuzzleViewSystem::updatePuzzleRotation() {
         return;
     }
 
-    int state = glfwGetMouseButton(window.getHandle(), GLFW_MOUSE_BUTTON_LEFT);
+    int state = InputSystem::getMouseButton(GLFW_MOUSE_BUTTON_LEFT);
     if (state == GLFW_PRESS) {
         double xpos, ypos;
-        glfwGetCursorPos(window.getHandle(), &xpos, &ypos);
+        InputSystem::getCursorPos(xpos, ypos);
         auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
+        offset.y = -offset.y;
 
         auto transform = scene.try_get<Transform>(puzzleEntity);
         if (transform != nullptr) {
@@ -97,7 +95,25 @@ void PuzzleViewSystem::updatePuzzleRotation() {
     }
 }
 
-void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+void PuzzleViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {
+    auto cameraView = scene.view<Camera>();
+    if (cameraView.empty()) {
+        return;
+    }
+
+    auto& camera = scene.get<Camera>(cameraView.back());
+    camera.fov = glm::clamp(camera.fov - float(scrollEvent.yoffset) * ZOOM_SPEED, 5.0f, 175.0f);
+}
+
+void PuzzleViewSystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent) {
+    if (mouseButtonCallbackEvent.button == GLFW_MOUSE_BUTTON_LEFT && mouseButtonCallbackEvent.action == GLFW_PRESS) {
+        double xpos, ypos;
+        InputSystem::getCursorPos(xpos, ypos);
+        prevMousePos = glm::vec2(xpos, ypos);
+    }
+}
+
+/*void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto& scene = puzzleViewSystem->scene;
 
     auto cameraView = scene.view<Camera>();
@@ -116,4 +132,4 @@ void PuzzleViewSystem::mouseButtonCallback(GLFWwindow *window, int button, int a
         glfwGetCursorPos(window, &xpos, &ypos);
         prevMousePos = glm::vec2 (xpos, ypos);
     }
-}
+}*/
