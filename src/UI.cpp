@@ -11,8 +11,6 @@
 #define SCROLL_INDICATOR_WIDTH 10.0f
 #define SCROLL_INDICATOR_OFFSET 3.0f
 
-//TODO: canvas layer
-//TODO: canvas
 entt::entity addScrollView(entt::registry& scene, int layer, float bottom, float top, float left, float right, glm::vec2 position) {
     auto scrollViewEntity = scene.create();
 
