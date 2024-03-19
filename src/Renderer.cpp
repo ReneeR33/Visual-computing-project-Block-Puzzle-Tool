@@ -11,8 +11,8 @@
 #include "Components/CanvasElement.hpp"
 #include "Components/UIScene.hpp"
 
-#define SHADOW_MAP_HEIGHT 1024
-#define SHADOW_MAP_WIDTH 1024
+#define SHADOW_MAP_HEIGHT 2024
+#define SHADOW_MAP_WIDTH 2024
 #define SHADOW_MAP_FRUSTUM_LEFT -10.0f
 #define SHADOW_MAP_FRUSTUM_RIGHT 10.0f
 #define SHADOW_MAP_FRUSTUM_BOTTOM -10.0f
@@ -119,7 +119,6 @@ void Renderer::render(entt::registry &scene) {
     auto width = static_cast<float>(m_viewport[2]);
     auto height = static_cast<float>(m_viewport[3]);
 
-    //glViewport(0, 0, m_viewport[2], m_viewport[3]);
     renderWorld(scene, width, height, glm::mat4(1.0f));
     renderUI(scene, width, height);
 }
@@ -249,20 +248,6 @@ void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object
 }
 
 void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix) {
-    /*auto& dirLight = scene.get<DirLight>(scene.view<DirLight>().front());
-
-    auto lightProjection = glm::ortho(
-        SHADOW_MAP_FRUSTUM_LEFT, SHADOW_MAP_FRUSTUM_RIGHT,
-        SHADOW_MAP_FRUSTUM_BOTTOM, SHADOW_MAP_FRUSTUM_TOP,
-        0.0f, 40.0f
-    );
-    auto lightView = glm::lookAt(
-        -(10.0f * dirLight.direction),
-        glm::vec3(0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-    auto lightSpaceMatrix = lightProjection * lightView;*/
-
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 

@@ -342,7 +342,7 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position, glm::vec3 col
     scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
     scene.emplace<Material>(block,
                             color,
-                            glm::vec3(0.1f, 0.1f, 0.12f),
+                            color * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
                             glm::vec3(0.0f),
                             1.0f
     );
