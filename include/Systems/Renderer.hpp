@@ -32,7 +32,11 @@ private:
     void load(Mesh& mesh);
 
     void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform);
-    void renderWorldObject(entt::registry& scene, const entt::entity& object, Camera camera, DirLight dirlight, glm::mat4& view, glm::mat4& projection, glm::mat4& eTransform);
+    void renderWorldObject(
+        entt::registry& scene, const entt::entity& object, 
+        Camera camera, DirLight dirlight, 
+        glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
+    );
     void renderUI(entt::registry& scene, float viewportWidth, float viewportHeight);
     void renderUIElement(entt::registry& scene, const entt::entity& object, float viewportWidth, float viewportHeight, glm::mat4 model, glm::mat4& projection);
     void renderDepthMap(entt::registry& scene, glm::mat4& lightProjection);

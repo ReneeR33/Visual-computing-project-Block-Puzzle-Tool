@@ -150,11 +150,15 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto& entity : entitiesView) {
-        renderWorldObject(scene, entity, camera, dirLight, view, projection, eTransform);
+        renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
     }
 }
 
-void Renderer::renderWorldObject(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection, glm::mat4& eTransform) {
+void Renderer::renderWorldObject(
+        entt::registry& scene, const entt::entity &object, 
+        Camera camera, DirLight dirlight, 
+        glm::mat4 &view, glm::mat4 &projection, glm::mat4 &lightSpace, glm::mat4& eTransform
+    ) {
     auto& shader = scene.get<Shader>(object);
     auto& material = scene.get<Material>(object);
     auto& model = scene.get<Model>(object);
@@ -167,6 +171,7 @@ void Renderer::renderWorldObject(entt::registry& scene, const entt::entity &obje
     shader.setMat4("projection", projection);
     shader.setMat4("model", modelMatrix);
     shader.setMat4("eTransform", eTransform);
+    shader.setMat4("lightSpaceMatrix", lightSpace);
 
     shader.setVec3("color", material.color);
     shader.setVec3("ambient", material.ambientColor);

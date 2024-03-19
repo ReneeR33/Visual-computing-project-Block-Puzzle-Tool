@@ -9,6 +9,7 @@ out vec3 Normal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightSpaceMatrix;
 
 // for rendering a scene inside the UI
 uniform mat4 eTransform;
