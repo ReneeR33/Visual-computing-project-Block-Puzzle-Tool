@@ -64,7 +64,8 @@ entt::entity addScrollView(entt::registry& scene, int layer, float bottom, float
     );
     scene.emplace<Fill2D>(scrollIndicator,
         glm::vec3(0.45f, 0.45f, 0.45f),
-        SCROLL_INDICATOR_WIDTH, 0.0f
+        SCROLL_INDICATOR_WIDTH, 0.0f,
+        SCROLL_INDICATOR_WIDTH / 2
     );
     scene.emplace<Transform2D>(scrollIndicator,
         glm::vec2(right - SCROLL_INDICATOR_WIDTH / 2 - SCROLL_INDICATOR_OFFSET, top),

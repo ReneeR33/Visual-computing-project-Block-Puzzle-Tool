@@ -9,8 +9,7 @@ in vec2 Right;
 in vec2 Center;
 
 uniform vec3 color;
-
-const float offset = 20.0;
+uniform float offset = 20.0;
 
 void main() {
     vec2 upVec = (Top - Center);

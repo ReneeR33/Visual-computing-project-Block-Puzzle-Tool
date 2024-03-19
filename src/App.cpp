@@ -233,7 +233,8 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         scene.emplace<Fill2D>(pieceViewSinglePieceViewBackGround, 
             glm::vec3(0.15f, 0.15f, 0.18f), 
             pieceViewSinglePieceViewWidth, 
-            pieceViewSinglePieceViewHeight
+            pieceViewSinglePieceViewHeight,
+            30.0f
         );
         singlePieceViewComponent.background = pieceViewSinglePieceViewBackGround;
 

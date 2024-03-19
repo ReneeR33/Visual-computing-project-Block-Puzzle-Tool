@@ -217,6 +217,7 @@ void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object
         fillShader.setMat4("model", model);
 
         fillShader.setVec3("color", fill->color);
+        fillShader.setFloat("offset", fill->offset);
 
         draw(fillMesh);
     }
