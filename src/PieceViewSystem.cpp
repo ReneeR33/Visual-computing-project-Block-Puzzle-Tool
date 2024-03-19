@@ -8,13 +8,14 @@
 #include "Components/UIScene.hpp"
 #include "Components/PuzzlePiece.hpp"
 #include "Components/Transform.hpp"
+#include "Components/Fill2D.hpp"
 
 #include <iostream>
 
 #include "UI.hpp"
 
 #define SCROLL_SPEED 70.0f
-#define ROTATE_SPEED 0.25f
+#define ROTATE_SPEED 0.4f
 
 PieceViewSystem::PieceViewSystem(entt::registry& scene) 
     : scene(scene) {
@@ -32,6 +33,9 @@ void PieceViewSystem::update() {
             auto& canvas = scene.get<CanvasElement>(singlePieceView);
             auto screenPosition = UIEntityScreenPosition(scene, singlePieceView);
 
+            auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
+            auto& backGroundFill = scene.get<Fill2D>(singlePieceViewComponent.background);
+
             if ((xpos > (screenPosition.x + canvas.left) && xpos < (screenPosition.x + canvas.right)) &&
                 (ypos > (screenPosition.y + canvas.bottom) && ypos < (screenPosition.y + canvas.top))) 
             {
@@ -40,7 +44,6 @@ void PieceViewSystem::update() {
                     auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
                     offset.y = -offset.y;
 
-                    auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
                     auto& subsceneComponent = scene.get<UIScene>(singlePieceViewComponent.subscene);
 
                     for (auto [entity, piece, transform] : subsceneComponent.scene.view<PuzzlePiece, Transform>().each()) {
@@ -49,6 +52,10 @@ void PieceViewSystem::update() {
 
                     prevMousePos = glm::vec2 (xpos, ypos);
                 }
+
+                backGroundFill.color = singlePieceViewComponent.hoverBackgroundColor;
+            } else {
+                backGroundFill.color = singlePieceViewComponent.backgroundColor;
             }
         }
     }
