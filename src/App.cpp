@@ -74,6 +74,7 @@ void App::initExplodedViewTestScene() {
 
 void App::addTestPuzzle() {
     auto puzzle = scene.create();
+    Solution solution;
     scene.emplace<Puzzle>(puzzle);
     scene.emplace<Transform>(puzzle,
                              glm::vec3(0.0f, 0.0f, 0.0f),
@@ -82,7 +83,7 @@ void App::addTestPuzzle() {
     scene.emplace<ExplodedView>(puzzle,0.0f);
     scene.emplace<Children>(puzzle);
 
-    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f));
+    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f), solution);
     auto color = glm::vec3(0.6f,0.0f,0.0f);
     addBlock(piece_1, glm::vec3(0.0f,0.0f,0.0f), color);
     addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f), color);
@@ -90,13 +91,13 @@ void App::addTestPuzzle() {
     addBlock(piece_1, glm::vec3(0.0f,0.0f,1.0f), color);
     addBlock(piece_1, glm::vec3(0.0f,-1.0f,0.0f), color);
 
-    auto piece_2 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
+    auto piece_2 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f), solution);
     color = glm::vec3(0.3f, 0.0f, 0.3f);
     addBlock(piece_2, glm::vec3(0.0f,0.0f,0.0f), color);
     addBlock(piece_2, glm::vec3(0.0f,1.0f,0.0f), color);
     addBlock(piece_2, glm::vec3(0.0f,-1.0f,0.0f), color);
 
-    auto piece_3 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, -1.0f));
+    auto piece_3 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, -1.0f), solution);
     color = glm::vec3(0.3f, 0.0f, 0.6f);
     addBlock(piece_3, glm::vec3(0.0f,0.0f,0.0f), color);
     addBlock(piece_3, glm::vec3(0.0f,1.0f,0.0f), color);
@@ -104,7 +105,7 @@ void App::addTestPuzzle() {
     addBlock(piece_3, glm::vec3(-1.0f,-1.0f,0.0f), color);
     addBlock(piece_3, glm::vec3(0.0f,-1.0f,0.0f), color);
 
-    auto piece_4 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 1.0f));
+    auto piece_4 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 1.0f), solution);
     color = glm::vec3(0.6f, 0.6f, 0.0f);
     addBlock(piece_4, glm::vec3(0.0f,0.0f,0.0f), color);
     addBlock(piece_4, glm::vec3(0.0f,1.0f,0.0f), color);
@@ -112,17 +113,17 @@ void App::addTestPuzzle() {
     addBlock(piece_4, glm::vec3(-1.0f,0.0f,0.0f), color);
     addBlock(piece_4, glm::vec3(1.0f,0.0f,0.0f), color);
 
-    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 0.5f));
+    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 0.5f), solution);
     color = glm::vec3(0.3f, 0.3f, 0.6f);
     addBlock(piece_5, glm::vec3(0.0f,0.0f,0.5f), color);
     addBlock(piece_5, glm::vec3(0.0f,0.0f,-0.5f), color);
 
-    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 0.5f));
+    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 0.5f), solution);
     color = glm::vec3(0.3f, 0.6f, 0.0f);
     addBlock(piece_6, glm::vec3(0.0f,0.0f,0.5f), color);
     addBlock(piece_6, glm::vec3(0.0f,0.0f,-0.5f), color);
 
-    auto piece_7 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, 0.0f));
+    auto piece_7 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, 0.0f), solution);
     color = glm::vec3(0.3f, 0.6f, 0.3f);
     addBlock(piece_7, glm::vec3(0.0f,0.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,1.0f,0.0f), color);
@@ -149,9 +150,11 @@ void App::addPuzzleFromModel() {
     SolutionFinder finder = SolutionFinder(size);
     auto solutions = finder.GetSolution(result);    
 
-    for (auto & item : result.pieces)
+    for(uint32_t i; i < result.pieces.size(); i++)
     {
-        auto piece = addPiece(puzzle, item.origin);
+        auto item = result.pieces[i];
+        auto solution = solutions[i];
+        auto piece = addPiece(puzzle, item.origin, solution);
 
         for (auto & block : item.blocks)
         {
@@ -160,7 +163,7 @@ void App::addPuzzleFromModel() {
     }
 }
 
-entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position) {
+entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, Solution solution) {
     auto puzzleChildren = scene.try_get<Children>(puzzle);
     if (puzzleChildren == nullptr) {
         throw std::runtime_error("App::addPiece: cannot add piece to entity without children");
@@ -176,6 +179,7 @@ entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position) {
 
     puzzleChildren->children.push_front(piece);
     scene.emplace<PuzzlePiece>(piece, position);
+    scene.emplace<Solution>(piece, solution);
 
     return piece;
 }
