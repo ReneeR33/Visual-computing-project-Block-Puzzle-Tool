@@ -97,8 +97,8 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line)
 
         if(glm::distance(block, center) < distance)
         {
-            std::cout << "found closer block" << std::endl;
-            std::cout << block.x << "-" << block.y << "-" << block.z << std::endl;
+            // std::cout << "found closer block" << std::endl;
+            // std::cout << block.x << "-" << block.y << "-" << block.z << std::endl;
             distance = glm::distance(block, center);
             origin = block;
         }

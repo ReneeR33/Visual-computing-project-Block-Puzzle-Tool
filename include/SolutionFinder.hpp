@@ -27,11 +27,11 @@ private:
         float from_goal;
     };
 
-    void calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal);
+    Solution calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal);
     typedef std::pair<float, glm::vec3> step;
     float calcDist(glm::vec3 a, glm::vec3 b);
     bool posIsValid(glm::vec3 pos);
-    bool sort(step a, step b);
+    static bool sort(step a, step b);
 
     glm::vec3 mapSize;
     glm::vec3 puzzleSize;

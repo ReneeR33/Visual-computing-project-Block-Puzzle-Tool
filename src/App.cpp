@@ -142,7 +142,7 @@ void App::addPuzzleFromModel() {
     scene.emplace<Children>(puzzle);
 
     ModelLoader loader = ModelLoader();
-    auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
+    auto result = loader.LoadSolution("resources/data/test.txt");
 
     // TODO: load size dynamically
     glm::vec3 size = glm::vec3(4);

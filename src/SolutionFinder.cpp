@@ -19,40 +19,43 @@ SolutionFinder::~SolutionFinder()
 std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResult pieces)
 {
     std::vector<Solution> result;
+    std::vector<glm::vec3> goalLocs;
+    std::vector<bool> isSolved;
+    isSolved.resize(pieces.pieces.size());
+    result.resize(pieces.pieces.size());
 
-    for (auto & piece : pieces.pieces)
+    uint32_t solvedCount = 0;
+
+    while(true)
     {
-        auto map = CreateMap(pieces, piece);
-        Solution path = AStar(map, piece.origin, glm::vec3(0));
+        auto preSolved = solvedCount;
 
-        std::string line = "";
-        for (auto & layer : map)
+        for(int i = 0; i < pieces.pieces.size(); i++)
         {
-            for (auto & y : layer)
+            if(isSolved[i]) {continue;}
+
+            auto piece = pieces.pieces[i];
+
+            ModelLoader::LoaderPuzzleResult otherPieces;
+            for(int i = 0; i < pieces.pieces.size(); i++)
             {
-                for (bool z : y)
-                {
-                    line += std::to_string(int(z)) + " ";
-                }
-                line += "\n";
+                if(!isSolved[i]) otherPieces.pieces.push_back(pieces.pieces[i]);
             }
-            line += "\n\n###############\n\n";
-        }
-        std::cout << line << std::endl;
-        break;
-
-
-        if(path.Solution.size() == 0)
-        {
-            std::cout << "no solution found" << std::endl;
-        }
-        else
-        {
-            for (auto & step : path.Solution)
+            auto map = CreateMap(otherPieces, piece);
+            glm::vec3 offset = puzzleSize * glm::vec3(2);
+            Solution path = AStar(map, glm::floor(piece.origin) + offset, glm::vec3(0));
+            
+            if(path.Solution.size() > 0)
             {
-                std::cout << step.x << "-" << step.y << "-" << step.x << " || ";
+                isSolved[i] = true;
+                result[i] = path;
             }
-            std::cout << std::endl;
+        }
+        
+        if(preSolved == solvedCount)
+        {
+            std::cout << "solved all solvable pieces." << std::endl;
+            break;
         }
     }
 
@@ -76,20 +79,14 @@ std::vector<std::vector<std::vector<bool>>> SolutionFinder::CreateMap(
 
         for (auto & otherBlock :otherPiece.blocks)
         {
-            glm::vec3 offset = puzzleSize * glm::vec3(2);
+            glm::vec3 offset = puzzleSize * glm::vec3(2) + glm::floor(otherPiece.origin);
             for (auto & block :shape)
             {
                 glm::vec3 pos = block + offset;
                 glm::vec3 loc = otherBlock + block + offset;
-                // std::cout << block.x << " " <<  block.y << " " << block.z << std::endl;
-                // std::cout << otherBlock.x << " " <<  otherBlock.y << " " << otherBlock.z << std::endl;
-                // std::cout << loc.x << " " <<  loc.y << " " << loc.z << std::endl;
-                // std::cout << "=========" << std::endl;
                 map[loc.x][loc.y][loc.z] = true;
             }
         }
-
-        // std::cout << step.x << "-" step.y << "-" step.x << " || ";
     }
 
     return map;
@@ -109,9 +106,9 @@ float SolutionFinder::calcDist(glm::vec3 a, glm::vec3 b)
 
 bool SolutionFinder::posIsValid(glm::vec3 pos)
 {
-    return pos.x > 0 && pos.x < mapSize.x &&
-           pos.y > 0 && pos.y < mapSize.y &&
-           pos.z > 0 && pos.z < mapSize.z;
+    return pos.x >= 0 && pos.x < mapSize.x &&
+           pos.y >= 0 && pos.y < mapSize.y &&
+           pos.z >= 0 && pos.z < mapSize.z;
 }
 
 bool IsWall(std::vector<std::vector<std::vector<bool>>> map, glm::vec3 loc)
@@ -119,9 +116,8 @@ bool IsWall(std::vector<std::vector<std::vector<bool>>> map, glm::vec3 loc)
     return map[loc.x][loc.y][loc.z];
 }
 
-void SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal)
+Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal)
 {
-    std::cout << "path: " << std::endl;
     std::vector<glm::vec3> path;
     glm::vec3 curr = goal;
 
@@ -131,23 +127,27 @@ void SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> detail
         curr = details[curr.x][curr.y][curr.z].parent;
     }
 
-    for (auto & step : path)
-    {
-        std::cout << step.x << ":" << step.y << ":" << step.z << std::endl;
-    }
-
-    return;
+    return {.Solution = path};
 }
 
+// TODO: path takes diagonals sometimes, look into why
 Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, glm::vec3 start, glm::vec3 goal)
 {
 
     Solution path;
+    std::cout << "goal:" << goal.x << ":" << goal.y << ":" << goal.z << std::endl;
+    std::cout << "start:" << start.x << ":" << start.y << ":" << start.z << std::endl;
     
     // Check if valid?
 
-    if(map[start.x][start.y][start.z] || map[goal.x][goal.y][goal.z] || start == goal)
+    if(map[start.x][start.y][start.z] || map[goal.x][goal.y][goal.z])
     {
+        std::cout << "start or end not accessable" << std::endl;
+        return path;
+    } 
+    else if(start == goal)
+    {
+        std::cout << "goal and start are equal" << std::endl;
         return path;
     }
 
@@ -182,15 +182,17 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
         neighbhours.push_back(itemLoc + glm::vec3(0, -1, 0));
         neighbhours.push_back(itemLoc + glm::vec3(-1, 0, 0));
         
+        // std::cout << "neigbours for:" << itemLoc.x << ":" << itemLoc.y << ":" << itemLoc.z <<  std::endl;
         for (auto nb : neighbhours)
         {
             if (posIsValid(nb)) 
             {
+                // std::cout << nb.x << ":" << nb.y << ":" << nb.z << std::endl;
                 if (nb == goal) 
                 {
                     details[nb.x][nb.y][nb.z].parent = itemLoc;
                     std::cout << "finished routing" << std::endl;
-                    calcPath(details, goal);
+                    path = calcPath(details, goal);
                     finished = true;
                     break;
                 }
@@ -200,9 +202,9 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
                     uint32_t dist = details[itemLoc.x][itemLoc.y][itemLoc.z].dist + 1;
 
                     if(details[nb.x][nb.y][nb.z].from_goal == FLT_MAX ||
-                    details[nb.x][nb.y][nb.z].from_goal > dist)
+                    details[nb.x][nb.y][nb.z].dist > dist)
                     {
-                        openList.push_back(std::make_pair(dist, nb));
+                        openList.push_back(std::make_pair(fromGoal, nb));
                         details[nb.x][nb.y][nb.z].parent = itemLoc;
                         details[nb.x][nb.y][nb.z].dist = dist;
                         details[nb.x][nb.y][nb.z].from_goal = fromGoal;
@@ -210,6 +212,9 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
                 }
             }
         }
+
+        if(finished) {break;}
+        std::sort (openList.begin(), openList.end(), sort);
     }
     return path;
 }
