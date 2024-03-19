@@ -6,7 +6,11 @@ in vec3 FragPos;
 in vec4 LightSpaceFragPos;
 in vec3 Normal;
 
-//uniform vec3 lightPos;
+const int NR_SAMPLES_SHADOW_X_LEFT = 1;
+const int NR_SAMPLES_SHADOW_X_RIGHT = 1;
+const int NR_SAMPLES_SHADOW_Y_BELOW = 1;
+const int NR_SAMPLES_SHADOW_Y_ABOVE = 1;
+
 uniform vec3 viewPos;
 uniform vec3 color;
 uniform vec3 ambient;
@@ -61,29 +65,24 @@ vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)
 }
 
 float ShadowCalculation(vec4 fragPosLightSpace) {
-    // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
     float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
+
     float bias = max(0.05 * (1.0 - dot(Normal, -dirLight.direction)), 0.003);
-    //float shadow = (currentDepth - bias) > closestDepth  ? 1.0 : 0.0;
 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for(int x = -1; x <= 1; ++x)
+    for(int x = -NR_SAMPLES_SHADOW_X_LEFT; x <= NR_SAMPLES_SHADOW_X_RIGHT; ++x)
     {
-        for(int y = -1; y <= 1; ++y)
+        for(int y = -NR_SAMPLES_SHADOW_Y_BELOW; y <= NR_SAMPLES_SHADOW_Y_ABOVE; ++y)
         {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
-        }    
+        }
     }
-    shadow /= 9.0;
+    shadow /= (1 + NR_SAMPLES_SHADOW_X_LEFT + NR_SAMPLES_SHADOW_X_RIGHT) * (1 + NR_SAMPLES_SHADOW_Y_BELOW + NR_SAMPLES_SHADOW_Y_ABOVE);
 
     return shadow;
 }
