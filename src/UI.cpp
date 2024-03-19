@@ -1,5 +1,6 @@
 #include "UI.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
 #include "Components/Parent.hpp"
 #include "Components/Children.hpp"
 #include "Components/Children.hpp"
@@ -10,6 +11,30 @@
 
 #define SCROLL_INDICATOR_WIDTH 10.0f
 #define SCROLL_INDICATOR_OFFSET 3.0f
+
+glm::vec2 UIEntityScreenPosition(entt::registry& scene, entt::entity uiEntity) {
+    glm::mat4 model(1.0f);
+    
+    entt::entity* cEntity = &uiEntity;
+    while (cEntity != nullptr) {
+        auto transform = scene.try_get<Transform2D>(*cEntity);
+
+        if (transform != nullptr) {
+            glm::mat4 localModel(1.0f);
+            localModel = glm::translate(localModel, glm::vec3(transform->position, 0.0f));
+            model = localModel * model;
+        }
+
+        auto parent = scene.try_get<Parent>(*cEntity);
+        if (parent != nullptr) {
+            cEntity = &parent->parent;
+        } else {
+            cEntity = nullptr;
+        }
+    }
+
+    return glm::vec2(model[3]);
+}
 
 entt::entity addScrollView(entt::registry& scene, int layer, float bottom, float top, float left, float right, glm::vec2 position) {
     auto scrollViewEntity = scene.create();
@@ -101,4 +126,9 @@ void addUIEntityToScrollView(entt::registry& scene, entt::entity& scrollView, en
 
     indicatorTransform.position.y = scrollViewCanvas.top - indicatorCanvas.top;
     indicatorTransform.position.y -= (scrollViewComponent->value / scrollViewComponent->maxValue) * (scrollViewHeight - indicatorFill.height);
+}
+
+std::list<entt::entity> getScrollViewChildren(entt::registry& scene, entt::entity& scrollView) {
+    auto& scrollViewComponent = scene.get<ScrollView>(scrollView);
+    return scene.get<Children>(scrollViewComponent.scrollBox).children;
 }

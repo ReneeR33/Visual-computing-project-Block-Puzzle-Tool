@@ -20,6 +20,7 @@
 #include "Components/Fill2D.hpp"
 #include "Components/UIScene.hpp"
 #include "Components/ScrollView.hpp"
+#include "Components/SinglePieceView.hpp"
 #include "InputSystem.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
@@ -175,7 +176,6 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     );
     auto& pieceViewComponent = scene.emplace<PiecesView>(pieceView);
     pieceViewComponent.puzzle = puzzle;
-
     scene.emplace<CanvasElement>(pieceView, 0,
         float(WINDOW_HEIGHT) / 2.0f, -float(WINDOW_HEIGHT) / 2.0f,
         -float(PIECE_VIEW_WIDTH) / 2.0f, float(PIECE_VIEW_WIDTH) / 2.0f
@@ -210,6 +210,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         auto& pieceChildren = scene.get<Children>(pieceEntity);
 
         auto pieceViewSinglePieceView = scene.create();
+        auto& singlePieceViewComponent = scene.emplace<SinglePieceView>(pieceViewSinglePieceView);
         scene.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
             pieceViewSinglePieceViewHeight / 2.0f, -pieceViewSinglePieceViewHeight / 2.0f,
             -pieceViewSinglePieceViewWidth / 2.0f, pieceViewSinglePieceViewWidth / 2.0f
@@ -231,6 +232,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
             pieceViewSinglePieceViewWidth, 
             pieceViewSinglePieceViewHeight
         );
+        singlePieceViewComponent.background = pieceViewSinglePieceViewBackGround;
 
         auto pieceUIScene = scene.create();
         scene.emplace<Parent>(pieceUIScene, pieceViewSinglePieceView);
@@ -240,6 +242,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         auto& uiScene = scene.emplace<UIScene>(pieceUIScene);
         uiScene.width = pieceViewSinglePieceViewWidth;
         uiScene.height = pieceViewSinglePieceViewHeight;
+        singlePieceViewComponent.subscene = pieceUIScene;
 
         auto dirLight = uiScene.scene.create();
         uiScene.scene.emplace<DirLight>(dirLight,
@@ -258,6 +261,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         );
 
         auto uiScenePiece = uiScene.scene.create();
+        uiScene.scene.emplace<PuzzlePiece>(uiScenePiece);
         uiScene.scene.emplace<Transform>(uiScenePiece, glm::vec3(0.0f), glm::vec3(0.0f, 40.0f, 0.0f), glm::vec3(1.0f));
         auto& uiScenePieceChildren = uiScene.scene.emplace<Children>(uiScenePiece);
 
