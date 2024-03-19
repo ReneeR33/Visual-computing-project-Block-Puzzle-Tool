@@ -119,8 +119,7 @@ void Renderer::render(entt::registry &scene) {
     auto width = static_cast<float>(m_viewport[2]);
     auto height = static_cast<float>(m_viewport[3]);
 
-    renderDepthMap(scene);
-    glViewport(0, 0, m_viewport[2], m_viewport[3]);
+    //glViewport(0, 0, m_viewport[2], m_viewport[3]);
     renderWorld(scene, width, height, glm::mat4(1.0f));
     renderUI(scene, width, height);
 }
@@ -134,6 +133,20 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
     glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.direction, glm::normalize(camera.up));
 
     auto& dirLight = scene.get<DirLight>(scene.view<DirLight>().front());
+
+    auto lightProjection = glm::ortho(
+        SHADOW_MAP_FRUSTUM_LEFT, SHADOW_MAP_FRUSTUM_RIGHT,
+        SHADOW_MAP_FRUSTUM_BOTTOM, SHADOW_MAP_FRUSTUM_TOP,
+        0.0f, 40.0f
+    );
+    auto lightView = glm::lookAt(
+        -(10.0f * dirLight.direction),
+        glm::vec3(0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+    auto lightSpaceMatrix = lightProjection * lightView;
+
+    renderDepthMap(scene, lightSpaceMatrix);
 
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto& entity : entitiesView) {
@@ -230,8 +243,8 @@ void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object
     }
 }
 
-void Renderer::renderDepthMap(entt::registry& scene) {
-    auto& dirLight = scene.get<DirLight>(scene.view<DirLight>().front());
+void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix) {
+    /*auto& dirLight = scene.get<DirLight>(scene.view<DirLight>().front());
 
     auto lightProjection = glm::ortho(
         SHADOW_MAP_FRUSTUM_LEFT, SHADOW_MAP_FRUSTUM_RIGHT,
@@ -243,7 +256,10 @@ void Renderer::renderDepthMap(entt::registry& scene) {
         glm::vec3(0.0f),
         glm::vec3(0.0f, 1.0f, 0.0f)
     );
-    auto lightSpaceMatrix = lightProjection * lightView;
+    auto lightSpaceMatrix = lightProjection * lightView;*/
+
+    GLint m_viewport[4];
+    glGetIntegerv(GL_VIEWPORT, m_viewport);
 
     glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFrameBuffer);
@@ -264,6 +280,7 @@ void Renderer::renderDepthMap(entt::registry& scene) {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, m_viewport[2], m_viewport[3]);
 }
 
 void Renderer::draw(Mesh &mesh) {
