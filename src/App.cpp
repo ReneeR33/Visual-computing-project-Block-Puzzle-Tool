@@ -31,7 +31,7 @@
 
 #define PIECE_VIEW_WIDTH WINDOW_WIDTH / 5
 
-//#define LOAD_TEST_PUZZLE
+#define LOAD_TEST_PUZZLE
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
 }
@@ -77,10 +77,10 @@ void App::initExplodedViewTestScene() {
 
     auto camera = scene.create();
     scene.emplace<Camera>(camera,
-                          glm::vec3(0.0f, 0.0f, 10.0f),
+                          glm::vec3(0.0f, 0.0f, 7.0f),
                           glm::vec3(0.0f, 0.0f, -1.0f),
                           glm::vec3(0.0f, 1.0f, 0.0f),
-                          0.1f, 100.0f, 45.0f
+                          0.1f, 100.0f, 70.0f
     );
 
     entt::entity puzzle;

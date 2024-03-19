@@ -5,7 +5,7 @@
 #include "Components/CanvasElement.hpp"
 #include "Components/ScrollView.hpp"
 
-#define SCROLL_SPEED 50.0f
+#define SCROLL_SPEED 70.0f
 
 PieceViewSystem::PieceViewSystem(entt::registry& scene) 
     : scene(scene) {

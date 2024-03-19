@@ -11,6 +11,13 @@
 #include "Components/CanvasElement.hpp"
 #include "Components/UIScene.hpp"
 
+#define SHADOW_MAP_HEIGHT 1024
+#define SHADOW_MAP_WIDTH 1024
+#define SHADOW_MAP_FRUSTUM_LEFT -10.0f
+#define SHADOW_MAP_FRUSTUM_RIGHT 10.0f
+#define SHADOW_MAP_FRUSTUM_BOTTOM -10.0f
+#define SHADOW_MAP_FRUSTUM_TOP 10.0f
+
 Mesh Renderer::fillMesh = {
     .vertices = {
             { .position = glm::vec3(-0.5f, -0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
@@ -25,12 +32,34 @@ Mesh Renderer::fillMesh = {
 };
 
 Renderer::Renderer()
-    : fillShader("shaders/fill/fill.vert", "shaders/fill/fill.frag") {
+    : fillShader("shaders/fill/fill.vert", "shaders/fill/fill.frag")
+    , shadowMapShader("shaders/shadowmap/shadowmap.vert", "shaders/shadowmap/shadowmap.frag") {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
     //TODO: clearing mesh?
     load(fillMesh);
+
+    // For depth mapping
+    glGenFramebuffers(1, &depthMapFrameBuffer);
+
+    glGenTextures(1, &depthMapTexture);
+    glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+        SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 
+        0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL
+    );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFrameBuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTexture, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::load(entt::registry &scene) {
@@ -90,6 +119,8 @@ void Renderer::render(entt::registry &scene) {
     auto width = static_cast<float>(m_viewport[2]);
     auto height = static_cast<float>(m_viewport[3]);
 
+    renderDepthMap(scene);
+    glViewport(0, 0, m_viewport[2], m_viewport[3]);
     renderWorld(scene, width, height, glm::mat4(1.0f));
     renderUI(scene, width, height);
 }
@@ -107,6 +138,37 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto& entity : entitiesView) {
         renderWorldObject(scene, entity, camera, dirLight, view, projection, eTransform);
+    }
+}
+
+void Renderer::renderWorldObject(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection, glm::mat4& eTransform) {
+    auto& shader = scene.get<Shader>(object);
+    auto& material = scene.get<Material>(object);
+    auto& model = scene.get<Model>(object);
+
+    auto modelMatrix = createModelMatrix(scene, object);
+
+    shader.use();
+
+    shader.setMat4("view", view);
+    shader.setMat4("projection", projection);
+    shader.setMat4("model", modelMatrix);
+    shader.setMat4("eTransform", eTransform);
+
+    shader.setVec3("color", material.color);
+    shader.setVec3("ambient", material.ambientColor);
+    shader.setVec3("specular", material.specularColor);
+    shader.setFloat("specularPow", material.specularPow);
+
+    shader.setVec3("viewPos", camera.position);
+
+    shader.setVec3("dirLight.direction", dirlight.direction);
+    shader.setVec3("dirLight.diffuse", dirlight.diffuse);
+    shader.setVec3("dirLight.ambient", dirlight.ambient);
+    shader.setVec3("dirLight.specular", dirlight.specular);
+
+    for(auto& mesh : model.meshes) {
+        draw(mesh);
     }
 }
 
@@ -168,66 +230,40 @@ void Renderer::renderUIElement(entt::registry &scene, const entt::entity &object
     }
 }
 
-void Renderer::renderWorldObject(entt::registry& scene, const entt::entity &object, Camera camera, DirLight dirlight, glm::mat4 &view, glm::mat4 &projection, glm::mat4& eTransform) {
-    auto& shader = scene.get<Shader>(object);
-    auto& material = scene.get<Material>(object);
-    auto& model = scene.get<Model>(object);
+void Renderer::renderDepthMap(entt::registry& scene) {
+    auto& dirLight = scene.get<DirLight>(scene.view<DirLight>().front());
 
-    std::list<glm::mat4> modelMatrices;
+    auto lightProjection = glm::ortho(
+        SHADOW_MAP_FRUSTUM_LEFT, SHADOW_MAP_FRUSTUM_RIGHT,
+        SHADOW_MAP_FRUSTUM_BOTTOM, SHADOW_MAP_FRUSTUM_TOP,
+        0.0f, 40.0f
+    );
+    auto lightView = glm::lookAt(
+        -(10.0f * dirLight.direction),
+        glm::vec3(0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+    auto lightSpaceMatrix = lightProjection * lightView;
 
-    auto cEntity = &object;
-    while (cEntity != nullptr) {
-        auto transform = scene.try_get<Transform>(*cEntity);
+    glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFrameBuffer);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-        if (transform != nullptr) {
-            auto modelm = glm::mat4(1.0f);
-            modelm = glm::translate(modelm, transform->position);
-            float rotXRadians = (transform->rotation.x / 180.0f) * glm::pi<float>();
-            float rotYRadians = (transform->rotation.y / 180.0f) * glm::pi<float>();
-            float rotZRadians = (transform->rotation.z / 180.0f) * glm::pi<float>();
-            modelm = glm::rotate(modelm, rotXRadians, glm::vec3(1, 0, 0));
-            modelm = glm::rotate(modelm, rotYRadians, glm::vec3(0, 1, 0));
-            modelm = glm::rotate(modelm, rotZRadians, glm::vec3(0, 0, 1));
-            modelm = glm::scale(modelm, transform->scale);
+    auto entitiesView = scene.view<Model, Material, Transform>();
+    for (auto [entity, model, material, transform] : entitiesView.each()) {
 
-            modelMatrices.push_back(modelm);
+        auto modelMatrix = createModelMatrix(scene, entity);
+
+        shadowMapShader.use();
+        shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        shadowMapShader.setMat4("model", modelMatrix);
+
+        for (auto& mesh : model.meshes) {
+            draw(mesh);
         }
-
-        auto parentComponent = scene.try_get<Parent>(*cEntity);
-        if (parentComponent != nullptr) {
-            cEntity = &parentComponent->parent;
-        } else {
-            cEntity = nullptr;
-        }
     }
 
-    auto modelm = glm::mat4(1.0f);
-    for (const auto & modelMatrix : modelMatrices) {
-        modelm = modelMatrix * modelm;
-    }
-
-    shader.use();
-
-    shader.setMat4("view", view);
-    shader.setMat4("projection", projection);
-    shader.setMat4("model", modelm);
-    shader.setMat4("eTransform", eTransform);
-
-    shader.setVec3("color", material.color);
-    shader.setVec3("ambient", material.ambientColor);
-    shader.setVec3("specular", material.specularColor);
-    shader.setFloat("specularPow", material.specularPow);
-
-    shader.setVec3("viewPos", camera.position);
-
-    shader.setVec3("dirLight.direction", dirlight.direction);
-    shader.setVec3("dirLight.diffuse", dirlight.diffuse);
-    shader.setVec3("dirLight.ambient", dirlight.ambient);
-    shader.setVec3("dirLight.specular", dirlight.specular);
-
-    for(auto& mesh : model.meshes) {
-        draw(mesh);
-    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::draw(Mesh &mesh) {
@@ -241,4 +277,32 @@ void Renderer::draw(Mesh &mesh) {
     }
 
     glBindVertexArray(0);
+}
+
+glm::mat4 Renderer::createModelMatrix(entt::registry& scene, entt::entity worldObject) {
+    auto cEntity = &worldObject;
+    auto modelm = glm::mat4(1.0f);
+    while (cEntity != nullptr) {
+        auto transform = scene.try_get<Transform>(*cEntity);
+
+        if (transform != nullptr) {
+            auto localmodelm = glm::mat4(1.0f);
+            localmodelm = glm::translate(localmodelm, transform->position);
+            localmodelm = glm::rotate(localmodelm, glm::radians(transform->rotation.x), glm::vec3(1, 0, 0));
+            localmodelm = glm::rotate(localmodelm, glm::radians(transform->rotation.y), glm::vec3(0, 1, 0));
+            localmodelm = glm::rotate(localmodelm, glm::radians(transform->rotation.z), glm::vec3(0, 0, 1));
+            localmodelm = glm::scale(localmodelm, transform->scale);
+
+            modelm = localmodelm * modelm;
+        }
+
+        auto parentComponent = scene.try_get<Parent>(*cEntity);
+        if (parentComponent != nullptr) {
+            cEntity = &parentComponent->parent;
+        } else {
+            cEntity = nullptr;
+        }
+    }
+
+    return modelm;
 }
