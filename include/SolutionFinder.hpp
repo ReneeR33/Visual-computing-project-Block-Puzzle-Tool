@@ -35,6 +35,7 @@ private:
 
     glm::vec3 mapSize;
     glm::vec3 puzzleSize;
+    glm::vec3 goals[8];
 };
 
 #endif //SOLUTIONFINDER_HPP

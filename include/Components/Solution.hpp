@@ -5,6 +5,7 @@
 
 struct Solution {
     std::vector<glm::vec3> Solution;
+    int step;
 };
 
 #endif //SOLUTION_HPP

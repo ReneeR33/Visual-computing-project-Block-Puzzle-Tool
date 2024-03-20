@@ -7,8 +7,22 @@
 
 SolutionFinder::SolutionFinder(glm::vec3 size)
 {
-    mapSize = size * glm::vec3(4);
+    mapSize = size * glm::vec3(2);
     puzzleSize = size;
+
+    auto x = puzzleSize.x-1;
+    auto y = puzzleSize.y-1;
+    auto z = puzzleSize.z-1;
+
+    // quickly define areas where to yeet  blocks off to
+    goals[0] = (glm::vec3(0, 0, 0));
+    goals[1] = (glm::vec3(x, 0, 0));
+    goals[2] = (glm::vec3(0, y, 0));
+    goals[3] = (glm::vec3(0, 0, z));
+    goals[4] = (glm::vec3(x, y, z));
+    goals[5] = (glm::vec3(x, y, 0));
+    goals[6] = (glm::vec3(x, 0, z));
+    goals[7] = (glm::vec3(0, y, z));
 }
 
 SolutionFinder::~SolutionFinder()
@@ -41,15 +55,13 @@ std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResul
             {
                 if(!isSolved[i]) otherPieces.pieces.push_back(pieces.pieces[i]);
             }
+
             auto map = CreateMap(otherPieces, piece);
-            glm::vec3 offset = puzzleSize * glm::vec3(2);
-            Solution path = AStar(map, glm::floor(piece.origin) + offset, glm::vec3(0));
+            glm::vec3 offset = puzzleSize;
+            Solution path = AStar(map, glm::floor(piece.origin) + offset, goals[i % 7]);
             
-            if(path.Solution.size() > 0)
-            {
-                isSolved[i] = true;
-                result[i] = path;
-            }
+            if(path.Solution.size() > 1) { isSolved[i] = true; }
+            result[i] = path;
         }
         
         if(preSolved == solvedCount)
@@ -79,7 +91,7 @@ std::vector<std::vector<std::vector<bool>>> SolutionFinder::CreateMap(
 
         for (auto & otherBlock :otherPiece.blocks)
         {
-            glm::vec3 offset = puzzleSize * glm::vec3(2) + glm::floor(otherPiece.origin);
+            glm::vec3 offset = puzzleSize + glm::floor(otherPiece.origin);
             for (auto & block :shape)
             {
                 glm::vec3 pos = block + offset;
@@ -127,6 +139,21 @@ Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> de
         curr = details[curr.x][curr.y][curr.z].parent;
     }
 
+    // translate back into puzzle coordinates
+    glm::vec3 offset = puzzleSize;
+    for (auto & step : path)
+    {
+        step -= offset;
+    }
+
+    std::reverse(path.begin(), path.end());
+    
+    for (auto step : path)
+    {
+        std::cout << step.x << ":" << step.y << ":" << step.z << std::endl;
+    }
+    std::cout << "###################" << std::endl;
+
     return {.Solution = path};
 }
 
@@ -135,6 +162,7 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
 {
 
     Solution path;
+    path.step = 0;
     std::cout << "goal:" << goal.x << ":" << goal.y << ":" << goal.z << std::endl;
     std::cout << "start:" << start.x << ":" << start.y << ":" << start.z << std::endl;
     
@@ -143,11 +171,13 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
     if(map[start.x][start.y][start.z] || map[goal.x][goal.y][goal.z])
     {
         std::cout << "start or end not accessable" << std::endl;
+        path.Solution.push_back(start);
         return path;
     } 
     else if(start == goal)
     {
         std::cout << "goal and start are equal" << std::endl;
+        path.Solution.push_back(start);
         return path;
     }
 

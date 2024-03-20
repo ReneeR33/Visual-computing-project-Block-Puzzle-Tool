@@ -21,6 +21,7 @@ private:
 
     PuzzleViewSystem(entt::registry& scene, GlfwWindow& window);
 
+    static void updateSolution();
     static void updateExplodedView();
     static void updatePuzzleRotation();
 

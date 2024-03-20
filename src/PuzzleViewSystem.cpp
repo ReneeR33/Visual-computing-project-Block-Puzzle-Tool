@@ -3,6 +3,7 @@
 #include "Components/ExplodedView.hpp"
 #include "Components/Transform.hpp"
 #include "Components/PuzzlePiece.hpp"
+#include "Components/Solution.hpp"
 #include "Components/Camera.hpp"
 #include "Components/Puzzle.hpp"
 
@@ -29,7 +30,17 @@ void PuzzleViewSystem::update() {
         return;
     }
     updateExplodedView();
+    updateSolution();
     updatePuzzleRotation();
+}
+
+void PuzzleViewSystem::updateSolution() {
+    auto& scene = puzzleViewSystem->scene;
+    auto piecesView = scene.view<PuzzlePiece, Transform, Solution>();
+
+    for (auto [entity, piece, transform, solution] : piecesView.each()) {
+        transform.position = solution.Solution[solution.step];
+    }
 }
 
 void PuzzleViewSystem::updateExplodedView() {

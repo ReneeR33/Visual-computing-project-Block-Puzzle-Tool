@@ -15,7 +15,7 @@
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 #include "SolutionFinder.hpp"
-
+#include <iostream> 
 #define WINDOW_WIDTH 1600
 #define WINDOW_HEIGHT 950
 #define WINDOW_NAME "puzzle tool"
@@ -143,13 +143,12 @@ void App::addPuzzleFromModel() {
     scene.emplace<Children>(puzzle);
 
     ModelLoader loader = ModelLoader();
-    auto result = loader.LoadSolution("resources/data/test.txt");
+    auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
 
     // TODO: load size dynamically
     glm::vec3 size = glm::vec3(4);
     SolutionFinder finder = SolutionFinder(size);
-    auto solutions = finder.GetSolution(result);    
-
+    auto solutions = finder.GetSolution(result);   
     for(uint32_t i; i < result.pieces.size(); i++)
     {
         auto item = result.pieces[i];

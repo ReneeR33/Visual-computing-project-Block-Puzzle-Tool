@@ -13,6 +13,7 @@
 #include "Components/DirLight.hpp"
 #include "Components/ExplodedView.hpp"
 #include "Components/PuzzlePiece.hpp"
+#include "Components/Solution.hpp"
 #include "Components/Puzzle.hpp"
 #include "Components/Children.hpp"
 
@@ -47,6 +48,7 @@ void DebugWindow::render(entt::registry& scene) {
         CameraInfo(scene);
         LightInfo(scene);
         ExplodedViewInfo(scene);
+        SolutionInfo(scene);
         ImGui::End();
     }
 
@@ -150,5 +152,27 @@ void DebugWindow::ExplodedViewInfo(entt::registry &scene) {
         }
         auto& exploded_view = scene.get<ExplodedView>(view.front());
         ImGui::SliderFloat("Exploded View Offset", &exploded_view.offset, 0.0f, 1.2f);
+    }
+}
+
+void DebugWindow::SolutionInfo(entt::registry &scene) {
+    auto view = scene.view<Puzzle>();
+    if (view.empty()) {
+        return;
+    }
+
+    auto puzzle = view.front();
+    auto puzzleChildren = scene.try_get<Children>(puzzle);
+    if (puzzleChildren == nullptr) {
+        return;
+    }
+
+    if (ImGui::CollapsingHeader("solution steps")) {
+        for (auto piece : puzzleChildren->children) {
+            auto& solution = scene.get<Solution>(piece);
+            ImGui::SliderInt("solution", &solution.step, 0, solution.Solution.size()-1);
+        }
+
+
     }
 }
