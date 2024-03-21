@@ -36,10 +36,33 @@ void PuzzleViewSystem::update() {
 
 void PuzzleViewSystem::updateSolution() {
     auto& scene = puzzleViewSystem->scene;
+    auto puzzleView = scene.view<Puzzle>();
     auto piecesView = scene.view<PuzzlePiece, Transform, Solution>();
 
+    if (puzzleView.empty()) {
+        return;
+    }
+
+    auto puzzleEntity = puzzleView.front();
+    auto& puzzle = scene.get<Puzzle>(puzzleEntity);
+    int current_step = puzzle.solutionStep;
+
     for (auto [entity, piece, transform, solution] : piecesView.each()) {
-        transform.position = solution.Solution[solution.step];
+        int max_steps = solution.Solution.size() - 1;
+        if(current_step > max_steps)
+        {
+            transform.position = solution.Solution[max_steps];
+            current_step -= max_steps;
+        }
+        else if(current_step < 0)
+        {
+            transform.position = solution.Solution[0];
+        }
+        else
+        {
+            transform.position = solution.Solution[current_step];
+            current_step -= max_steps;
+        }
     }
 }
 

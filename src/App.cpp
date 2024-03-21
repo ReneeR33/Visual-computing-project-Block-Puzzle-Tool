@@ -149,8 +149,9 @@ void App::addPuzzleFromModel() {
     glm::vec3 size = glm::vec3(4);
     SolutionFinder finder = SolutionFinder(size);
     std::vector<Solution> solutions = finder.GetSolution(result); 
-    
-    for(uint32_t i = 0; i < result.pieces.size(); i++)
+
+    // loop backward to get animation working in the right order
+    for(int i = result.pieces.size() - 1; i >= 0 ; i--)
     {
         auto item = result.pieces[i];
         Solution solution = solutions[i];
