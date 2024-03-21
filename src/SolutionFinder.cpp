@@ -64,7 +64,7 @@ std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResul
 
             auto map = CreateMap(otherPieces, piece);
             glm::vec3 offset = puzzleSize;
-            Solution path = AStar(map, piece.origin + offset, goals[i % 8]);
+            Solution path = AStar(map, piece.origin + offset, goals[i % 14]);
             
             if(path.Solution.size() > 1) { isSolved[i] = true; }
             result[i] = path;
@@ -164,6 +164,7 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
     Solution path;
     path.step = 0;
     glm::vec3 world_offset = start - glm::floor(start);
+    start = glm::floor(start);
 
     if(!posIsValid(start) || !posIsValid(goal))
     {
