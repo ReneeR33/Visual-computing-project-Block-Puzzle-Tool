@@ -22,6 +22,7 @@ public:
    ~ModelLoader();
 
     LoaderPuzzleResult LoadSolution(std::string path);
+    glm::vec3 LoadSize(std::string path);
 private:
     LoaderPieceResult LoadPiece(std::string line);
     LoaderPieceResult LoadModel(std::string path);

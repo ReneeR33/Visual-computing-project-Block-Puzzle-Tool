@@ -144,9 +144,10 @@ void App::addPuzzleFromModel() {
 
     ModelLoader loader = ModelLoader();
     auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
-
+    glm::vec3 size = loader.LoadSize("resources/data/half_cube-4x4x4.txt");
+    std::cout << "size: " << size.x << ":" << size.y << ":" << size.z << std::endl;
     // TODO: load size dynamically
-    glm::vec3 size = glm::vec3(4);
+    // glm::vec3 size = glm::vec3(4);
     SolutionFinder finder = SolutionFinder(size);
     std::vector<Solution> solutions = finder.GetSolution(result); 
 

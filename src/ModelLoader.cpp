@@ -20,6 +20,64 @@ ModelLoader::~ModelLoader()
 }
 
 
+glm::vec3 ModelLoader::LoadSize(std::string path)
+{
+    std::string line;
+    std::ifstream myfile (path);
+    std::vector<glm::vec3> blocks;
+
+    if (myfile.is_open())
+    {
+        while (std::getline(myfile, line))
+        {
+            if(line.length() == 0 || line[0] == '#')
+            {
+                continue;
+            }
+
+            std::cout << line << std::endl;
+            std::stringstream ss(line);
+            std::istream_iterator<std::string> begin(ss);
+            std::istream_iterator<std::string> end;
+            std::vector<std::string> xyz(begin, end);
+            
+            for(uint i = 0; i < xyz.size(); i +=3)
+            {
+                glm::vec3 block = glm::vec3(0, 0, 0);
+                block.x = std::stoi(xyz[i]);
+                block.y = std::stoi(xyz[i+1]);
+                block.z = std::stoi(xyz[i+2]);
+                blocks.push_back(block);
+            }
+        }
+        myfile.close();
+    }
+    else 
+    {
+        std::cout << "Unable to open file" << std::endl;
+        return glm::vec3(0);
+    } 
+
+    glm::vec3 min =  glm::vec3(0);
+    glm::vec3 max =  glm::vec3(0);
+
+    for (auto & block : blocks)
+    {
+        if(block.x < min.x) {min.x = block.x;}
+        if(block.y < min.y) {min.y = block.y;}
+        if(block.z < min.z) {min.z = block.z;}
+
+        if(block.x > max.x) {max.x = block.x;}
+        if(block.y > max.y) {max.y = block.y;}
+        if(block.z > max.z) {max.z = block.z;}
+    }
+
+    std::cout << "min: " << min.x << ":" << min.y << ":" << min.z << std::endl;
+    std::cout << "max: " << max.x << ":" << max.y << ":" << max.z << std::endl;
+    return (max + glm::vec3(1)) - min;
+}
+
+
 ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
 {
     std::vector<LoaderPieceResult> file_result;
@@ -97,8 +155,6 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line)
 
         if(glm::distance(block, center) < distance)
         {
-            // std::cout << "found closer block" << std::endl;
-            // std::cout << block.x << "-" << block.y << "-" << block.z << std::endl;
             distance = glm::distance(block, center);
             origin = block;
         }
