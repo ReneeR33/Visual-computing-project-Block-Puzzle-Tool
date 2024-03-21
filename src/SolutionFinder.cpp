@@ -10,9 +10,9 @@ SolutionFinder::SolutionFinder(glm::vec3 size)
     mapSize = size * glm::vec3(2);
     puzzleSize = size;
 
-    auto x = puzzleSize.x-1;
-    auto y = puzzleSize.y-1;
-    auto z = puzzleSize.z-1;
+    auto x = puzzleSize.x*2-1;
+    auto y = puzzleSize.y*2-1;
+    auto z = puzzleSize.z*2-1;
 
     // quickly define areas where to yeet  blocks off to
     goals[0] = (glm::vec3(0, 0, 0));
@@ -23,6 +23,12 @@ SolutionFinder::SolutionFinder(glm::vec3 size)
     goals[5] = (glm::vec3(x, y, 0));
     goals[6] = (glm::vec3(x, 0, z));
     goals[7] = (glm::vec3(0, y, z));
+    goals[8] = (glm::vec3(0, floor(y/2), floor(z/2)));
+    goals[9] = (glm::vec3(x, floor(y/2), floor(z/2)));
+    goals[10] = (glm::vec3(floor(x/2), 0, floor(z/2)));
+    goals[11] = (glm::vec3(floor(x/2), y, floor(z/2)));
+    goals[12] = (glm::vec3(floor(x/2), floor(y/2), 0));
+    goals[13] = (glm::vec3(floor(x/2), floor(y/2), z));
 }
 
 SolutionFinder::~SolutionFinder()
@@ -58,7 +64,7 @@ std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResul
 
             auto map = CreateMap(otherPieces, piece);
             glm::vec3 offset = puzzleSize;
-            Solution path = AStar(map, glm::floor(piece.origin) + offset, goals[i % 7]);
+            Solution path = AStar(map, piece.origin + offset, goals[i % 8]);
             
             if(path.Solution.size() > 1) { isSolved[i] = true; }
             result[i] = path;
@@ -128,7 +134,7 @@ bool IsWall(std::vector<std::vector<std::vector<bool>>> map, glm::vec3 loc)
     return map[loc.x][loc.y][loc.z];
 }
 
-Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal)
+Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal, glm::vec3 world_offset)
 {
     std::vector<glm::vec3> path;
     glm::vec3 curr = goal;
@@ -138,22 +144,16 @@ Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> de
         path.push_back(curr);
         curr = details[curr.x][curr.y][curr.z].parent;
     }
+    path.push_back(curr);
 
     // translate back into puzzle coordinates
     glm::vec3 offset = puzzleSize;
     for (auto & step : path)
     {
-        step -= offset;
+        step -= (offset - world_offset);
     }
 
     std::reverse(path.begin(), path.end());
-    
-    for (auto step : path)
-    {
-        std::cout << step.x << ":" << step.y << ":" << step.z << std::endl;
-    }
-    std::cout << "###################" << std::endl;
-
     return {.Solution = path};
 }
 
@@ -163,21 +163,24 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
 
     Solution path;
     path.step = 0;
-    std::cout << "goal:" << goal.x << ":" << goal.y << ":" << goal.z << std::endl;
-    std::cout << "start:" << start.x << ":" << start.y << ":" << start.z << std::endl;
-    
-    // Check if valid?
+    glm::vec3 world_offset = start - glm::floor(start);
 
-    if(map[start.x][start.y][start.z] || map[goal.x][goal.y][goal.z])
+    if(!posIsValid(start) || !posIsValid(goal))
+    {
+        std::cout << "start or end outside map" << std::endl;
+        path.Solution.push_back(start - puzzleSize + world_offset);
+        return path;
+    } 
+    else if(map[start.x][start.y][start.z] || map[goal.x][goal.y][goal.z])
     {
         std::cout << "start or end not accessable" << std::endl;
-        path.Solution.push_back(start);
+        path.Solution.push_back(start - puzzleSize + world_offset);
         return path;
     } 
     else if(start == goal)
     {
         std::cout << "goal and start are equal" << std::endl;
-        path.Solution.push_back(start);
+        path.Solution.push_back(start - puzzleSize + world_offset);
         return path;
     }
 
@@ -197,6 +200,14 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
     std::vector<step> openList;
     openList.push_back(std::make_pair(0, start));
 
+    std::vector<glm::vec3> test;
+    test.push_back(openList[0].second + glm::vec3(0, 0, 1));
+    test.push_back(openList[0].second  + glm::vec3(0, 1, 0));
+    test.push_back(openList[0].second  + glm::vec3(1, 0, 0));
+    test.push_back(openList[0].second  + glm::vec3(0, 0, -1));
+    test.push_back(openList[0].second  + glm::vec3(0, -1, 0));
+    test.push_back(openList[0].second  + glm::vec3(-1, 0, 0));
+    
     while (!openList.empty()) 
     {
         step item = openList[0];
@@ -212,17 +223,14 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
         neighbhours.push_back(itemLoc + glm::vec3(0, -1, 0));
         neighbhours.push_back(itemLoc + glm::vec3(-1, 0, 0));
         
-        // std::cout << "neigbours for:" << itemLoc.x << ":" << itemLoc.y << ":" << itemLoc.z <<  std::endl;
         for (auto nb : neighbhours)
         {
             if (posIsValid(nb)) 
             {
-                // std::cout << nb.x << ":" << nb.y << ":" << nb.z << std::endl;
                 if (nb == goal) 
                 {
                     details[nb.x][nb.y][nb.z].parent = itemLoc;
-                    std::cout << "finished routing" << std::endl;
-                    path = calcPath(details, goal);
+                    path = calcPath(details, goal, world_offset);
                     finished = true;
                     break;
                 }
@@ -231,8 +239,7 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
                     float fromGoal = glm::distance(nb, goal);
                     uint32_t dist = details[itemLoc.x][itemLoc.y][itemLoc.z].dist + 1;
 
-                    if(details[nb.x][nb.y][nb.z].from_goal == FLT_MAX ||
-                    details[nb.x][nb.y][nb.z].dist > dist)
+                    if(details[nb.x][nb.y][nb.z].from_goal == FLT_MAX)
                     {
                         openList.push_back(std::make_pair(fromGoal, nb));
                         details[nb.x][nb.y][nb.z].parent = itemLoc;
@@ -246,5 +253,6 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
         if(finished) {break;}
         std::sort (openList.begin(), openList.end(), sort);
     }
+
     return path;
 }

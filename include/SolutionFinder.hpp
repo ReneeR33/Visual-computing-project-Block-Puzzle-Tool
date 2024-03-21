@@ -27,7 +27,7 @@ private:
         float from_goal;
     };
 
-    Solution calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal);
+    Solution calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal, glm::vec3 world_offset);
     typedef std::pair<float, glm::vec3> step;
     float calcDist(glm::vec3 a, glm::vec3 b);
     bool posIsValid(glm::vec3 pos);
@@ -35,7 +35,7 @@ private:
 
     glm::vec3 mapSize;
     glm::vec3 puzzleSize;
-    glm::vec3 goals[8];
+    glm::vec3 goals[14];
 };
 
 #endif //SOLUTIONFINDER_HPP

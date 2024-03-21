@@ -148,12 +148,13 @@ void App::addPuzzleFromModel() {
     // TODO: load size dynamically
     glm::vec3 size = glm::vec3(4);
     SolutionFinder finder = SolutionFinder(size);
-    auto solutions = finder.GetSolution(result);   
-    for(uint32_t i; i < result.pieces.size(); i++)
+    for(uint32_t i = 0; i < result.pieces.size(); i++)
     {
         auto item = result.pieces[i];
-        auto solution = solutions[i];
+        Solution solution = solutions[i];
         auto piece = addPiece(puzzle, item.origin, solution);
+        std::cout << "added piece" << std::endl; 
+        std::cout << solution.Solution.size() << std::endl; 
 
         for (auto & block : item.blocks)
         {
