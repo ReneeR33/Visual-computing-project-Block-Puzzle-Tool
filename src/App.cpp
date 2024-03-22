@@ -13,7 +13,8 @@
 #include "Components/Children.hpp"
 #include "Components/Puzzle.hpp"
 #include "primitives.hpp"
-#include "ModelLoader.hpp"
+#include "tinyfiledialogs.h"
+#include "tinyfiledialogs.c"
 #include "SolutionFinder.hpp"
 #include <iostream> 
 #define WINDOW_WIDTH 1600
@@ -32,6 +33,7 @@ void App::run() {
     initExplodedViewTestScene();
 
     renderer.load(scene);
+    loader = ModelLoader();
     DebugWindow debugWindow(window);
 
     while (!window.windowShouldClose()) {
@@ -39,13 +41,29 @@ void App::run() {
         PuzzleViewSystem::update();
 
         renderer.render(scene);
-        debugWindow.render(scene);
+        DebugWindow::Action act = debugWindow.render(scene);
+
+        if(act == DebugWindow::Action::load)
+        {
+	        char const * filter[2] = { "*.txt", "*.text" };
+            char const * filename = tinyfd_openFileDialog(
+                "Solution file", "../", 2, filter, "text files", 1);
+
+            if (filename)
+            {
+                initExplodedViewTestScene();
+                std::string path(filename);
+                addPuzzleFromModel(path);
+                renderer.load(scene);
+            }
+        }
 
         window.update();
     }
 }
 
 void App::initExplodedViewTestScene() {
+    scene.clear();
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
 
@@ -65,11 +83,11 @@ void App::initExplodedViewTestScene() {
                           0.1f, 100.0f, 80.0f
     );
 
-#ifdef LOAD_TEST_PUZZLE
-    addTestPuzzle();
-#else
-    addPuzzleFromModel();
-#endif
+// #ifdef LOAD_TEST_PUZZLE
+//     addTestPuzzle();
+// #else
+//     addPuzzleFromModel();
+// #endif
 }
 
 void App::addTestPuzzle() {
@@ -132,7 +150,7 @@ void App::addTestPuzzle() {
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);
 }
 
-void App::addPuzzleFromModel() {
+void App::addPuzzleFromModel(std::string path) {
     auto puzzle = scene.create();
     scene.emplace<Puzzle>(puzzle);
     scene.emplace<Transform>(puzzle,
@@ -142,9 +160,8 @@ void App::addPuzzleFromModel() {
     scene.emplace<ExplodedView>(puzzle,0.0f);
     scene.emplace<Children>(puzzle);
 
-    ModelLoader loader = ModelLoader();
-    auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
-    glm::vec3 size = loader.LoadSize("resources/data/half_cube-4x4x4.txt");
+    auto result = loader.LoadSolution(path);
+    glm::vec3 size = loader.LoadSize(path);
     std::cout << "size: " << size.x << ":" << size.y << ":" << size.z << std::endl;
     // TODO: load size dynamically
     // glm::vec3 size = glm::vec3(4);

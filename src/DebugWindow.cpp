@@ -17,6 +17,7 @@
 #include "Components/Puzzle.hpp"
 #include "Components/Children.hpp"
 
+#include <iostream>
 DebugWindow::DebugWindow(GlfwWindow &window) 
     : window(window)
 {
@@ -27,10 +28,11 @@ DebugWindow::DebugWindow(GlfwWindow &window)
     ImGui_ImplOpenGL3_Init("#version 410");
 }
 
-void DebugWindow::render(entt::registry& scene) {
+DebugWindow::Action DebugWindow::render(entt::registry& scene) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    Action action = none;
 
     {
         ImGui::Begin("Debug");
@@ -44,6 +46,7 @@ void DebugWindow::render(entt::registry& scene) {
             ImGui::Checkbox("disable puzzle mouse rotation", &puzzle.disableMouseRotation);
         }
 
+        action = LoadFile(scene);
         ObjectInfo(scene);
         CameraInfo(scene);
         LightInfo(scene);
@@ -54,6 +57,19 @@ void DebugWindow::render(entt::registry& scene) {
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    return action;
+}
+
+DebugWindow::Action DebugWindow::LoadFile(entt::registry &scene) {
+    Action action = none;
+
+    if (ImGui::Button("Load solution"))
+    {
+        std::cout << "pressed" << std::endl;
+        action = load;
+    }
+
+    return action;
 }
 
 void DebugWindow::ObjectInfo(entt::registry& scene) {

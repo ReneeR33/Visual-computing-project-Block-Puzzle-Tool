@@ -9,11 +9,19 @@ class DebugWindow {
 public:
     DebugWindow(GlfwWindow& window);
 
-    void render(entt::registry& scene);
+    enum Action
+    {
+        none,
+        load,
+        save
+    };
+
+    Action render(entt::registry& scene);
 
 private:
     GlfwWindow& window;
 
+    Action LoadFile(entt::registry& scene);
     void CameraInfo(entt::registry& scene);
     void ObjectInfo(entt::registry& scene);
     void LightInfo(entt::registry& scene);
