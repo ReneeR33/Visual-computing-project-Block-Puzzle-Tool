@@ -15,8 +15,7 @@ private:
 
     glm::vec2 prevMousePos;
 
-    //entt::entity selectedPiece;
-    //entt::entity selectedSinglePieceView;
+    entt::entity selectedPiece;
 
     void updatePieceRotation(entt::entity pieceSubsceneEntity, double mouseXPos, double mouseYPos);
 

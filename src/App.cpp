@@ -222,6 +222,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
             pieceViewSinglePieceViewHeight / 2.0f, -pieceViewSinglePieceViewHeight / 2.0f,
             -pieceViewSinglePieceViewWidth / 2.0f, pieceViewSinglePieceViewWidth / 2.0f
         );
+        //TODO: store offset somewhere/make offset specific?
         scene.emplace<Transform2D>(pieceViewSinglePieceView, 
             glm::vec2(0.0f, -(float(i) * (pieceViewSinglePieceViewHeight + 50.0f))), 
             0.0f, 
