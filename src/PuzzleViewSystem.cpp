@@ -148,22 +148,20 @@ void PuzzleViewSystem::updatePieceSelection() {
     }
 
     // update the colors of the selected and non selected pieces
-    if (!isinf(lambda)) {
-        for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
-            if (entity == closestPiece) {
-                piece.selected = true;
-            } else {
-                piece.selected = false;
-            }
+    for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
+        if (!isinf(lambda) && entity == closestPiece) {
+            piece.selected = true;
+        } else {
+            piece.selected = false;
+        }
 
-            auto& children = scene.get<Children>(entity).children;
-            for (auto block : children) {
-                auto& material = scene.get<Material>(block);
-                if (piece.selected) {
-                    material.color = piece.selectionColor;
-                } else {
-                    material.color = piece.defaultColor;
-                }
+        auto& children = scene.get<Children>(entity).children;
+        for (auto block : children) {
+            auto& material = scene.get<Material>(block);
+            if (piece.selected) {
+                material.color = piece.selectionColor;
+            } else {
+                material.color = piece.defaultColor;
             }
         }
     }
@@ -277,7 +275,8 @@ void PuzzleViewSystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent
         double xpos, ypos;
         InputSystem::getCursorPos(xpos, ypos);
         prevMousePos = glm::vec2(xpos, ypos);
-
+    }
+    else if (mouseButtonCallbackEvent.button == GLFW_MOUSE_BUTTON_RIGHT && mouseButtonCallbackEvent.action == GLFW_PRESS) {
         updatePieceSelection();
     }
 }
