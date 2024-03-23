@@ -15,6 +15,11 @@ private:
 
     glm::vec2 prevMousePos;
 
+    //entt::entity selectedPiece;
+    //entt::entity selectedSinglePieceView;
+
+    void updatePieceRotation(entt::entity pieceSubsceneEntity, double mouseXPos, double mouseYPos);
+
     void scrollCallback(InputSystem::ScrollEvent scrollEvent);
     void mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent);
 };

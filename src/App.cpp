@@ -215,7 +215,8 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         auto pieceViewSinglePieceView = scene.create();
         auto& singlePieceViewComponent = scene.emplace<SinglePieceView>(pieceViewSinglePieceView,
             glm::vec3(0.15f, 0.15f, 0.18f),
-            glm::vec3(0.22f, 0.22f, 0.25f)
+            glm::vec3(0.22f, 0.22f, 0.25f),
+            pieceEntity
         );
         scene.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
             pieceViewSinglePieceViewHeight / 2.0f, -pieceViewSinglePieceViewHeight / 2.0f,

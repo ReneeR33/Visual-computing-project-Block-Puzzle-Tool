@@ -8,6 +8,8 @@ struct SinglePieceView {
     glm::vec3 backgroundColor;
     glm::vec3 hoverBackgroundColor;
 
+    entt::entity piece;
+
     entt::entity subscene;
     entt::entity background;
 };

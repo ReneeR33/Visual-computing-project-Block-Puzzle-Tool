@@ -18,8 +18,9 @@ private:
 
     void updateExplodedView();
     void updatePuzzleRotation();
-    void updatePieceSelection();
+    void updateSelectedPieceColor();
 
+    void updatePieceSelection();
     bool mouseHoveringOverPieceView();
     bool getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::vec3 rayDirection, BoundingBox boundingBox, float& intersectionLambda);
 

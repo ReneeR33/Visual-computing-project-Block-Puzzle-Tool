@@ -9,6 +9,8 @@
 #include "Components/PuzzlePiece.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Fill2D.hpp"
+#include "Components/Puzzle.hpp"
+#include "Components/Children.hpp"
 
 #include <iostream>
 
@@ -36,29 +38,43 @@ void PieceViewSystem::update() {
             auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
             auto& backGroundFill = scene.get<Fill2D>(singlePieceViewComponent.background);
 
+            auto& piece = scene.get<PuzzlePiece>(singlePieceViewComponent.piece);
+
             if ((xpos > (screenPosition.x + canvas.left) && xpos < (screenPosition.x + canvas.right)) &&
                 (ypos > (screenPosition.y + canvas.bottom) && ypos < (screenPosition.y + canvas.top))) 
             {
                 int state = InputSystem::getMouseButton(GLFW_MOUSE_BUTTON_LEFT);
                 if (state == GLFW_PRESS) {
-                    auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
-                    offset.y = -offset.y;
-
-                    auto& subsceneComponent = scene.get<UIScene>(singlePieceViewComponent.subscene);
-
-                    for (auto [entity, piece, transform] : subsceneComponent.scene.view<PuzzlePiece, Transform>().each()) {
-                        transform.rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
-                    }
-
-                    prevMousePos = glm::vec2 (xpos, ypos);
+                    updatePieceRotation(singlePieceViewComponent.subscene, xpos, ypos);
                 }
 
-                backGroundFill.color = singlePieceViewComponent.hoverBackgroundColor;
+                if (!piece.selected) {
+                    backGroundFill.color = singlePieceViewComponent.hoverBackgroundColor;
+                }
             } else {
-                backGroundFill.color = singlePieceViewComponent.backgroundColor;
+                if (!piece.selected) {
+                    backGroundFill.color = singlePieceViewComponent.backgroundColor;  
+                }
+            }
+
+            if (piece.selected) {
+                backGroundFill.color = singlePieceViewComponent.hoverBackgroundColor + glm::vec3(0.2f);
             }
         }
     }
+}
+
+void PieceViewSystem::updatePieceRotation(entt::entity pieceSubsceneEntity, double mouseXPos, double mouseYPos) {
+    auto offset = glm::vec2 (mouseXPos, mouseYPos) - prevMousePos;
+    offset.y = -offset.y;
+
+    auto& subsceneComponent = scene.get<UIScene>(pieceSubsceneEntity);
+
+    for (auto [entity, piece, transform] : subsceneComponent.scene.view<PuzzlePiece, Transform>().each()) {
+        transform.rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
+    }
+
+    prevMousePos = glm::vec2 (mouseXPos, mouseYPos);
 }
 
 void PieceViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {
@@ -92,5 +108,31 @@ void PieceViewSystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent 
         double xpos, ypos;
         InputSystem::getCursorPos(xpos, ypos);
         prevMousePos = glm::vec2(xpos, ypos);
+
+        for (auto [entity, pieceView] : scene.view<PiecesView>().each()) {
+            auto scrollView = pieceView.scrollView;
+            auto children = getScrollViewChildren(scene, scrollView);
+
+            for (auto singlePieceView : children) {
+                auto& canvas = scene.get<CanvasElement>(singlePieceView);
+                auto screenPosition = UIEntityScreenPosition(scene, singlePieceView);
+
+                if ((xpos > (screenPosition.x + canvas.left) && xpos < (screenPosition.x + canvas.right)) &&
+                    (ypos > (screenPosition.y + canvas.bottom) && ypos < (screenPosition.y + canvas.top))) 
+                {
+                    auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
+
+                    auto& puzzleChildren = scene.get<Children>(pieceView.puzzle);
+                    for (auto puzzlePiece : puzzleChildren.children) {
+                        auto& pieceComponent = scene.get<PuzzlePiece>(puzzlePiece);
+                        if (puzzlePiece == singlePieceViewComponent.piece) {
+                            pieceComponent.selected = true;
+                        } else {
+                            pieceComponent.selected = false;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

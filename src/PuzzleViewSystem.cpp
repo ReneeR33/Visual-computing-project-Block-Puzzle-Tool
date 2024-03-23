@@ -35,6 +35,7 @@ PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene)
 void PuzzleViewSystem::update() {
     updateExplodedView();
     updatePuzzleRotation();
+    updateSelectedPieceColor();
 }
 
 void PuzzleViewSystem::updateExplodedView() {
@@ -100,8 +101,21 @@ void PuzzleViewSystem::updatePuzzleRotation() {
     }
 }
 
+void PuzzleViewSystem::updateSelectedPieceColor() {
+    for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
+        auto& children = scene.get<Children>(entity).children;
+        for (auto block : children) {
+            auto& material = scene.get<Material>(block);
+            if (piece.selected) {
+                material.color = piece.selectionColor;
+            } else {
+                material.color = piece.defaultColor;
+            }
+        }
+    }
+}
+
 void PuzzleViewSystem::updatePieceSelection() {
-    // obtain the selected piece
     float aspectInv = float(WINDOW_WIDTH) / float(WINDOW_HEIGHT);
 
     auto& camera = scene.get<Camera>(scene.view<Camera>().front());
@@ -147,22 +161,11 @@ void PuzzleViewSystem::updatePieceSelection() {
         }
     }
 
-    // update the colors of the selected and non selected pieces
     for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
         if (!isinf(lambda) && entity == closestPiece) {
             piece.selected = true;
         } else {
             piece.selected = false;
-        }
-
-        auto& children = scene.get<Children>(entity).children;
-        for (auto block : children) {
-            auto& material = scene.get<Material>(block);
-            if (piece.selected) {
-                material.color = piece.selectionColor;
-            } else {
-                material.color = piece.defaultColor;
-            }
         }
     }
 }
@@ -277,6 +280,9 @@ void PuzzleViewSystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent
         prevMousePos = glm::vec2(xpos, ypos);
     }
     else if (mouseButtonCallbackEvent.button == GLFW_MOUSE_BUTTON_RIGHT && mouseButtonCallbackEvent.action == GLFW_PRESS) {
+        if (mouseHoveringOverPieceView()) {
+            return;
+        }
         updatePieceSelection();
     }
 }
