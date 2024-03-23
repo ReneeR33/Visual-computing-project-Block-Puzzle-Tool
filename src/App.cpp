@@ -113,54 +113,54 @@ entt::entity App::addTestPuzzle() {
     scene.emplace<ExplodedView>(puzzle,0.0f);
     scene.emplace<Children>(puzzle);
 
-    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f));
-    //auto piece_1 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
     auto color = glm::vec3(0.6f,0.0f,0.0f);
-    addBlock(piece_1, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f), color);
-    addBlock(piece_1, glm::vec3(0.0f,1.0f,0.0f), color);
-    addBlock(piece_1, glm::vec3(0.0f,0.0f,1.0f), color);
-    addBlock(piece_1, glm::vec3(0.0f,-1.0f,0.0f), color);
+    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f), color);
+    //auto piece_1 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
+    addBlock(piece_1, glm::vec3(0.0f,0.0f,0.0f));
+    addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f));
+    addBlock(piece_1, glm::vec3(0.0f,1.0f,0.0f));
+    addBlock(piece_1, glm::vec3(0.0f,0.0f,1.0f));
+    addBlock(piece_1, glm::vec3(0.0f,-1.0f,0.0f));
 
-    auto piece_2 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
     color = glm::vec3(0.3f, 0.0f, 0.3f);
-    addBlock(piece_2, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_2, glm::vec3(0.0f,1.0f,0.0f), color);
-    addBlock(piece_2, glm::vec3(0.0f,-1.0f,0.0f), color);
+    auto piece_2 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f), color);
+    addBlock(piece_2, glm::vec3(0.0f,0.0f,0.0f));
+    addBlock(piece_2, glm::vec3(0.0f,1.0f,0.0f));
+    addBlock(piece_2, glm::vec3(0.0f,-1.0f,0.0f));
 
-    auto piece_3 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, -1.0f));
     color = glm::vec3(0.3f, 0.0f, 0.6f);
-    addBlock(piece_3, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_3, glm::vec3(0.0f,1.0f,0.0f), color);
-    addBlock(piece_3, glm::vec3(-1.0f,1.0f,0.0f), color);
-    addBlock(piece_3, glm::vec3(-1.0f,-1.0f,0.0f), color);
-    addBlock(piece_3, glm::vec3(0.0f,-1.0f,0.0f), color);
+    auto piece_3 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, -1.0f), color);
+    addBlock(piece_3, glm::vec3(0.0f,0.0f,0.0f));
+    addBlock(piece_3, glm::vec3(0.0f,1.0f,0.0f));
+    addBlock(piece_3, glm::vec3(-1.0f,1.0f,0.0f));
+    addBlock(piece_3, glm::vec3(-1.0f,-1.0f,0.0f));
+    addBlock(piece_3, glm::vec3(0.0f,-1.0f,0.0f));
 
-    auto piece_4 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 1.0f));
     color = glm::vec3(0.6f, 0.6f, 0.0f);
-    addBlock(piece_4, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_4, glm::vec3(0.0f,1.0f,0.0f), color);
-    addBlock(piece_4, glm::vec3(0.0f,-1.0f,0.0f), color);
-    addBlock(piece_4, glm::vec3(-1.0f,0.0f,0.0f), color);
-    addBlock(piece_4, glm::vec3(1.0f,0.0f,0.0f), color);
+    auto piece_4 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 1.0f), color);
+    addBlock(piece_4, glm::vec3(0.0f,0.0f,0.0f));
+    addBlock(piece_4, glm::vec3(0.0f,1.0f,0.0f));
+    addBlock(piece_4, glm::vec3(0.0f,-1.0f,0.0f));
+    addBlock(piece_4, glm::vec3(-1.0f,0.0f,0.0f));
+    addBlock(piece_4, glm::vec3(1.0f,0.0f,0.0f));
 
-    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 0.5f));
     color = glm::vec3(0.3f, 0.3f, 0.6f);
-    addBlock(piece_5, glm::vec3(0.0f,0.0f,0.5f), color);
-    addBlock(piece_5, glm::vec3(0.0f,0.0f,-0.5f), color);
+    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 0.5f), color);
+    addBlock(piece_5, glm::vec3(0.0f,0.0f,0.5f));
+    addBlock(piece_5, glm::vec3(0.0f,0.0f,-0.5f));
 
-    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 0.5f));
     color = glm::vec3(0.3f, 0.6f, 0.0f);
-    addBlock(piece_6, glm::vec3(0.0f,0.0f,0.5f), color);
-    addBlock(piece_6, glm::vec3(0.0f,0.0f,-0.5f), color);
+    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 0.5f), color);
+    addBlock(piece_6, glm::vec3(0.0f,0.0f,0.5f));
+    addBlock(piece_6, glm::vec3(0.0f,0.0f,-0.5f));
 
-    auto piece_7 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, 0.0f));
     color = glm::vec3(0.3f, 0.6f, 0.3f);
-    addBlock(piece_7, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_7, glm::vec3(0.0f,1.0f,0.0f), color);
-    addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f), color);
-    addBlock(piece_7, glm::vec3(0.0f,1.0f,1.0f), color);
-    addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);
+    auto piece_7 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, 0.0f), color);
+    addBlock(piece_7, glm::vec3(0.0f,0.0f,0.0f));
+    addBlock(piece_7, glm::vec3(0.0f,1.0f,0.0f));
+    addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f));
+    addBlock(piece_7, glm::vec3(0.0f,1.0f,1.0f));
+    addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f));
 
     return puzzle;
 }
@@ -309,18 +309,18 @@ entt::entity App::addPuzzleFromModel() {
 
     for (auto & item : result.pieces)
     {
-        auto piece = addPiece(puzzle, item.origin);
+        auto piece = addPiece(puzzle, item.origin, item.color);
 
         for (auto & block : item.blocks)
         {
-            addBlock(piece, block, item.color);
+            addBlock(piece, block);
         }
     }
 
     return puzzle;
 }
 
-entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position) {
+entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 color) {
     auto puzzleChildren = scene.try_get<Children>(puzzle);
     if (puzzleChildren == nullptr) {
         throw std::runtime_error("App::addPiece: cannot add piece to entity without children");
@@ -335,13 +335,20 @@ entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position) {
     scene.emplace<Children>(piece);
 
     puzzleChildren->children.push_front(piece);
-    scene.emplace<PuzzlePiece>(piece, position);
+    auto& pieceComponent = scene.emplace<PuzzlePiece>(piece, position);
+    pieceComponent.selected = false;
+    pieceComponent.defaultColor = color;
+    pieceComponent.selectionColor = color + glm::vec3(0.3f);
 
     return piece;
 }
 
 
-entt::entity App::addBlock(entt::entity piece, glm::vec3 position, glm::vec3 color) {
+entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
+    auto pieceComponent = scene.try_get<PuzzlePiece>(piece);
+    if ( pieceComponent == nullptr) {
+        throw std::runtime_error("App::addBlock: cannot add block to entity that is not a piece");
+    }
     auto pieceChildren = scene.try_get<Children>(piece);
     if (pieceChildren == nullptr) {
         throw std::runtime_error("App::addBlock: cannot add block to entity without children");
@@ -352,8 +359,8 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position, glm::vec3 col
     scene.emplace<Model>(block, primitives::cube);
     scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
     scene.emplace<Material>(block,
-        color,
-        color * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
+        pieceComponent->defaultColor,
+        pieceComponent->defaultColor * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
         glm::vec3(0.0f),
         1.0f
     );

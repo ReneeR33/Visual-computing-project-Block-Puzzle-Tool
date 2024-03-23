@@ -15,6 +15,7 @@
 #include "Components/Transform2D.hpp"
 #include "Components/BoundingBox.hpp"
 #include "Components/Children.hpp"
+#include "Components/Material.hpp"
 
 #include <iostream>
 
@@ -100,6 +101,7 @@ void PuzzleViewSystem::updatePuzzleRotation() {
 }
 
 void PuzzleViewSystem::updatePieceSelection() {
+    // obtain the selected piece
     float aspectInv = float(WINDOW_WIDTH) / float(WINDOW_HEIGHT);
 
     auto& camera = scene.get<Camera>(scene.view<Camera>().front());
@@ -145,11 +147,26 @@ void PuzzleViewSystem::updatePieceSelection() {
         }
     }
 
+    // update the colors of the selected and non selected pieces
     if (!isinf(lambda)) {
-        std::cout << "intersection!\n";
-    }
+        for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
+            if (entity == closestPiece) {
+                piece.selected = true;
+            } else {
+                piece.selected = false;
+            }
 
-    //std::cout << cursorWorldPos.x << ", " << cursorWorldPos.y << ", " << cursorWorldPos.z << std::endl;
+            auto& children = scene.get<Children>(entity).children;
+            for (auto block : children) {
+                auto& material = scene.get<Material>(block);
+                if (piece.selected) {
+                    material.color = piece.selectionColor;
+                } else {
+                    material.color = piece.defaultColor;
+                }
+            }
+        }
+    }
 }
 
 bool PuzzleViewSystem::mouseHoveringOverPieceView() {

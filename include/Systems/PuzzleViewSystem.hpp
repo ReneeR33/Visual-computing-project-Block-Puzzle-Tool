@@ -22,7 +22,6 @@ private:
 
     bool mouseHoveringOverPieceView();
     bool getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::vec3 rayDirection, BoundingBox boundingBox, float& intersectionLambda);
-    //float getIntersectionPlaneLineLambda(glm::vec3 pointOnLine, glm::vec3 direction, glm::vec3 planeNormal, glm::vec3 pointOnPlane);
 
     void scrollCallback(InputSystem::ScrollEvent scrollEvent);
     void mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent);
