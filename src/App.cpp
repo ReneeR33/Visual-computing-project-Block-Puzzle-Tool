@@ -21,10 +21,12 @@
 #include "Components/UIScene.hpp"
 #include "Components/ScrollView.hpp"
 #include "Components/SinglePieceView.hpp"
+#include "Components/BoundingBox.hpp"
 #include "InputSystem.hpp"
 #include "primitives.hpp"
 #include "ModelLoader.hpp"
 #include "UI.hpp"
+#include "entity.hpp"
 
 #define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
@@ -111,10 +113,11 @@ entt::entity App::addTestPuzzle() {
     scene.emplace<ExplodedView>(puzzle,0.0f);
     scene.emplace<Children>(puzzle);
 
-    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f));
+    //auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f));
+    auto piece_1 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
     auto color = glm::vec3(0.6f,0.0f,0.0f);
     addBlock(piece_1, glm::vec3(0.0f,0.0f,0.0f), color);
-    addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f), color);
+    /*addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f), color);
     addBlock(piece_1, glm::vec3(0.0f,1.0f,0.0f), color);
     addBlock(piece_1, glm::vec3(0.0f,0.0f,1.0f), color);
     addBlock(piece_1, glm::vec3(0.0f,-1.0f,0.0f), color);
@@ -157,7 +160,7 @@ entt::entity App::addTestPuzzle() {
     addBlock(piece_7, glm::vec3(0.0f,1.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,1.0f,1.0f), color);
-    addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);
+    addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);*/
 
     return puzzle;
 }
@@ -349,15 +352,21 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position, glm::vec3 col
     scene.emplace<Model>(block, primitives::cube);
     scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
     scene.emplace<Material>(block,
-                            color,
-                            color * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
-                            glm::vec3(0.0f),
-                            1.0f
+        color,
+        color * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
+        glm::vec3(0.0f),
+        1.0f
     );
     scene.emplace<Transform>(block,
-                             glm::vec3(position),
-                             glm::vec3(0.0f),
-                             glm::vec3(1.0f)
+        glm::vec3(position),
+        glm::vec3(0.0f),
+        glm::vec3(1.0f)
+    );
+    scene.emplace<BoundingBox>(block,
+        glm::vec3(0.0f),
+        glm::vec3(0.5f),
+        glm::vec3(0.5f),
+        glm::vec3(0.5f) 
     );
 
     pieceChildren->children.push_front(block);
