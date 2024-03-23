@@ -219,7 +219,7 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
             lambdaY = lambdaY1;
         }
         if (lambdaY2 >= 0 && lambdaY2 < lambdaY) {
-            lambdaY = lambdaY1;
+            lambdaY = lambdaY2;
         }
         if (!isinf(lambdaY)) {
             auto intersect = rayStart + rayDirection * lambdaY;
