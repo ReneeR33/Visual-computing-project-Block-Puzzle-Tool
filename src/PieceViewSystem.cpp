@@ -62,7 +62,7 @@ void PieceViewSystem::update() {
 
                 if (singlePieceViewComponent.piece != selectedPiece) {
                     auto& singlePieceTransform = scene.get<Transform2D>(singlePieceView);
-                    // this doesn't move it precisely int the middle I think but should be good enough for now...
+                    // this doesn't move it precisely in the middle I think but should be good enough for now...
                     // TODO: make sure the piece is now positioned in the middle of the piece view scroll box!
                     scrollview.value = -singlePieceTransform.position.y - canvas.top - 150.0f;
                     selectedPiece = singlePieceViewComponent.piece;
