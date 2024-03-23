@@ -113,11 +113,11 @@ entt::entity App::addTestPuzzle() {
     scene.emplace<ExplodedView>(puzzle,0.0f);
     scene.emplace<Children>(puzzle);
 
-    //auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f));
-    auto piece_1 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
+    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f));
+    //auto piece_1 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
     auto color = glm::vec3(0.6f,0.0f,0.0f);
     addBlock(piece_1, glm::vec3(0.0f,0.0f,0.0f), color);
-    /*addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f), color);
+    addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f), color);
     addBlock(piece_1, glm::vec3(0.0f,1.0f,0.0f), color);
     addBlock(piece_1, glm::vec3(0.0f,0.0f,1.0f), color);
     addBlock(piece_1, glm::vec3(0.0f,-1.0f,0.0f), color);
@@ -160,7 +160,7 @@ entt::entity App::addTestPuzzle() {
     addBlock(piece_7, glm::vec3(0.0f,1.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f), color);
     addBlock(piece_7, glm::vec3(0.0f,1.0f,1.0f), color);
-    addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);*/
+    addBlock(piece_7, glm::vec3(0.0f,-1.0f,1.0f), color);
 
     return puzzle;
 }

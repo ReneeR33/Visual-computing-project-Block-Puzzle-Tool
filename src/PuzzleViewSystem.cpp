@@ -139,10 +139,14 @@ void PuzzleViewSystem::updatePieceSelection() {
             bool intersects = getRayBoundingBoxIntersection(cameraModelPos, rayDirection, boundingBox, intersectionLambda);
 
             if (intersects && intersectionLambda < lambda) {
-                std::cout << "intersection!\n";
                 closestPiece = entity;
+                lambda = intersectionLambda;
             }
         }
+    }
+
+    if (!isinf(lambda)) {
+        std::cout << "intersection!\n";
     }
 
     //std::cout << cursorWorldPos.x << ", " << cursorWorldPos.y << ", " << cursorWorldPos.z << std::endl;
