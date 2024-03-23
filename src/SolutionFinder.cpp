@@ -7,12 +7,15 @@
 
 SolutionFinder::SolutionFinder(glm::vec3 size)
 {
-    mapSize = size * glm::vec3(2);
     puzzleSize = size;
 
-    auto x = puzzleSize.x*2-1;
-    auto y = puzzleSize.y*2-1;
-    auto z = puzzleSize.z*2-1;
+    auto x = std::max(size.x*2-1, (float)1.0);
+    auto y = std::max(size.y*2-1, (float)1.0);
+    auto z = std::max(size.z*2-1, (float)1.0);
+
+    mapSize.x = std::max(size.x*2, (float)2.0);
+    mapSize.y = std::max(size.y*2, (float)2.0);
+    mapSize.z = std::max(size.z*2, (float)2.0);
 
     // quickly define areas where to yeet  blocks off to
     goals[0] = (glm::vec3(0, 0, 0));

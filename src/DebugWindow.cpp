@@ -65,7 +65,6 @@ DebugWindow::Action DebugWindow::LoadFile(entt::registry &scene) {
 
     if (ImGui::Button("Load solution"))
     {
-        std::cout << "pressed" << std::endl;
         action = load;
     }
 
