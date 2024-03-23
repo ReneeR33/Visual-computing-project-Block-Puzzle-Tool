@@ -4,6 +4,10 @@ project(puzzle-tool)
 
 set(CMAKE_CXX_STANDARD 20)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra -pedantic -ggdb -O0 -Iproduct")
+endif ()
+
 # libraries------------------------------------------------------------
 
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/libs)
