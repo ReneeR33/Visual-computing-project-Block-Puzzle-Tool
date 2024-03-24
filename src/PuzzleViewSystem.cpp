@@ -124,13 +124,13 @@ void PuzzleViewSystem::updatePieceSelection() {
     double x, y;
     InputSystem::getCursorPos(x, y);
 
-    float viewPortWorldHeight = 2 * tan(glm::radians(camera.fov / 2));
+    float viewPortWorldHeight = 2 * camera.near * tan(glm::radians(camera.fov / 2));
     float viewPortWorldWidth = aspectInv * viewPortWorldHeight;
 
     x = (x / float(WINDOW_WIDTH)) * viewPortWorldWidth - (viewPortWorldWidth / 2);
     y = (y / float(WINDOW_HEIGHT)) * viewPortWorldHeight - (viewPortWorldHeight / 2);
 
-    auto cursorCameraPos = glm::vec4(x, y, -1, 1);
+    auto cursorCameraPos = glm::vec4(x, y, -camera.near, 1);
     auto cursorWorldPos = glm::inverse(view) * cursorCameraPos;
 
     entt::entity closestPiece;
