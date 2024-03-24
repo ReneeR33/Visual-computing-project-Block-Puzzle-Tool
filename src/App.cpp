@@ -115,7 +115,6 @@ entt::entity App::addTestPuzzle() {
 
     auto color = glm::vec3(0.6f,0.0f,0.0f);
     auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f), color);
-    //auto piece_1 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f));
     addBlock(piece_1, glm::vec3(0.0f,0.0f,0.0f));
     addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f));
     addBlock(piece_1, glm::vec3(0.0f,1.0f,0.0f));

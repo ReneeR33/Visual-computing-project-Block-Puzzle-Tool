@@ -42,8 +42,6 @@ private:
     void renderDepthMap(entt::registry& scene, glm::mat4& lightProjection);
 
     void draw(Mesh& mesh);
-
-    glm::mat4 createModelMatrix(entt::registry& scene, entt::entity worldObject);
 };
 
 #endif //RENDERER_HPP

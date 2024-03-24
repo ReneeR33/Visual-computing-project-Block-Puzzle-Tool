@@ -17,7 +17,14 @@ private:
 
     entt::entity selectedPiece;
 
-    void updatePieceRotation(entt::entity pieceSubsceneEntity, double mouseXPos, double mouseYPos);
+    void updatePieceRotation(entt::entity pieceView, entt::entity singlePieceView, bool mouseOnSinglePieceView, double mouseXPos, double mouseYPos);
+    void updateScrollViewScrollValue(double yoffset);
+    void updateSinglePieceViewBackgroundColor(entt::entity pieceView, entt::entity singlePieceView, bool mouseOnSinglePieceView);
+    void updateScrollViewScrollValueWhenSelectedPieceChanged(entt::entity pieceView, entt::entity singlePieceView);
+
+    void updateSelectedPiece(entt::entity pieceView, entt::entity singlePieceView, bool mouseOnSinglePieceView);
+
+    bool pointOnUIEntity(entt::entity uiEntity, double xpos, double ypos);
 
     void scrollCallback(InputSystem::ScrollEvent scrollEvent);
     void mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent);

@@ -29,8 +29,8 @@ void PieceViewSystem::update() {
     double xpos, ypos;
     InputSystem::getCursorPos(xpos, ypos);
 
-    for (auto [entity, scrollview] : scene.view<ScrollView>().each()) {
-        auto children = getScrollViewChildren(scene, entity);
+    for (auto [entity, pieceView] : scene.view<PiecesView>().each()) {
+        auto children = getScrollViewChildren(scene, pieceView.scrollView);
         for (auto singlePieceView : children) {
             auto& canvas = scene.get<CanvasElement>(singlePieceView);
             auto screenPosition = UIEntityScreenPosition(scene, singlePieceView);
@@ -40,52 +40,35 @@ void PieceViewSystem::update() {
 
             auto& piece = scene.get<PuzzlePiece>(singlePieceViewComponent.piece);
 
-            if ((xpos > (screenPosition.x + canvas.left) && xpos < (screenPosition.x + canvas.right)) &&
-                (ypos > (screenPosition.y + canvas.bottom) && ypos < (screenPosition.y + canvas.top))) 
-            {
-                int state = InputSystem::getMouseButton(GLFW_MOUSE_BUTTON_LEFT);
-                if (state == GLFW_PRESS) {
-                    updatePieceRotation(singlePieceViewComponent.subscene, xpos, ypos);
-                }
-
-                if (!piece.selected) {
-                    backGroundFill.color = singlePieceViewComponent.hoverBackgroundColor;
-                }
-            } else {
-                if (!piece.selected) {
-                    backGroundFill.color = singlePieceViewComponent.backgroundColor;  
-                }
-            }
-
-            if (piece.selected) {
-                backGroundFill.color = singlePieceViewComponent.hoverBackgroundColor + glm::vec3(0.2f);
-
-                if (singlePieceViewComponent.piece != selectedPiece) {
-                    auto& singlePieceTransform = scene.get<Transform2D>(singlePieceView);
-                    // this doesn't move it precisely in the middle I think but should be good enough for now...
-                    // TODO: make sure the piece is now positioned in the middle of the piece view scroll box!
-                    scrollview.value = -singlePieceTransform.position.y - canvas.top - 150.0f;
-                    selectedPiece = singlePieceViewComponent.piece;
-                }
-            }
+            bool mouseOnSinglePieceView = pointOnUIEntity(singlePieceView, xpos, ypos);
+            updatePieceRotation(entity, singlePieceView, mouseOnSinglePieceView, xpos, ypos);
+            updateSinglePieceViewBackgroundColor(entity, singlePieceView, mouseOnSinglePieceView);
+            updateScrollViewScrollValueWhenSelectedPieceChanged(entity, singlePieceView);
         }
     }
 }
 
-void PieceViewSystem::updatePieceRotation(entt::entity pieceSubsceneEntity, double mouseXPos, double mouseYPos) {
-    auto offset = glm::vec2 (mouseXPos, mouseYPos) - prevMousePos;
-    offset.y = -offset.y;
+void PieceViewSystem::updatePieceRotation(entt::entity pieceView, entt::entity singlePieceView, bool mouseOnSinglePieceView, double mouseXPos, double mouseYPos) {
+    if (mouseOnSinglePieceView) {
+        auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
 
-    auto& subsceneComponent = scene.get<UIScene>(pieceSubsceneEntity);
+        int state = InputSystem::getMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+        if (state == GLFW_PRESS) {
+            auto offset = glm::vec2 (mouseXPos, mouseYPos) - prevMousePos;
+            offset.y = -offset.y;
 
-    for (auto [entity, piece, transform] : subsceneComponent.scene.view<PuzzlePiece, Transform>().each()) {
-        transform.rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
+            auto& subsceneComponent = scene.get<UIScene>(singlePieceViewComponent.subscene);
+
+            for (auto [entity, piece, transform] : subsceneComponent.scene.view<PuzzlePiece, Transform>().each()) {
+                transform.rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
+            }
+
+            prevMousePos = glm::vec2 (mouseXPos, mouseYPos);
+        }
     }
-
-    prevMousePos = glm::vec2 (mouseXPos, mouseYPos);
 }
 
-void PieceViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {
+void PieceViewSystem::updateScrollViewScrollValue(double yoffset) {
     auto pieceViewView = scene.view<PiecesView>();
     if (pieceViewView.empty()) {
         return;
@@ -107,8 +90,84 @@ void PieceViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {
         (ypos > pieceViewBottom && ypos < pieceViewTop)) {
         auto& pieceViewComponent = scene.get<PiecesView>(pieceView);
         auto& pieceViewScrollComponent = scene.get<ScrollView>(pieceViewComponent.scrollView);
-        pieceViewScrollComponent.value += -float(scrollEvent.yoffset) * SCROLL_SPEED;
+        pieceViewScrollComponent.value += -float(yoffset) * SCROLL_SPEED;
     }
+}
+
+void PieceViewSystem::updateSinglePieceViewBackgroundColor(entt::entity pieceView, entt::entity singlePieceView, bool mouseOnSinglePieceView) {
+    auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
+    auto& piece = scene.get<PuzzlePiece>(singlePieceViewComponent.piece);
+    auto& singlePieceViewBackGroundFill = scene.get<Fill2D>(singlePieceViewComponent.background);
+
+    if (mouseOnSinglePieceView) 
+    {
+        if (!piece.selected) {
+            singlePieceViewBackGroundFill.color = singlePieceViewComponent.hoverBackgroundColor;
+        }
+    } else {
+        if (!piece.selected) {
+            singlePieceViewBackGroundFill.color = singlePieceViewComponent.backgroundColor;  
+        }
+    }
+
+    if (piece.selected) {
+        singlePieceViewBackGroundFill.color = singlePieceViewComponent.hoverBackgroundColor + glm::vec3(0.2f);
+    }
+}
+
+void PieceViewSystem::updateScrollViewScrollValueWhenSelectedPieceChanged(entt::entity pieceView, entt::entity singlePieceView) {
+    auto& pieceViewComponent = scene.get<PiecesView>(pieceView);
+    auto& pieceViewScrollView = scene.get<ScrollView>(pieceViewComponent.scrollView);
+
+    auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
+    auto& singlePieceViewCanvas = scene.get<CanvasElement>(singlePieceView);
+    auto& piece = scene.get<PuzzlePiece>(singlePieceViewComponent.piece);
+
+    if (piece.selected && singlePieceViewComponent.piece != selectedPiece) {
+        auto& singlePieceTransform = scene.get<Transform2D>(singlePieceView);
+        // this doesn't move it precisely in the middle I think but should be good enough for now...
+        // TODO: make sure the piece is now positioned in the middle of the piece view scroll box!
+        pieceViewScrollView.value = -singlePieceTransform.position.y - singlePieceViewCanvas.top - 150.0f;
+
+        // TODO: move this somewhere else?
+        selectedPiece = singlePieceViewComponent.piece;
+    }
+}
+
+void PieceViewSystem::updateSelectedPiece(entt::entity pieceView, entt::entity singlePieceView, bool mouseOnSinglePieceView) {
+    if (mouseOnSinglePieceView) {
+        auto& pieceViewComponent = scene.get<PiecesView>(pieceView);
+        auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
+
+        auto& puzzleChildren = scene.get<Children>(pieceViewComponent.puzzle);
+        for (auto puzzlePiece : puzzleChildren.children) {
+            auto& pieceComponent = scene.get<PuzzlePiece>(puzzlePiece);
+            if (puzzlePiece == singlePieceViewComponent.piece) {
+                pieceComponent.selected = true;
+                selectedPiece = puzzlePiece;
+            } else {
+                pieceComponent.selected = false;
+            }
+        }
+    }
+}
+
+// TODO: move this to the UI header?
+bool PieceViewSystem::pointOnUIEntity(entt::entity uiEntity, double xpos, double ypos) {
+    auto& canvas = scene.get<CanvasElement>(uiEntity);
+    auto screenPosition = UIEntityScreenPosition(scene, uiEntity);
+
+    if ((xpos > (screenPosition.x + canvas.left) && xpos < (screenPosition.x + canvas.right)) &&
+        (ypos > (screenPosition.y + canvas.bottom) && ypos < (screenPosition.y + canvas.top)))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void PieceViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {
+    updateScrollViewScrollValue(scrollEvent.yoffset);
 }
 
 void PieceViewSystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent) {
@@ -122,25 +181,9 @@ void PieceViewSystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent 
             auto children = getScrollViewChildren(scene, scrollView);
 
             for (auto singlePieceView : children) {
-                auto& canvas = scene.get<CanvasElement>(singlePieceView);
-                auto screenPosition = UIEntityScreenPosition(scene, singlePieceView);
+                bool mouseHoveringOverPieceView = pointOnUIEntity(singlePieceView, xpos, ypos);
 
-                if ((xpos > (screenPosition.x + canvas.left) && xpos < (screenPosition.x + canvas.right)) &&
-                    (ypos > (screenPosition.y + canvas.bottom) && ypos < (screenPosition.y + canvas.top))) 
-                {
-                    auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
-
-                    auto& puzzleChildren = scene.get<Children>(pieceView.puzzle);
-                    for (auto puzzlePiece : puzzleChildren.children) {
-                        auto& pieceComponent = scene.get<PuzzlePiece>(puzzlePiece);
-                        if (puzzlePiece == singlePieceViewComponent.piece) {
-                            pieceComponent.selected = true;
-                            selectedPiece = puzzlePiece;
-                        } else {
-                            pieceComponent.selected = false;
-                        }
-                    }
-                }
+                updateSelectedPiece(entity, singlePieceView, mouseHoveringOverPieceView);
             }
         }
     }

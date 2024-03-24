@@ -10,6 +10,7 @@
 #include "Components/Children.hpp"
 #include "Components/CanvasElement.hpp"
 #include "Components/UIScene.hpp"
+#include "entity.hpp"
 
 #define SHADOW_MAP_HEIGHT 2024
 #define SHADOW_MAP_WIDTH 2024
@@ -162,7 +163,7 @@ void Renderer::renderWorldObject(
     auto& material = scene.get<Material>(object);
     auto& model = scene.get<Model>(object);
 
-    auto modelMatrix = createModelMatrix(scene, object);
+    auto modelMatrix = getModelMatrix(scene, object);
 
     shader.use();
 
@@ -259,7 +260,7 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
     auto entitiesView = scene.view<Model, Material, Transform>();
     for (auto [entity, model, material, transform] : entitiesView.each()) {
 
-        auto modelMatrix = createModelMatrix(scene, entity);
+        auto modelMatrix = getModelMatrix(scene, entity);
 
         shadowMapShader.use();
         shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -285,32 +286,4 @@ void Renderer::draw(Mesh &mesh) {
     }
 
     glBindVertexArray(0);
-}
-
-glm::mat4 Renderer::createModelMatrix(entt::registry& scene, entt::entity worldObject) {
-    auto cEntity = &worldObject;
-    auto modelm = glm::mat4(1.0f);
-    while (cEntity != nullptr) {
-        auto transform = scene.try_get<Transform>(*cEntity);
-
-        if (transform != nullptr) {
-            auto localmodelm = glm::mat4(1.0f);
-            localmodelm = glm::translate(localmodelm, transform->position);
-            localmodelm = glm::rotate(localmodelm, glm::radians(transform->rotation.x), glm::vec3(1, 0, 0));
-            localmodelm = glm::rotate(localmodelm, glm::radians(transform->rotation.y), glm::vec3(0, 1, 0));
-            localmodelm = glm::rotate(localmodelm, glm::radians(transform->rotation.z), glm::vec3(0, 0, 1));
-            localmodelm = glm::scale(localmodelm, transform->scale);
-
-            modelm = localmodelm * modelm;
-        }
-
-        auto parentComponent = scene.try_get<Parent>(*cEntity);
-        if (parentComponent != nullptr) {
-            cEntity = &parentComponent->parent;
-        } else {
-            cEntity = nullptr;
-        }
-    }
-
-    return modelm;
 }
