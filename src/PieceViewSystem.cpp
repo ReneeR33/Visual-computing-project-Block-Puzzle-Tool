@@ -32,15 +32,8 @@ void PieceViewSystem::update() {
     for (auto [entity, pieceView] : scene.view<PiecesView>().each()) {
         auto children = getScrollViewChildren(scene, pieceView.scrollView);
         for (auto singlePieceView : children) {
-            auto& canvas = scene.get<CanvasElement>(singlePieceView);
-            auto screenPosition = UIEntityScreenPosition(scene, singlePieceView);
-
-            auto& singlePieceViewComponent = scene.get<SinglePieceView>(singlePieceView);
-            auto& backGroundFill = scene.get<Fill2D>(singlePieceViewComponent.background);
-
-            auto& piece = scene.get<PuzzlePiece>(singlePieceViewComponent.piece);
-
             bool mouseOnSinglePieceView = pointOnUIEntity(singlePieceView, xpos, ypos);
+            
             updatePieceRotation(entity, singlePieceView, mouseOnSinglePieceView, xpos, ypos);
             updateSinglePieceViewBackgroundColor(entity, singlePieceView, mouseOnSinglePieceView);
             updateScrollViewScrollValueWhenSelectedPieceChanged(entity, singlePieceView);
