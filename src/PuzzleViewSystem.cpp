@@ -116,7 +116,7 @@ void PuzzleViewSystem::updateSelectedPieceColor() {
 }
 
 void PuzzleViewSystem::updatePieceSelection() {
-    float aspectInv = float(WINDOW_WIDTH) / float(WINDOW_HEIGHT);
+    float aspect = float(WINDOW_WIDTH) / float(WINDOW_HEIGHT);
 
     auto& camera = scene.get<Camera>(scene.view<Camera>().front());
     auto view = camera.viewMatrix();
@@ -125,7 +125,7 @@ void PuzzleViewSystem::updatePieceSelection() {
     InputSystem::getCursorPos(x, y);
 
     float viewPortWorldHeight = 2 * camera.near * tan(glm::radians(camera.fov / 2));
-    float viewPortWorldWidth = aspectInv * viewPortWorldHeight;
+    float viewPortWorldWidth = aspect * viewPortWorldHeight;
 
     x = (x / float(WINDOW_WIDTH)) * viewPortWorldWidth - (viewPortWorldWidth / 2);
     y = (y / float(WINDOW_HEIGHT)) * viewPortWorldHeight - (viewPortWorldHeight / 2);
