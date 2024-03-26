@@ -34,6 +34,21 @@ void PuzzleViewSystem::update() {
     updatePuzzleRotation();
 }
 
+glm::vec3 getBezierPoint( std::vector<glm::vec3> points, float t ) 
+{
+    std::vector<glm::vec3> tmp(points);
+    // int i = points.size() - 1;
+    
+    for(int i = points.size() - 1; i > 0; i--)
+    {
+        for (int k = 0; k < i; k++)
+            tmp[k] = tmp[k] + t * ( tmp[k+1] - tmp[k] );
+        i--;
+    }
+
+    return tmp[0];
+}
+
 void PuzzleViewSystem::updateSolution() {
     auto& scene = puzzleViewSystem->scene;
     auto puzzleView = scene.view<Puzzle>();
@@ -45,23 +60,23 @@ void PuzzleViewSystem::updateSolution() {
 
     auto puzzleEntity = puzzleView.front();
     auto& puzzle = scene.get<Puzzle>(puzzleEntity);
-    int current_step = puzzle.solutionStep;
+    float current_step = puzzle.solutionStep;
 
     for (auto [entity, piece, transform, solution] : piecesView.each()) {
-        int max_steps = solution.Solution.size() - 1;
-        if(current_step > max_steps)
+
+        if(current_step > 1.0)
         {
-            transform.position = solution.Solution[max_steps];
-            current_step -= max_steps;
+            transform.position = getBezierPoint(solution.Solution, 1.f);
+            current_step -= 1;
         }
-        else if(current_step < 0)
+        else if(current_step < 0.0)
         {
-            transform.position = solution.Solution[0];
+            transform.position =  getBezierPoint(solution.Solution, 0.f);
         }
         else
         {
-            transform.position = solution.Solution[current_step];
-            current_step -= max_steps;
+            transform.position = getBezierPoint(solution.Solution, current_step);
+            current_step -= 1;
         }
     }
 }

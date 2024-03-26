@@ -47,7 +47,7 @@ void App::run() {
         {
 	        char const * filter[2] = { "*.txt", "*.text" };
             char const * filename = tinyfd_openFileDialog(
-                "Solution file", "../", 2, filter, "text files", 1);
+                "Solution file", "./resources/solutions", 2, filter, "text files", 1);
 
             if (filename)
             {

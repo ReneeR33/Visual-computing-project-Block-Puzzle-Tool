@@ -157,7 +157,7 @@ Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> de
     }
 
     std::reverse(path.begin(), path.end());
-    return {.Solution = path};
+    return {.Solution = path, .step = 0};
 }
 
 // TODO: path takes diagonals sometimes, look into why

@@ -3,7 +3,7 @@
 
 struct Puzzle {
     bool disableMouseRotation;
-    int solutionStep;
+    float solutionStep;
 };
 
 #endif //PUZZLE_HPP

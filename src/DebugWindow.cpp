@@ -176,17 +176,13 @@ void DebugWindow::SolutionInfo(entt::registry &scene) {
         return;
     }
 
-    int total_range = 0;
     auto puzzle = view.front();
     auto puzzleChildren = scene.try_get<Children>(puzzle);
     if (puzzleChildren == nullptr) {
         return;
     }
-    // std::cout << "came here 1" << std::endl;
-    for (auto piece : puzzleChildren->children) {
-        auto& solution = scene.get<Solution>(piece);
-        total_range += solution.Solution.size()-1;
-    }
+    
+    // int total_range = puzzleChildren->children.size();
 
     if (ImGui::CollapsingHeader("solution steps")) {
 
@@ -194,7 +190,7 @@ void DebugWindow::SolutionInfo(entt::registry &scene) {
         if (!puzzleView.empty()) {
             auto& puzzle = scene.get<Puzzle>(puzzleView.front());
             // ImGui::Checkbox("disable puzzle mouse rotation", &puzzle.disableMouseRotation);
-            ImGui::SliderInt("solution", &puzzle.solutionStep, 0, total_range);
+            ImGui::SliderFloat("solution", &puzzle.solutionStep, 0.0,  puzzleChildren->children.size());
         }
     }
 }
