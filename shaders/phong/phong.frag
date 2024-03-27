@@ -6,6 +6,7 @@ in vec3 FragPos;
 in vec4 LightSpaceFragPos;
 in vec3 Normal;
 in vec2 Texcoords;
+in mat3 TBN;
 
 const int NR_SAMPLES_SHADOW_X_LEFT = 1;
 const int NR_SAMPLES_SHADOW_X_RIGHT = 1;
@@ -39,7 +40,11 @@ void main()
     // vec3 diffuseColor = color;
     vec3 diffuseColor = color * vec3(texture(diffuseTexture, Texcoords));
 
-    vec3 norm = normalize(Normal);
+    //vec3 norm = normalize(Normal);
+    vec3 norm = texture(normalTexture, Texcoords).rgb;
+    norm = norm * 2.0 - 1.0;   
+    norm = normalize(TBN * norm);
+
     vec3 viewDir = normalize(viewPos - FragPos);
 
     vec3 result = CalculateDirLight(norm, viewDir, diffuseColor);

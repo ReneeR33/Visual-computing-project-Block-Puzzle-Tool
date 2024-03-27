@@ -51,6 +51,14 @@ Mesh ModelLoader::processMesh(aiMesh *mesh, const aiScene *assimpScene, ModelDat
             vertex.texcoords = glm::vec2(texCoords.x, texCoords.y);
         }
 
+        if (mesh->HasTangentsAndBitangents()) {
+            auto tangent = mesh->mTangents[i];
+            auto bitTangent = mesh->mBitangents[i];
+
+            vertex.tangent = glm::vec3(tangent.x, tangent.y, tangent.z);
+            vertex.bitTangent = glm::vec3(bitTangent.x, bitTangent.y, bitTangent.z);
+        }
+
         result.vertices.push_back(vertex);
     }
 
