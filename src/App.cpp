@@ -194,7 +194,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     pieceViewChildren.children.push_front(pieceViewBackground);
     scene.registry.emplace<CanvasElement>(pieceViewBackground, 0);
     scene.registry.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
-    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.4f, 0.4f, 0.43f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
+    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.3f, 0.3f, 0.34f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
     pieceViewComponent.background = pieceViewBackground;
 
     auto pieceViewScrollView = addScrollView(scene.registry,
@@ -240,7 +240,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         scene.registry.emplace<CanvasElement>(pieceViewSinglePieceViewBackGround, 0);
         scene.registry.emplace<Transform2D>(pieceViewSinglePieceViewBackGround, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
         scene.registry.emplace<Fill2D>(pieceViewSinglePieceViewBackGround, 
-            glm::vec3(0.15f, 0.15f, 0.18f), 
+            glm::vec3(0.1f, 0.1f, 0.12f), 
             pieceViewSinglePieceViewWidth, 
             pieceViewSinglePieceViewHeight,
             30.0f

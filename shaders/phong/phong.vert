@@ -27,6 +27,8 @@ void main()
     FragPos = vec3(model * iPosH);
     LightSpaceFragPos = lightSpaceMatrix * model * iPosH;
     Normal = mat3(transpose(inverse(model))) * iNormal;
+
+    //TODO: find out why this needs to be inverted...
     Texcoords = -iTexcoords;
 
     vec3 T = normalize(vec3(model * vec4(iTangent,   0.0)));

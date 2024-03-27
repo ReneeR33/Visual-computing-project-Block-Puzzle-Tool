@@ -71,7 +71,6 @@ Renderer::Renderer()
 void Renderer::load(Scene &scene) {
     //TODO: load primitives?
 
-    //auto view = scene.view<Model>();
     for(auto& [name, model]: scene.models) {
         for (auto& mesh : model->meshes) {
             load(mesh);
@@ -80,16 +79,6 @@ void Renderer::load(Scene &scene) {
             load(texture);
         }
     }
-
-    /*auto uiSceneView = scene.scene.view<UIScene>();
-    for (auto [entity, uiScene]: uiSceneView.each()) {
-        auto view = uiScene.scene.view<Model>();
-        for(auto [entity, model]: view.each()) {
-            for (auto& mesh : model.meshes) {
-                load(mesh);
-            }
-        }
-    }*/
 }
 
 void Renderer::load(Mesh &mesh) {
