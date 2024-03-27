@@ -49,7 +49,7 @@ Mesh ModelLoader::processMesh(aiMesh *mesh, const aiScene *assimpScene, ModelDat
         {
             aiVector3D texCoords = mesh->mTextureCoords[0][i];
             //TODO: why does y need to be inverted?
-            vertex.texcoords = glm::vec2(texCoords.x, -texCoords.y);
+            vertex.texcoords = glm::vec2(texCoords.x, 1.0f - texCoords.y);
         }
 
         if (mesh->HasTangentsAndBitangents()) {
