@@ -16,6 +16,7 @@ include_directories(
     ${LIB_DIR}/imgui/include
     ${LIB_DIR}/entt/include
     ${LIB_DIR}/nlohmann_json/include/
+    ${LIB_DIR}/assimp/include/
 )
 
 file(GLOB_RECURSE LIB_sources CONFIGURE_DEPENDS
@@ -26,8 +27,9 @@ file(GLOB_RECURSE LIB_sources CONFIGURE_DEPENDS
 )
 
 if (WIN32)
-    set(LIBS 
+    set(LIBS
         ${LIB_DIR}/GLFW/lib/glfw3.lib
+        ${LIB_DIR}/assimp/lib/windows/assimp-vc143-mt.lib
     )
 endif (WIN32)
 
@@ -54,18 +56,6 @@ target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 # shaders--------------------------------------------------------------
 
-file(GLOB_RECURSE GLSL_SOURCE_FILES
-    "shaders/*.frag"
-    "shaders/*.vert"
-)
-
-add_custom_target(
-    ${PROJECT_NAME}-shaders 
-    DEPENDS ${GLSL_SOURCE_FILES}
-)
-
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-shaders)
-
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders/"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -75,15 +65,6 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 # resources--------------------------------------------------------------
 
-file(GLOB_RECURSE RESOURCE_FILES ${PROJECT_SOURCE_DIR} "*")
-
-add_custom_target(
-        ${PROJECT_NAME}-resources
-        DEPENDS ${RESOURCE_FILES}
-)
-
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-resources)
-
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -92,3 +73,14 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 )
 
 #----------------------------------------------------------------------
+
+if (WIN32)
+    file(GLOB_RECURSE SHARED_LIBS ${LIB_DIR} *.dll)
+
+    foreach(SHARED_LIB ${SHARED_LIBS})
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${SHARED_LIB}
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    endforeach(${SHARED_LIBS})
+endif (WIN32)
