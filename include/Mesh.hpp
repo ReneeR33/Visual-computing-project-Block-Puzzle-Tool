@@ -12,6 +12,7 @@ struct Mesh {
     std::vector<unsigned int> indices;
 
     TextureData* texture;
+    TextureData* normalMapTexture;
 };
 
 #endif //MESH_HPP

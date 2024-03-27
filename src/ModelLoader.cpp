@@ -66,12 +66,13 @@ Mesh ModelLoader::processMesh(aiMesh *mesh, const aiScene *assimpScene, ModelDat
 
     aiMaterial* material = assimpScene->mMaterials[mesh->mMaterialIndex];
 
-    loadMaterialTextures(material, aiTextureType_DIFFUSE, directory, model, &result);
+    loadMaterialTextures(material, aiTextureType_DIFFUSE, directory, model, result.texture);
+    loadMaterialTextures(material, aiTextureType_HEIGHT, directory, model, result.normalMapTexture);
 
     return result;
 }
 
-void ModelLoader::loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType, const std::string& directory, ModelData* model, Mesh* mesh) const {
+void ModelLoader::loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType, const std::string& directory, ModelData* model, TextureData*& textureData) const {
     for(unsigned int i = 0; i < mat->GetTextureCount(assimpType); i++)
     {
         aiString str;
@@ -84,7 +85,7 @@ void ModelLoader::loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType
         {
             if(path == texture.path)
             {
-                mesh->texture = &texture;
+                textureData = &texture;
                 skip = true; 
                 break;
             }
@@ -94,7 +95,7 @@ void ModelLoader::loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType
             TextureData newTexture;
             newTexture.path = path;
             model->textures.push_back(newTexture);
-            mesh->texture = &model->textures.back();
+            textureData = &model->textures.back();
         }
     }
 }

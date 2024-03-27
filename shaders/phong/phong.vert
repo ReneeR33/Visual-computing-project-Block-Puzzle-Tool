@@ -1,4 +1,4 @@
-#version 410 core
+#version 420 core
 
 layout (location = 0) in vec3 iPos;
 layout (location = 1) in vec3 iNormal;
@@ -7,6 +7,7 @@ layout (location = 2) in vec2 iTexcoords;
 out vec3 FragPos;
 out vec4 LightSpaceFragPos;
 out vec3 Normal;
+out vec2 Texcoords;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -23,6 +24,7 @@ void main()
     FragPos = vec3(model * iPosH);
     LightSpaceFragPos = lightSpaceMatrix * model * iPosH;
     Normal = mat3(transpose(inverse(model))) * iNormal;
+    Texcoords = -iTexcoords;
 
     gl_Position = eTransform * projection * view * model * iPosH;
 }

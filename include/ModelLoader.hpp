@@ -15,7 +15,7 @@ public:
 private:
     void processNode(aiNode *node, const aiScene *assimpScene, ModelData* model, const std::string& directory) const;
     Mesh processMesh(aiMesh *mesh, const aiScene *assimpScene, ModelData* model, const std::string& directory) const;
-    void loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType, const std::string& directory, ModelData* model, Mesh* mesh) const;
+    void loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType, const std::string& directory, ModelData* model, TextureData*& textureData) const;
 };
 
 #endif //MODEL_LOADER_HPP

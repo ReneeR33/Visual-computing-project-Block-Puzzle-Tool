@@ -73,7 +73,7 @@ void App::run() {
 
 void App::initExplodedViewTestScene() {
     auto background = scene.registry.create();
-    scene.registry.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
+    scene.registry.emplace<Background>(background, glm::vec3(0.6f, 0.6f, 0.62f));
 
     auto dirLight = scene.registry.create();
     scene.registry.emplace<DirLight>(dirLight,
@@ -281,7 +281,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         for (auto block : pieceChildren.children) {
             auto uiScenePieceBlock = uiScene.scene.create();
             uiScene.scene.emplace<Parent>(uiScenePieceBlock, uiScenePiece);
-            uiScene.scene.emplace<Model>(uiScenePieceBlock, scene.models["cube"].get());
+            uiScene.scene.emplace<Model>(uiScenePieceBlock, scene.models["resources/models/wooden-cube/wooden-cube.obj"].get());
             uiScene.scene.emplace<Shader>(uiScenePieceBlock, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
 
             auto& transform = scene.registry.get<Transform>(block);

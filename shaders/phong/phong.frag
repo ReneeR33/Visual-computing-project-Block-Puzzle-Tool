@@ -1,10 +1,11 @@
-#version 410 core
+#version 420 core
 
 out vec4 FragColor;
 
 in vec3 FragPos;
 in vec4 LightSpaceFragPos;
 in vec3 Normal;
+in vec2 Texcoords;
 
 const int NR_SAMPLES_SHADOW_X_LEFT = 1;
 const int NR_SAMPLES_SHADOW_X_RIGHT = 1;
@@ -26,14 +27,17 @@ struct DirLight {
 
 uniform DirLight dirLight;
 
-uniform sampler2D shadowMap;
+layout(binding = 0) uniform sampler2D shadowMap;
+layout(binding = 1) uniform sampler2D diffuseTexture;
+layout(binding = 2) uniform sampler2D normalTexture;
 
 vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor);
 float ShadowCalculation(vec4 fragPosLightSpace);
 
 void main()
 {
-    vec3 diffuseColor = color;
+    // vec3 diffuseColor = color;
+    vec3 diffuseColor = color * vec3(texture(diffuseTexture, Texcoords));
 
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
@@ -60,6 +64,8 @@ vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)
     float shadow = ShadowCalculation(LightSpaceFragPos);
 
     vec3 result = (1.0 - shadow) * diffuse + specular;
+
+    //vec3 result = diffuse + specular;
 
     return result;
 }

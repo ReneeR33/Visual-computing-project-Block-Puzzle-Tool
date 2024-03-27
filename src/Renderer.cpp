@@ -48,7 +48,9 @@ Renderer::Renderer()
     glGenFramebuffers(1, &depthMapFrameBuffer);
 
     glGenTextures(1, &depthMapTexture);
+
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+
     glTexImage2D(
         GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
         SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 
@@ -73,6 +75,9 @@ void Renderer::load(Scene &scene) {
     for(auto& [name, model]: scene.models) {
         for (auto& mesh : model->meshes) {
             load(mesh);
+        }
+        for (auto& texture : model->textures) {
+            load(texture);
         }
     }
 
@@ -205,6 +210,9 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 
     renderDepthMap(scene, lightSpaceMatrix);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto& entity : entitiesView) {
         renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
@@ -334,6 +342,15 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
 
 void Renderer::draw(Mesh &mesh) {
     glBindVertexArray(mesh.VAO);
+    
+    if (mesh.texture != nullptr) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mesh.texture->id);
+    }
+    if (mesh.normalMapTexture != nullptr) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, mesh.normalMapTexture->id);
+    }
     
     if (!mesh.indices.empty()) {
         glDrawElements(GL_TRIANGLES, (GLsizei)mesh.indices.size(), GL_UNSIGNED_INT, 0);
