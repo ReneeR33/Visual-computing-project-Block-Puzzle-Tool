@@ -36,7 +36,7 @@
 
 #define PIECE_VIEW_WIDTH WINDOW_WIDTH / 5
 
-#define LOAD_TEST_PUZZLE
+// #define LOAD_TEST_PUZZLE
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
     ModelLoader modelLoader;
@@ -367,7 +367,7 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
     scene.registry.emplace<Material>(block,
         pieceComponent->defaultColor,
         pieceComponent->defaultColor * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
-        glm::vec3(0.2f),
+        glm::vec3(0.12f),
         4.0f
     );
     scene.registry.emplace<Transform>(block,
