@@ -4,14 +4,15 @@
 #include "glm/glm.hpp"
 #include <entt/entt.hpp>
 #include "InputSystem.hpp"
+#include "Scene.hpp"
 
 class PieceViewSystem {
 public:
-    PieceViewSystem(entt::registry& scene);
+    PieceViewSystem(Scene& scene);
     void update();
 
 private:
-    entt::registry& scene;
+    Scene& scene;
 
     glm::vec2 prevMousePos;
 

@@ -63,15 +63,17 @@ Renderer::Renderer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::load(entt::registry &scene) {
-    auto view = scene.view<Model>();
-    for(auto [entity, model]: view.each()) {
-        for (auto& mesh : model.meshes) {
+void Renderer::load(Scene &scene) {
+    //TODO: load primitives?
+
+    //auto view = scene.view<Model>();
+    for(auto& [name, model]: scene.models) {
+        for (auto& mesh : model->meshes) {
             load(mesh);
         }
     }
 
-    auto uiSceneView = scene.view<UIScene>();
+    /*auto uiSceneView = scene.scene.view<UIScene>();
     for (auto [entity, uiScene]: uiSceneView.each()) {
         auto view = uiScene.scene.view<Model>();
         for(auto [entity, model]: view.each()) {
@@ -79,7 +81,7 @@ void Renderer::load(entt::registry &scene) {
                 load(mesh);
             }
         }
-    }
+    }*/
 }
 
 void Renderer::load(Mesh &mesh) {
@@ -185,7 +187,7 @@ void Renderer::renderWorldObject(
     shader.setVec3("dirLight.ambient", dirlight.ambient);
     shader.setVec3("dirLight.specular", dirlight.specular);
 
-    for(auto& mesh : model.meshes) {
+    for(auto& mesh : model.modelData->meshes) {
         draw(mesh);
     }
 }
@@ -266,7 +268,7 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
         shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         shadowMapShader.setMat4("model", modelMatrix);
 
-        for (auto& mesh : model.meshes) {
+        for (auto& mesh : model.modelData->meshes) {
             draw(mesh);
         }
     }

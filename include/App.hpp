@@ -4,6 +4,7 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include "GlfwWindow.hpp"
+#include "Scene.hpp"
 
 class App {
 public:
@@ -12,7 +13,7 @@ public:
     void run();
 private:
     GlfwWindow window;
-    entt::registry scene;
+    Scene scene;
 
     void initExplodedViewTestScene();
 

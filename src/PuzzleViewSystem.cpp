@@ -26,7 +26,7 @@
 #define ZOOM_SPEED 5.0f
 #define ROTATE_SPEED 0.25f
 
-PuzzleViewSystem::PuzzleViewSystem(entt::registry &scene)
+PuzzleViewSystem::PuzzleViewSystem(Scene &scene)
     : scene(scene) {
     InputSystem::event<InputSystem::ScrollEvent>().connect<&PuzzleViewSystem::scrollCallback>(*this);
     InputSystem::event<InputSystem::MouseButtonCallBackEvent>().connect<&PuzzleViewSystem::mouseButtonCallback>(*this);
@@ -39,13 +39,13 @@ void PuzzleViewSystem::update() {
 }
 
 void PuzzleViewSystem::updateExplodedView() {
-    auto explodedViewView = scene.view<ExplodedView>();
+    auto explodedViewView = scene.registry.view<ExplodedView>();
     if (explodedViewView.empty()) {
         return;
     }
-    auto& explodedView = scene.get<ExplodedView>(explodedViewView.front());
+    auto& explodedView = scene.registry.get<ExplodedView>(explodedViewView.front());
 
-    auto piecesView = scene.view<PuzzlePiece, Transform>();
+    auto piecesView = scene.registry.view<PuzzlePiece, Transform>();
     PuzzlePiece* centerPiece = nullptr;
     for (auto [entity, piece, transform] : piecesView.each()) {
         if (centerPiece == nullptr || glm::length(piece.initialPosition) < glm::length(centerPiece->initialPosition)) {
@@ -57,7 +57,7 @@ void PuzzleViewSystem::updateExplodedView() {
         return;
     }
 
-    auto piecesViewTransform = scene.view<PuzzlePiece, Transform>();
+    auto piecesViewTransform = scene.registry.view<PuzzlePiece, Transform>();
     for (auto [entity, piece, transform] : piecesViewTransform.each()) {
         glm::vec3 translationDirection;
         if (centerPiece == &piece) {
@@ -71,13 +71,13 @@ void PuzzleViewSystem::updateExplodedView() {
 }
 
 void PuzzleViewSystem::updatePuzzleRotation() {
-    auto puzzleView = scene.view<Puzzle>();
+    auto puzzleView = scene.registry.view<Puzzle>();
     if (puzzleView.empty()) {
         return;
     }
 
     auto puzzleEntity = puzzleView.front();
-    auto& puzzle = scene.get<Puzzle>(puzzleEntity);
+    auto& puzzle = scene.registry.get<Puzzle>(puzzleEntity);
     if (puzzle.disableMouseRotation) {
         return;
     }
@@ -91,7 +91,7 @@ void PuzzleViewSystem::updatePuzzleRotation() {
             auto offset = glm::vec2 (xpos, ypos) - prevMousePos;
             offset.y = -offset.y;
 
-            auto transform = scene.try_get<Transform>(puzzleEntity);
+            auto transform = scene.registry.try_get<Transform>(puzzleEntity);
             if (transform != nullptr) {
                 transform->rotate(offset.y * ROTATE_SPEED, offset.x * ROTATE_SPEED,0.0f);
             }
@@ -102,10 +102,10 @@ void PuzzleViewSystem::updatePuzzleRotation() {
 }
 
 void PuzzleViewSystem::updateSelectedPieceColor() {
-    for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
-        auto& children = scene.get<Children>(entity).children;
+    for (auto [entity, piece] : scene.registry.view<PuzzlePiece>().each()) {
+        auto& children = scene.registry.get<Children>(entity).children;
         for (auto block : children) {
-            auto& material = scene.get<Material>(block);
+            auto& material = scene.registry.get<Material>(block);
             if (piece.selected) {
                 material.color = piece.selectionColor;
             } else {
@@ -118,7 +118,7 @@ void PuzzleViewSystem::updateSelectedPieceColor() {
 void PuzzleViewSystem::updatePieceSelection() {
     float aspect = float(WINDOW_WIDTH) / float(WINDOW_HEIGHT);
 
-    auto& camera = scene.get<Camera>(scene.view<Camera>().front());
+    auto& camera = scene.registry.get<Camera>(scene.registry.view<Camera>().front());
     auto view = camera.viewMatrix();
 
     double x, y;
@@ -136,16 +136,16 @@ void PuzzleViewSystem::updatePieceSelection() {
     entt::entity closestPiece;
     float lambda = std::numeric_limits<float>::infinity();
 
-    for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
-        auto& children = scene.get<Children>(entity);
+    for (auto [entity, piece] : scene.registry.view<PuzzlePiece>().each()) {
+        auto& children = scene.registry.get<Children>(entity);
         float intersectionLambda = std::numeric_limits<float>::infinity();
 
         bool intersectsPiece = false;
         for (auto block : children.children) {
-            auto& transform = scene.get<Transform>(block);
-            auto& boundingBox = scene.get<BoundingBox>(block);
+            auto& transform = scene.registry.get<Transform>(block);
+            auto& boundingBox = scene.registry.get<BoundingBox>(block);
 
-            auto inverseModel = glm::inverse(getModelMatrix(scene, block));
+            auto inverseModel = glm::inverse(getModelMatrix(scene.registry, block));
             auto cameraModelPos = glm::vec3(inverseModel * glm::vec4(camera.position, 1));
             auto cursorModelPos = glm::vec3(inverseModel * cursorWorldPos);
 
@@ -161,7 +161,7 @@ void PuzzleViewSystem::updatePieceSelection() {
         }
     }
 
-    for (auto [entity, piece] : scene.view<PuzzlePiece>().each()) {
+    for (auto [entity, piece] : scene.registry.view<PuzzlePiece>().each()) {
         if (!isinf(lambda) && entity == closestPiece) {
             piece.selected = true;
         } else {
@@ -171,7 +171,7 @@ void PuzzleViewSystem::updatePieceSelection() {
 }
 
 bool PuzzleViewSystem::mouseHoveringOverPieceView() {
-    auto pieceViewView = scene.view<PiecesView>();
+    auto pieceViewView = scene.registry.view<PiecesView>();
     if (pieceViewView.empty()) {
         return false;
     }
@@ -180,8 +180,8 @@ bool PuzzleViewSystem::mouseHoveringOverPieceView() {
     InputSystem::getCursorPos(xpos, ypos);
 
     auto pieceView = pieceViewView.front();
-    auto& pieceViewTransform = scene.get<Transform2D>(pieceView);
-    auto& pieceViewCanvas = scene.get<CanvasElement>(pieceView);
+    auto& pieceViewTransform = scene.registry.get<Transform2D>(pieceView);
+    auto& pieceViewCanvas = scene.registry.get<CanvasElement>(pieceView);
 
     auto pieceViewLeft = pieceViewCanvas.left + pieceViewTransform.position.x;
     auto pieceViewRight = pieceViewCanvas.right + pieceViewTransform.position.x;
@@ -264,12 +264,12 @@ void PuzzleViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {
         return;
     }
 
-    auto cameraView = scene.view<Camera>();
+    auto cameraView = scene.registry.view<Camera>();
     if (cameraView.empty()) {
         return;
     }
 
-    auto& camera = scene.get<Camera>(cameraView.back());
+    auto& camera = scene.registry.get<Camera>(cameraView.back());
     camera.fov = glm::clamp(camera.fov - float(scrollEvent.yoffset) * ZOOM_SPEED, 5.0f, 175.0f);
 }
 

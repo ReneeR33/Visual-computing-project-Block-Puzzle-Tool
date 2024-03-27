@@ -2,9 +2,10 @@
 #define PRIMITIVES_HPP
 
 #include "Components/Model.hpp"
+#include "Components/ModelData.hpp"
 
 namespace primitives {
-    static Model cube = {
+    static ModelData cube_data = {
         .meshes = {{
             .vertices = {
                     { .position = {-0.5f, -0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}},

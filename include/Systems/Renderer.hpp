@@ -5,6 +5,7 @@
 #include "glm/glm.hpp"
 #include "entt/entt.hpp"
 #include "Mesh.hpp"
+#include "Scene.hpp"
 #include "Components/Background.hpp"
 #include "Components/Model.hpp"
 #include "Components/Transform.hpp"
@@ -17,7 +18,7 @@ class Renderer {
 public:
     Renderer();
 
-    void load(entt::registry& scene);
+    void load(Scene& scene);
     void render(entt::registry& scene);
 
 private:
