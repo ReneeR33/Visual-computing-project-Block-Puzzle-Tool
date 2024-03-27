@@ -104,7 +104,7 @@ void PieceViewSystem::updateSinglePieceViewBackgroundColor(entt::entity pieceVie
     }
 
     if (piece.selected) {
-        singlePieceViewBackGroundFill.color = singlePieceViewComponent.hoverBackgroundColor;
+        singlePieceViewBackGroundFill.color = singlePieceViewComponent.hoverBackgroundColor + glm::vec3(0.1f);
     }
 }
 
