@@ -24,7 +24,7 @@
 #include "Components/BoundingBox.hpp"
 #include "InputSystem.hpp"
 #include "primitives.hpp"
-#include "ModelLoader.hpp"
+#include "PuzzleLoader.hpp"
 #include "UI.hpp"
 #include "entity.hpp"
 
@@ -305,7 +305,7 @@ entt::entity App::addPuzzleFromModel() {
     scene.emplace<ExplodedView>(puzzle,0.0f);
     scene.emplace<Children>(puzzle);
 
-    ModelLoader loader = ModelLoader();
+    PuzzleLoader loader = PuzzleLoader();
     auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
 
     for (auto & item : result.pieces)

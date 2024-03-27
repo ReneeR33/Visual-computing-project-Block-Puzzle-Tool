@@ -5,24 +5,24 @@
 #include <typeinfo>
 #include <string>
 
-#include "ModelLoader.hpp"
+#include "PuzzleLoader.hpp"
 #include "Components/Material.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Shader.hpp"
 
 #define uint unsigned int
 
-ModelLoader::ModelLoader()
+PuzzleLoader::PuzzleLoader()
 {
 }
 
-ModelLoader::~ModelLoader()
+PuzzleLoader::~PuzzleLoader()
 {
 
 }
 
 
-ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
+PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
 {
     std::vector<LoaderPieceResult> file_result;
     LoaderPuzzleResult result;
@@ -69,7 +69,7 @@ ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
 }
 
 
-ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line)
+PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadPiece(std::string line)
 {
     LoaderPieceResult piece;
     std::stringstream ss(line);
@@ -121,7 +121,7 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line)
     return piece;
 }
 
-ModelLoader::LoaderPieceResult ModelLoader::LoadModel(std::string path)
+PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadModel(std::string path)
 {
     std::ifstream check(path);
     LoaderPieceResult result;
