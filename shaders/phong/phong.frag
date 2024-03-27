@@ -68,7 +68,7 @@ vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)
 
     float shadow = ShadowCalculation(LightSpaceFragPos);
 
-    vec3 result = (1.0 - shadow) * diffuse + specular;
+    vec3 result = (1.0 - shadow) * (diffuse + specular);
 
     //vec3 result = diffuse + specular;
 

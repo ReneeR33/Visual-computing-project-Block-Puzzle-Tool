@@ -194,7 +194,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     pieceViewChildren.children.push_front(pieceViewBackground);
     scene.registry.emplace<CanvasElement>(pieceViewBackground, 0);
     scene.registry.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
-    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
+    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.4f, 0.4f, 0.43f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
     pieceViewComponent.background = pieceViewBackground;
 
     auto pieceViewScrollView = addScrollView(scene.registry,
@@ -218,8 +218,8 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
 
         auto pieceViewSinglePieceView = scene.registry.create();
         auto& singlePieceViewComponent = scene.registry.emplace<SinglePieceView>(pieceViewSinglePieceView,
-            glm::vec3(0.15f, 0.15f, 0.18f),
-            glm::vec3(0.22f, 0.22f, 0.25f),
+            glm::vec3(0.5f, 0.5f, 0.56f),
+            glm::vec3(0.7f, 0.7f, 0.78f),
             pieceEntity
         );
         scene.registry.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
@@ -367,8 +367,8 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
     scene.registry.emplace<Material>(block,
         pieceComponent->defaultColor,
         pieceComponent->defaultColor * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
-        glm::vec3(0.0f),
-        1.0f
+        glm::vec3(0.2f),
+        4.0f
     );
     scene.registry.emplace<Transform>(block,
         glm::vec3(position),
