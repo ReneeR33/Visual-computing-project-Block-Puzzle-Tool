@@ -207,7 +207,7 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadModel(std::string path)
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
-    for (int i = 0; i < data["verts"].size(); i++) 
+    for (uint32_t i = 0; i < data["verts"].size(); i++) 
     {
         // deal with weird data shite of json
         auto pos = data["verts"][i];
@@ -218,14 +218,14 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadModel(std::string path)
         vertices.push_back({ .position = {pos[0], pos[1],pos[2]}, .normal = {n_0, n_1, n_2 }});
     }
 
-    for (int i = 0; i < data["polygons"].size(); i++) 
+    for (uint32_t i = 0; i < data["polygons"].size(); i++) 
     {
         indices.push_back(data["polygons"][i]);
     }
 
     piece.initialPosition = {0.0, 0.0, 0.0};
     piece.selected = false;
-    for (int i = 0; i < data["shape"].size(); i++) 
+    for (uint32_t i = 0; i < data["shape"].size(); i++) 
     {
         auto pos = data["shape"][i];
         piece.CubePos.push_back( {pos[0], pos[1],pos[2]} );

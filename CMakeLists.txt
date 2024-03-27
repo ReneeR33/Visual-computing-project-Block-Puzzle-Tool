@@ -13,14 +13,14 @@ endif ()
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/libs)
 
 include_directories(
-    ${LIB_DIR}/glfw/include
-    ${LIB_DIR}/glad/include
-    ${LIB_DIR}/glm/include
-    ${LIB_DIR}/stb/include
-    ${LIB_DIR}/imgui/include
-    ${LIB_DIR}/entt/include
-    ${LIB_DIR}/nlohmann_json/include/
-    ${LIB_DIR}/tinyfiledialogs/include
+    SYSTEM ${LIB_DIR}/glfw/include
+    SYSTEM ${LIB_DIR}/glad/include
+    SYSTEM ${LIB_DIR}/glm/include
+    SYSTEM ${LIB_DIR}/stb/include
+    SYSTEM ${LIB_DIR}/imgui/include
+    SYSTEM ${LIB_DIR}/entt/include
+    SYSTEM ${LIB_DIR}/nlohmann_json/include/
+    SYSTEM ${LIB_DIR}/tinyfiledialogs/include
 )
 
 file(GLOB_RECURSE LIB_sources CONFIGURE_DEPENDS

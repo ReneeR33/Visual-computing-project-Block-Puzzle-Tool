@@ -53,14 +53,14 @@ std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResul
     {
         auto preSolved = solvedCount;
 
-        for(int i = 0; i < pieces.pieces.size(); i++)
+        for(uint32_t i = 0; i < pieces.pieces.size(); i++)
         {
             if(isSolved[i]) {continue;}
 
             auto piece = pieces.pieces[i];
 
             ModelLoader::LoaderPuzzleResult otherPieces;
-            for(int i = 0; i < pieces.pieces.size(); i++)
+            for(uint32_t i = 0; i < pieces.pieces.size(); i++)
             {
                 if(!isSolved[i]) otherPieces.pieces.push_back(pieces.pieces[i]);
             }
@@ -103,7 +103,6 @@ std::vector<std::vector<std::vector<bool>>> SolutionFinder::CreateMap(
             glm::vec3 offset = puzzleSize + glm::floor(otherPiece.origin);
             for (auto & block :shape)
             {
-                glm::vec3 pos = block + offset;
                 glm::vec3 loc = otherBlock + block + offset;
                 map[loc.x][loc.y][loc.z] = true;
             }

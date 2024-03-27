@@ -46,7 +46,7 @@ DebugWindow::Action DebugWindow::render(entt::registry& scene) {
             ImGui::Checkbox("disable puzzle mouse rotation", &puzzle.disableMouseRotation);
         }
 
-        action = LoadFile(scene);
+        action = LoadFile();
         ObjectInfo(scene);
         CameraInfo(scene);
         LightInfo(scene);
@@ -60,7 +60,7 @@ DebugWindow::Action DebugWindow::render(entt::registry& scene) {
     return action;
 }
 
-DebugWindow::Action DebugWindow::LoadFile(entt::registry &scene) {
+DebugWindow::Action DebugWindow::LoadFile() {
     Action action = none;
 
     if (ImGui::Button("Load solution"))

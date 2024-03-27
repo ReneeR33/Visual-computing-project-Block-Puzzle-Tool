@@ -148,6 +148,8 @@ void PuzzleViewSystem::updatePuzzleRotation() {
 
 void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     auto& scene = puzzleViewSystem->scene;
+    (void)xoffset; //silence warning
+    (void)window; //silence warning
 
     auto cameraView = scene.view<Camera>();
     if (cameraView.empty()) {
@@ -159,6 +161,7 @@ void PuzzleViewSystem::scrollCallback(GLFWwindow *window, double xoffset, double
 }
 
 void PuzzleViewSystem::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+    (void)mods; //silence warning
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         auto& prevMousePos = puzzleViewSystem->prevMousePos;
         double xpos, ypos;

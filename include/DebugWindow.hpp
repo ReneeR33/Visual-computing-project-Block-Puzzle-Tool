@@ -21,7 +21,7 @@ public:
 private:
     GlfwWindow& window;
 
-    Action LoadFile(entt::registry& scene);
+    Action LoadFile();
     void CameraInfo(entt::registry& scene);
     void ObjectInfo(entt::registry& scene);
     void LightInfo(entt::registry& scene);
