@@ -16,6 +16,7 @@ private:
 
     glm::vec2 prevMousePos;
 
+    void updateSolution();
     void updateExplodedView();
     void updatePuzzleRotation();
     void updateSelectedPieceColor();

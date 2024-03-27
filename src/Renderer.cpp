@@ -20,6 +20,9 @@
 #define SHADOW_MAP_FRUSTUM_TOP 10.0f
 
 Mesh Renderer::fillMesh = {
+    .VAO = 0, 
+    .VBO = 0, 
+    .EBO = 0,
     .vertices = {
             { .position = glm::vec3(-0.5f, -0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
             { .position = glm::vec3(-0.5f, 0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },

@@ -49,9 +49,7 @@ entt::entity addScrollView(entt::registry& scene, int layer, float bottom, float
     auto scrollBox = scene.create();
     scene.emplace<Parent>(scrollBox, scrollViewEntity);
     scrollViewChildren.children.push_front(scrollBox);
-    auto& scrollBoxElement = scene.emplace<CanvasElement>(scrollBox, 0,
-        0.0f, 0.0f, left, right
-    );
+    scene.emplace<CanvasElement>(scrollBox, 0, 0.0f, 0.0f, left, right);
     scene.emplace<Transform2D>(scrollBox, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
     scene.emplace<Children>(scrollBox);
     scrollViewComponent.scrollBox = scrollBox;
