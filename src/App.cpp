@@ -28,8 +28,7 @@
 #include "UI.hpp"
 #include "entity.hpp"
 
-#include "Components/ModelData.hpp"
-#include "Scene.hpp"
+#include "ModelLoader.hpp"
 
 #define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
@@ -40,6 +39,8 @@
 #define LOAD_TEST_PUZZLE
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
+    ModelLoader modelLoader;
+    modelLoader.loadModel(scene, "resources/models/wooden-cube/wooden-cube.obj");
     scene.models["cube"] = std::make_unique<ModelData>(primitives::cube_data);
 }
 
@@ -361,7 +362,7 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
 
     auto block = scene.registry.create();
 
-    scene.registry.emplace<Model>(block, scene.models["cube"].get());
+    scene.registry.emplace<Model>(block, scene.models["resources/models/wooden-cube/wooden-cube.obj"].get());
     scene.registry.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
     scene.registry.emplace<Material>(block,
         pieceComponent->defaultColor,

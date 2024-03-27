@@ -85,6 +85,10 @@ void Renderer::load(Scene &scene) {
 }
 
 void Renderer::load(Mesh &mesh) {
+    if (mesh.vertices.empty()) {
+        return;
+    }
+
     glGenVertexArrays(1, &mesh.VAO);
     glGenBuffers(1, &mesh.VBO);
     if (!mesh.indices.empty()) {
