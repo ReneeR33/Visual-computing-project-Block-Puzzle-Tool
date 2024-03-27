@@ -10,6 +10,8 @@ struct Camera {
     float near;
     float far;
     float fov;
+
+    glm::mat4 viewMatrix();
 };
 
 #endif //CAMERA_HPP

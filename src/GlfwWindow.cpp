@@ -41,5 +41,4 @@ bool GlfwWindow::windowShouldClose() {
 
 void GlfwWindow::update() {
     glfwSwapBuffers(window);
-    glfwPollEvents();
 }

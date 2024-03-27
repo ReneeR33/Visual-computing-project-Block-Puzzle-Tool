@@ -11,6 +11,8 @@ public:
    ~GlfwWindow();
 
     GLFWwindow* getHandle() const { return this->window; }
+    int getWidth() const { return this->width; }
+    int getHeight() const { return this->height; }
 
     bool windowShouldClose();
     void update();

@@ -16,6 +16,7 @@
 #include "Components/Solution.hpp"
 #include "Components/Puzzle.hpp"
 #include "Components/Children.hpp"
+#include "Components/ScrollView.hpp"
 
 #include <iostream>
 DebugWindow::DebugWindow(GlfwWindow &window) 
@@ -39,6 +40,12 @@ DebugWindow::Action DebugWindow::render(entt::registry& scene) {
 
         auto& background = scene.get<Background>(scene.view<Background>().front());
         ImGui::ColorEdit3("background", &background.color.x);
+
+        auto scrollViewView = scene.view<ScrollView>();
+        if (!scrollViewView.empty()) {
+            auto& scrollView = scene.get<ScrollView>(scrollViewView.front());
+            ImGui::SliderFloat("scroll view", &scrollView.value, scrollView.minValue, scrollView.maxValue);
+        }
 
         auto puzzleView = scene.view<Puzzle>();
         if (!puzzleView.empty()) {
@@ -139,7 +146,7 @@ void DebugWindow::CameraInfo(entt::registry& scene) {
     auto& camera = scene.get<Camera>(scene.view<Camera>().front());
 
     if (ImGui::CollapsingHeader("Camera")) {
-        ImGui::SliderFloat3("cam position", &camera.position.x, -5.0f, 5.0f);
+        ImGui::SliderFloat3("cam position", &camera.position.x, -15.0f, 15.0f);
         ImGui::SliderFloat3("cam direction", &camera.direction.x, -1.0f, 1.0f);
         ImGui::SliderFloat3("up", &camera.up.x, -1.0f, 1.0f);
         ImGui::SliderFloat("near", &camera.near, 0.0f, 200.0f);

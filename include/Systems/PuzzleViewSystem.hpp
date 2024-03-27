@@ -3,30 +3,29 @@
 
 #include "glm/glm.hpp"
 #include <entt/entt.hpp>
-#include "GlfwWindow.hpp"
+#include "Components/BoundingBox.hpp"
+#include "InputSystem.hpp"
 
 class PuzzleViewSystem {
 public:
-    static void init(entt::registry& scene, GlfwWindow& window);
-    static void update();
+    PuzzleViewSystem(entt::registry& scene);
+    void update();
 
 private:
-    // I'm not using smart pointers here since smart pointer functions don't have access to the private constructor
-    static PuzzleViewSystem* puzzleViewSystem;
-
     entt::registry &scene;
-    GlfwWindow& window;
 
     glm::vec2 prevMousePos;
 
-    PuzzleViewSystem(entt::registry& scene, GlfwWindow& window);
+    void updateExplodedView();
+    void updatePuzzleRotation();
+    void updateSelectedPieceColor();
 
-    static void updateSolution();
-    static void updateExplodedView();
-    static void updatePuzzleRotation();
+    void updatePieceSelection();
+    bool mouseHoveringOverPieceView();
+    bool getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::vec3 rayDirection, BoundingBox boundingBox, float& intersectionLambda);
 
-    static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-    static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+    void scrollCallback(InputSystem::ScrollEvent scrollEvent);
+    void mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent);
 };
 
 #endif //PUZZLE_VIEW_SYSTEM_HPP
