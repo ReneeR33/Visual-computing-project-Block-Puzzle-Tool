@@ -6,6 +6,7 @@
 #include "entt/entt.hpp"
 #include "Mesh.hpp"
 #include "Scene.hpp"
+#include "TextureData.hpp"
 #include "Components/Background.hpp"
 #include "Components/Model.hpp"
 #include "Components/Transform.hpp"
@@ -31,6 +32,7 @@ private:
     unsigned int depthMapTexture;
 
     void load(Mesh& mesh);
+    void load(TextureData& textureData);
 
     void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform);
     void renderWorldObject(

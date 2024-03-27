@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 #include "Components/Parent.hpp"
 #include "Components/Fill2D.hpp"
 #include "Components/Transform2D.hpp"
@@ -115,6 +118,51 @@ void Renderer::load(Mesh &mesh) {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texcoords));
 
     glBindVertexArray(0);
+}
+
+void Renderer::load(TextureData& textureData) {
+    glGenTextures(1, &textureData.id);
+    glBindTexture(GL_TEXTURE_2D, textureData.id);
+
+    stbi_set_flip_vertically_on_load(true);
+
+    int nrChannels;
+    unsigned char* data = stbi_load(textureData.path.c_str(), &textureData.width, &textureData.height, &nrChannels, 0);
+
+    if ( !data )
+    {
+        throw std::runtime_error("Failed to load texture");
+    }
+    
+    GLenum format;
+
+    switch (nrChannels)
+    {
+    case 1:
+        format = GL_RED;
+        break;
+
+    case 3:
+        format = GL_RGB;
+        break;
+
+    case 4:
+        format = GL_RGBA;
+        break;
+    
+    default:
+        break;
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, format, textureData.width, textureData.height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
 }
 
 void Renderer::render(entt::registry &scene) {
