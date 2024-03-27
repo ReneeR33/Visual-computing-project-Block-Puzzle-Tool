@@ -2,7 +2,7 @@
 #define PRIMITIVES_HPP
 
 #include "Components/Model.hpp"
-#include "Components/ModelData.hpp"
+#include "ModelData.hpp"
 
 namespace primitives {
     static ModelData cube_data = {

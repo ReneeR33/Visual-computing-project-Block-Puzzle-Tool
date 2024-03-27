@@ -1,7 +1,7 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include "Components/ModelData.hpp"
+#include "ModelData.hpp"
 
 #include <entt/entt.hpp>
 #include <memory>

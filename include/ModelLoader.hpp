@@ -5,6 +5,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "TextureData.hpp"
 #include "Scene.hpp"
 
 class ModelLoader {
@@ -14,8 +15,7 @@ public:
 private:
     void processNode(aiNode *node, const aiScene *assimpScene, ModelData* model, const std::string& directory) const;
     Mesh processMesh(aiMesh *mesh, const aiScene *assimpScene, ModelData* model, const std::string& directory) const;
-    /*void loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType, Texture::Type type, std::vector<Texture*>& textures, 
-        Model& model, const std::string& directory) const;*/
+    void loadMaterialTextures(aiMaterial *mat, aiTextureType assimpType, const std::string& directory, ModelData* model, Mesh* mesh) const;
 };
 
 #endif //MODEL_LOADER_HPP

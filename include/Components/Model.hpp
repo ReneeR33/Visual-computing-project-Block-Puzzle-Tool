@@ -1,7 +1,7 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
-#include "Components/ModelData.hpp"
+#include "ModelData.hpp"
 
 struct Model {
     ModelData* modelData;
