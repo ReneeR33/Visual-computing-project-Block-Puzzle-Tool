@@ -162,7 +162,7 @@ void PuzzleViewSystem::updatePieceSelection() {
     }
 
     for (auto [entity, piece] : scene.registry.view<PuzzlePiece>().each()) {
-        if (!isinf(lambda) && entity == closestPiece) {
+        if (!std::isinf(lambda) && entity == closestPiece) {
             piece.selected = true;
         } else {
             piece.selected = false;
@@ -203,7 +203,7 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
         if (lambdaX2 >= 0 && lambdaX2 < lambdaX) {
             lambdaX = lambdaX2;
         }
-        if (!isinf(lambdaX)) {
+        if (!std::isinf(lambdaX)) {
             auto intersect = rayStart + rayDirection * lambdaX;
             if ((intersect.y > boundingBox.center.y - boundingBox.top.y && intersect.y < boundingBox.center.y + boundingBox.top.y) &&
                 (intersect.z > boundingBox.center.z - boundingBox.front.z && intersect.z < boundingBox.center.z + boundingBox.front.z)) 
@@ -224,7 +224,7 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
         if (lambdaY2 >= 0 && lambdaY2 < lambdaY) {
             lambdaY = lambdaY2;
         }
-        if (!isinf(lambdaY)) {
+        if (!std::isinf(lambdaY)) {
             auto intersect = rayStart + rayDirection * lambdaY;
             if ((intersect.z > boundingBox.center.z - boundingBox.front.z && intersect.z < boundingBox.center.z + boundingBox.front.z) &&
                 (intersect.x > boundingBox.center.x - boundingBox.right.x && intersect.x < boundingBox.center.x + boundingBox.right.x)) 
@@ -245,7 +245,7 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
         if (lambdaZ2 >= 0 && lambdaZ2 < lambdaZ) {
             lambdaZ = lambdaZ2;
         }
-        if (!isinf(lambdaZ)) {
+        if (!std::isinf(lambdaZ)) {
             auto intersect = rayStart + rayDirection * lambdaZ;
             if ((intersect.y > boundingBox.center.y - boundingBox.top.y && intersect.y < boundingBox.center.y + boundingBox.top.y) &&
                 (intersect.x > boundingBox.center.x - boundingBox.right.x && intersect.x < boundingBox.center.x + boundingBox.right.x)) 

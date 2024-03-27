@@ -36,6 +36,7 @@ endif (WIN32)
 if (UNIX)
     set(LIBS 
         ${LIB_DIR}/glfw/lib_linux/glfw3.a
+        ${LIB_DIR}/assimp/lib/linux/libassimp.so.5
     )
 endif (UNIX)
 
@@ -82,5 +83,16 @@ if (WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${SHARED_LIB}
             $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-    endforeach(${SHARED_LIBS})
+    endforeach()
 endif (WIN32)
+
+if (UNIX)
+    file(GLOB_RECURSE SHARED_LIBS ${LIB_DIR} *.so.*)
+
+    foreach(SHARED_LIB ${SHARED_LIBS})
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${SHARED_LIB}
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    endforeach()
+endif (UNIX)
