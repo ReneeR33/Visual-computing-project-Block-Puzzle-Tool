@@ -5,7 +5,7 @@
 
 void ModelLoader::loadModel(Scene& scene, const char* filePath) const {
     Assimp::Importer importer;
-    const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
     if (assimpScene == nullptr) {
         throw std::runtime_error("Failed to load model");
@@ -49,7 +49,7 @@ Mesh ModelLoader::processMesh(aiMesh *mesh, const aiScene *assimpScene, ModelDat
         {
             aiVector3D texCoords = mesh->mTextureCoords[0][i];
             //TODO: why does y need to be inverted?
-            vertex.texcoords = glm::vec2(texCoords.x, 1.0f - texCoords.y);
+            vertex.texcoords = glm::vec2(texCoords.x, texCoords.y);
         }
 
         if (mesh->HasTangentsAndBitangents()) {
