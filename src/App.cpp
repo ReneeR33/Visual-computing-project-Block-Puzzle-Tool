@@ -28,6 +28,10 @@
 #include "UI.hpp"
 #include "entity.hpp"
 
+#include "tinyfiledialogs.h"
+#include "tinyfiledialogs.c"
+#include "SolutionFinder.hpp"
+
 #include "ModelLoader.hpp"
 
 #define WINDOW_WIDTH 1800
@@ -36,7 +40,7 @@
 
 #define PIECE_VIEW_WIDTH WINDOW_WIDTH / 5
 
-// #define LOAD_TEST_PUZZLE
+//#define LOAD_TEST_PUZZLE
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
     ModelLoader modelLoader;
@@ -52,7 +56,7 @@ void App::run() {
     PuzzleViewSystem puzzleViewSystem(scene);
     PieceViewSystem pieceViewSystem(scene);
 
-    initExplodedViewTestScene();
+    resetScene();
 
     renderer.load(scene);
     DebugWindow debugWindow(window);
@@ -65,14 +69,37 @@ void App::run() {
         pieceViewSystem.update();
 
         renderer.render(scene.registry);
-        debugWindow.render(scene.registry);
+        
+        DebugWindow::Action act = debugWindow.render(scene.registry);
+                if(act == DebugWindow::Action::load)
+        {
+            #ifndef LOAD_TEST_PUZZLE
+	        char const * filter[2] = { "*.txt", "*.text" };
+            char const * filename = tinyfd_openFileDialog(
+                "Solution file", "./resources/solutions", 2, filter, "text files", 1);
+
+            if (filename)
+            {
+                resetScene();
+                std::string path(filename);
+                entt::entity puzzle = addPuzzleFromModel(path);
+                initScene(renderer, puzzle);
+            }
+            #else
+                resetScene();
+                entt::entity puzzle = addTestPuzzle();
+                initScene(renderer, puzzle);
+            #endif
+        }
 
         window.update();
     }
 }
 
-void App::initExplodedViewTestScene() {
+void App::resetScene() {
+    scene.registry.clear();
     auto background = scene.registry.create();
+    // TODO: change background
     scene.registry.emplace<Background>(background, glm::vec3(0.6f, 0.6f, 0.62f));
 
     auto dirLight = scene.registry.create();
@@ -90,16 +117,9 @@ void App::initExplodedViewTestScene() {
                           glm::vec3(0.0f, 1.0f, 0.0f),
                           0.1f, 100.0f, 70.0f
     );
+}
 
-    entt::entity puzzle;
-
-    #ifndef LOAD_TEST_PUZZLE
-    puzzle = addPuzzleFromModel();
-    #else
-    puzzle = addTestPuzzle();
-    #endif
-
-    // UI
+void App::initScene(Renderer &renderer, entt::entity puzzle) {
     auto uiCanvas = scene.registry.create();
     scene.registry.emplace<UICanvas>(uiCanvas);
     scene.registry.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
@@ -110,6 +130,8 @@ void App::initExplodedViewTestScene() {
 
 entt::entity App::addTestPuzzle() {
     auto puzzle = scene.registry.create();
+    Solution solution;
+
     scene.registry.emplace<Puzzle>(puzzle);
     scene.registry.emplace<Transform>(puzzle,
                              glm::vec3(0.0f, 0.0f, 0.0f),
@@ -119,7 +141,7 @@ entt::entity App::addTestPuzzle() {
     scene.registry.emplace<Children>(puzzle);
 
     auto color = glm::vec3(0.6f,0.0f,0.0f);
-    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f), color);
+    auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f), color, solution);
     addBlock(piece_1, glm::vec3(0.0f,0.0f,0.0f));
     addBlock(piece_1, glm::vec3(1.0f,0.0f,0.0f));
     addBlock(piece_1, glm::vec3(0.0f,1.0f,0.0f));
@@ -127,13 +149,13 @@ entt::entity App::addTestPuzzle() {
     addBlock(piece_1, glm::vec3(0.0f,-1.0f,0.0f));
 
     color = glm::vec3(0.3f, 0.0f, 0.3f);
-    auto piece_2 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f), color);
+    auto piece_2 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 0.0f), color, solution);
     addBlock(piece_2, glm::vec3(0.0f,0.0f,0.0f));
     addBlock(piece_2, glm::vec3(0.0f,1.0f,0.0f));
     addBlock(piece_2, glm::vec3(0.0f,-1.0f,0.0f));
 
     color = glm::vec3(0.3f, 0.0f, 0.6f);
-    auto piece_3 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, -1.0f), color);
+    auto piece_3 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, -1.0f), color, solution);
     addBlock(piece_3, glm::vec3(0.0f,0.0f,0.0f));
     addBlock(piece_3, glm::vec3(0.0f,1.0f,0.0f));
     addBlock(piece_3, glm::vec3(-1.0f,1.0f,0.0f));
@@ -141,7 +163,7 @@ entt::entity App::addTestPuzzle() {
     addBlock(piece_3, glm::vec3(0.0f,-1.0f,0.0f));
 
     color = glm::vec3(0.6f, 0.6f, 0.0f);
-    auto piece_4 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 1.0f), color);
+    auto piece_4 = addPiece(puzzle, glm::vec3(0.0f, 0.0f, 1.0f), color, solution);
     addBlock(piece_4, glm::vec3(0.0f,0.0f,0.0f));
     addBlock(piece_4, glm::vec3(0.0f,1.0f,0.0f));
     addBlock(piece_4, glm::vec3(0.0f,-1.0f,0.0f));
@@ -149,17 +171,17 @@ entt::entity App::addTestPuzzle() {
     addBlock(piece_4, glm::vec3(1.0f,0.0f,0.0f));
 
     color = glm::vec3(0.3f, 0.3f, 0.6f);
-    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 0.5f), color);
+    auto piece_5 = addPiece(puzzle, glm::vec3(-1.0f, 1.0f, 0.5f), color, solution);
     addBlock(piece_5, glm::vec3(0.0f,0.0f,0.5f));
     addBlock(piece_5, glm::vec3(0.0f,0.0f,-0.5f));
 
     color = glm::vec3(0.3f, 0.6f, 0.0f);
-    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 0.5f), color);
+    auto piece_6 = addPiece(puzzle, glm::vec3(-1.0f, -1.0f, 0.5f), color, solution);
     addBlock(piece_6, glm::vec3(0.0f,0.0f,0.5f));
     addBlock(piece_6, glm::vec3(0.0f,0.0f,-0.5f));
 
     color = glm::vec3(0.3f, 0.6f, 0.3f);
-    auto piece_7 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, 0.0f), color);
+    auto piece_7 = addPiece(puzzle, glm::vec3(1.0f, 0.0f, 0.0f), color, solution);
     addBlock(piece_7, glm::vec3(0.0f,0.0f,0.0f));
     addBlock(piece_7, glm::vec3(0.0f,1.0f,0.0f));
     addBlock(piece_7, glm::vec3(0.0f,-1.0f,0.0f));
@@ -299,7 +321,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     return pieceView;
 }
 
-entt::entity App::addPuzzleFromModel() {
+entt::entity App::addPuzzleFromModel(std::string path) {
     auto puzzle = scene.registry.create();
 
     scene.registry.emplace<Puzzle>(puzzle);
@@ -310,12 +332,17 @@ entt::entity App::addPuzzleFromModel() {
     scene.registry.emplace<ExplodedView>(puzzle,0.0f);
     scene.registry.emplace<Children>(puzzle);
 
-    PuzzleLoader loader = PuzzleLoader();
-    auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
+    auto result = loader.LoadSolution(path);
+    glm::vec3 size = loader.LoadSize(path);
 
-    for (auto & item : result.pieces)
+    SolutionFinder finder = SolutionFinder(size);
+    std::vector<Solution> solutions = finder.GetSolution(result); 
+
+    for(int i = result.pieces.size() - 1; i >= 0 ; i--)
     {
-        auto piece = addPiece(puzzle, item.origin, item.color);
+        auto item = result.pieces[i];
+        Solution solution = solutions[i];
+        auto piece = addPiece(puzzle, item.origin, item.color, solution);
 
         for (auto & block : item.blocks)
         {
@@ -326,7 +353,7 @@ entt::entity App::addPuzzleFromModel() {
     return puzzle;
 }
 
-entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 color) {
+entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 color, Solution solution) {
     auto puzzleChildren = scene.registry.try_get<Children>(puzzle);
     if (puzzleChildren == nullptr) {
         throw std::runtime_error("App::addPiece: cannot add piece to entity without children");
@@ -345,6 +372,8 @@ entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 co
     pieceComponent.selected = false;
     pieceComponent.defaultColor = color;
     pieceComponent.selectionColor = color + glm::vec3(0.3f);
+
+    scene.registry.emplace<Solution>(piece, solution);
 
     return piece;
 }

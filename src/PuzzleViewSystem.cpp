@@ -16,6 +16,7 @@
 #include "Components/BoundingBox.hpp"
 #include "Components/Children.hpp"
 #include "Components/Material.hpp"
+#include "Components/Solution.hpp"
 
 #include <iostream>
 
@@ -34,6 +35,7 @@ PuzzleViewSystem::PuzzleViewSystem(Scene &scene)
 
 void PuzzleViewSystem::update() {
     updateExplodedView();
+    updateSolution();
     updatePuzzleRotation();
     updateSelectedPieceColor();
 }
@@ -67,6 +69,38 @@ void PuzzleViewSystem::updateExplodedView() {
         }
 
         transform.position = piece.initialPosition + translationDirection * explodedView.offset;
+    }
+}
+
+void PuzzleViewSystem::updateSolution() {
+    auto puzzleView = scene.registry.view<Puzzle>();
+    auto piecesView = scene.registry.view<PuzzlePiece, Transform, Solution>();
+
+    if (puzzleView.empty()) {
+        return;
+    }
+
+    auto puzzleEntity = puzzleView.front();
+    auto& puzzle = scene.registry.get<Puzzle>(puzzleEntity);
+    float current_step = puzzle.solutionStep;
+
+    for (auto [entity, piece, transform, solution] : piecesView.each()) 
+    {
+        if(solution.Solution.size() == 0) {continue;}
+        if(current_step > 1.0)
+        {
+            transform.position = getBezierPoint(solution.Solution, 1.f);
+            current_step -= 1;
+        }
+        else if(current_step < 0.0)
+        {
+            transform.position = getBezierPoint(solution.Solution, 0.f);
+        }
+        else
+        {
+            transform.position = getBezierPoint(solution.Solution, current_step);
+            current_step -= 1;
+        }
     }
 }
 
@@ -257,6 +291,19 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
     }
 
     return false;
+}
+
+glm::vec3 PuzzleViewSystem::getBezierPoint( std::vector<glm::vec3> points, float t ) {
+    std::vector<glm::vec3> tmp(points);
+    
+    for(int i = points.size() - 1; i > 0; i--)
+    {
+        for (int k = 0; k < i; k++)
+            tmp[k] = tmp[k] + t * ( tmp[k+1] - tmp[k] );
+        i--;
+    }
+
+    return tmp[0];
 }
 
 void PuzzleViewSystem::scrollCallback(InputSystem::ScrollEvent scrollEvent) {

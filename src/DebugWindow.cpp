@@ -27,10 +27,11 @@ DebugWindow::DebugWindow(GlfwWindow &window)
     ImGui_ImplOpenGL3_Init("#version 410");
 }
 
-void DebugWindow::render(entt::registry& scene) {
+DebugWindow::Action DebugWindow::render(entt::registry& scene) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    Action action = none;
 
     {
         ImGui::Begin("Debug");
@@ -50,15 +51,19 @@ void DebugWindow::render(entt::registry& scene) {
             ImGui::Checkbox("disable puzzle mouse rotation", &puzzle.disableMouseRotation);
         }
 
+        action = LoadFile();
         ObjectInfo(scene);
         CameraInfo(scene);
         LightInfo(scene);
         ExplodedViewInfo(scene);
+        SolutionInfo(scene);
         ImGui::End();
     }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    return action;
 }
 
 void DebugWindow::ObjectInfo(entt::registry& scene) {
@@ -125,6 +130,17 @@ void DebugWindow::ObjectInfo(entt::registry& scene) {
     }
 }
 
+DebugWindow::Action DebugWindow::LoadFile() {
+    Action action = none;
+
+    if (ImGui::Button("Load solution"))
+    {
+        action = load;
+    }
+
+    return action;    
+}
+
 void DebugWindow::CameraInfo(entt::registry& scene) {
     auto& camera = scene.get<Camera>(scene.view<Camera>().front());
 
@@ -157,5 +173,30 @@ void DebugWindow::ExplodedViewInfo(entt::registry &scene) {
         }
         auto& exploded_view = scene.get<ExplodedView>(view.front());
         ImGui::SliderFloat("Exploded View Offset", &exploded_view.offset, 0.0f, 1.2f);
+    }
+}
+
+void DebugWindow::SolutionInfo(entt::registry& scene) {
+    auto view = scene.view<Puzzle>();
+    if (view.empty()) {
+        return;
+    }
+
+    auto puzzle = view.front();
+    auto puzzleChildren = scene.try_get<Children>(puzzle);
+    if (puzzleChildren == nullptr) {
+        return;
+    }
+    
+    // int total_range = puzzleChildren->children.size();
+
+    if (ImGui::CollapsingHeader("solution steps")) {
+
+        auto puzzleView = scene.view<Puzzle>();
+        if (!puzzleView.empty()) {
+            auto& puzzle = scene.get<Puzzle>(puzzleView.front());
+            // ImGui::Checkbox("disable puzzle mouse rotation", &puzzle.disableMouseRotation);
+            ImGui::SliderFloat("solution", &puzzle.solutionStep, 0.0,  puzzleChildren->children.size());
+        }
     }
 }

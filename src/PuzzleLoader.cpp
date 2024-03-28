@@ -22,10 +22,66 @@ PuzzleLoader::~PuzzleLoader()
 }
 
 
+glm::vec3 PuzzleLoader::LoadSize(std::string path)
+{
+    std::string line;
+    std::ifstream myfile (path);
+    std::vector<glm::vec3> blocks;
+
+    if (myfile.is_open())
+    {
+        while (std::getline(myfile, line))
+        {
+            if(line.length() == 0 || line[0] == '#')
+            {
+                continue;
+            }
+
+            std::stringstream ss(line);
+            std::istream_iterator<std::string> begin(ss);
+            std::istream_iterator<std::string> end;
+            std::vector<std::string> xyz(begin, end);
+            
+            for(uint i = 0; i < xyz.size(); i +=3)
+            {
+                glm::vec3 block = glm::vec3(0, 0, 0);
+                block.x = std::stoi(xyz[i]);
+                block.y = std::stoi(xyz[i+1]);
+                block.z = std::stoi(xyz[i+2]);
+                blocks.push_back(block);
+            }
+        }
+        myfile.close();
+    }
+    else 
+    {
+        std::cout << "Unable to open file" << std::endl;
+        return glm::vec3(0);
+    } 
+
+    glm::vec3 min =  glm::vec3(0);
+    glm::vec3 max =  glm::vec3(0);
+
+    for (auto & block : blocks)
+    {
+        if(block.x < min.x) {min.x = block.x;}
+        if(block.y < min.y) {min.y = block.y;}
+        if(block.z < min.z) {min.z = block.z;}
+
+        if(block.x > max.x) {max.x = block.x;}
+        if(block.y > max.y) {max.y = block.y;}
+        if(block.z > max.z) {max.z = block.z;}
+    }
+
+    return (max + glm::vec3(1)) - min;
+}
+
+
 PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
 {
     std::vector<LoaderPieceResult> file_result;
     LoaderPuzzleResult result;
+    auto size = LoadSize(path);
 
     std::string line;
     std::ifstream myfile (path);
@@ -37,7 +93,7 @@ PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
             {
                 continue;
             }
-            file_result.push_back(LoadPiece(line));
+            file_result.push_back(LoadPiece(line, size));
         }
         myfile.close();
     }
@@ -69,7 +125,7 @@ PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
 }
 
 
-PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadPiece(std::string line)
+PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadPiece(std::string line, glm::vec3 size)
 {
     LoaderPieceResult piece;
     std::stringstream ss(line);
@@ -99,22 +155,21 @@ PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadPiece(std::string line)
 
         if(glm::distance(block, center) < distance)
         {
-            std::cout << "found closer block" << std::endl;
-            std::cout << block.x << "-" << block.y << "-" << block.z << std::endl;
             distance = glm::distance(block, center);
             origin = block;
         }
     }
 
-    origin = origin - glm::vec3(1.5);
+    size = size / glm::vec3(2.0);
+    origin = origin - size;
     piece.origin = origin;
     
     for(uint i = 0; i < xyz.size(); i +=3)
     {
         // add offset as well to get puzzle in center
-        float x = std::stoi(xyz[i]) - (origin.x + 1.5);
-        float y = std::stoi(xyz[i+1]) - (origin.y + 1.5);
-        float z = std::stoi(xyz[i+2]) - (origin.z + 1.5);
+        float x = std::stoi(xyz[i]) - (origin.x + size.x);
+        float y = std::stoi(xyz[i+1]) - (origin.y + size.y);
+        float z = std::stoi(xyz[i+2]) - (origin.z + size.z);
         piece.blocks.push_back(glm::vec3(x, y, z));
     }
 
@@ -152,7 +207,7 @@ PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadModel(std::string path)
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
-    for (int i = 0; i < data["verts"].size(); i++) 
+    for (uint32_t i = 0; i < data["verts"].size(); i++) 
     {
         // deal with weird data shite of json
         auto pos = data["verts"][i];
@@ -163,14 +218,14 @@ PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadModel(std::string path)
         vertices.push_back({ .position = {pos[0], pos[1],pos[2]}, .normal = {n_0, n_1, n_2 }});
     }
 
-    for (int i = 0; i < data["polygons"].size(); i++) 
+    for (uint32_t i = 0; i < data["polygons"].size(); i++) 
     {
         indices.push_back(data["polygons"][i]);
     }
 
     piece.initialPosition = {0.0, 0.0, 0.0};
     piece.selected = false;
-    for (int i = 0; i < data["shape"].size(); i++) 
+    for (uint32_t i = 0; i < data["shape"].size(); i++) 
     {
         auto pos = data["shape"][i];
         piece.CubePos.push_back( {pos[0], pos[1],pos[2]} );

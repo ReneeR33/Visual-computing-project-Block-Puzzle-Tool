@@ -18,12 +18,14 @@ private:
     glm::vec2 prevMousePos;
 
     void updateExplodedView();
+    void updateSolution();
     void updatePuzzleRotation();
     void updateSelectedPieceColor();
 
     void updatePieceSelection();
     bool mouseHoveringOverPieceView();
     bool getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::vec3 rayDirection, BoundingBox boundingBox, float& intersectionLambda);
+    glm::vec3 getBezierPoint( std::vector<glm::vec3> points, float t );
 
     void scrollCallback(InputSystem::ScrollEvent scrollEvent);
     void mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent);

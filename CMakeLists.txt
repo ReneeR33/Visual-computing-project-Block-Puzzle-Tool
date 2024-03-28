@@ -17,6 +17,7 @@ include_directories(
     ${LIB_DIR}/entt/include
     ${LIB_DIR}/nlohmann_json/include/
     ${LIB_DIR}/assimp/include/
+    ${LIB_DIR}/tinyfiledialogs/include/
 )
 
 file(GLOB_RECURSE LIB_sources CONFIGURE_DEPENDS
