@@ -25,17 +25,12 @@
 #include "Components/BoundingBox.hpp"
 #include "InputSystem.hpp"
 #include "primitives.hpp"
-<<<<<<< HEAD
 #include "tinyfiledialogs.h"
 #include "tinyfiledialogs.c"
 #include "SolutionFinder.hpp"
-=======
->>>>>>> origin/main
 #include "PuzzleLoader.hpp"
 #include "UI.hpp"
 #include "entity.hpp"
-
-#include "ModelLoader.hpp"
 
 #define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
@@ -46,9 +41,6 @@
 // #define LOAD_TEST_PUZZLE
 
 App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
-    ModelLoader modelLoader;
-    modelLoader.loadModel(scene, "resources/models/wooden-cube/wooden-cube.obj");
-    scene.models["cube"] = std::make_unique<ModelData>(primitives::cube_data);
 }
 
 void App::run() {
@@ -68,11 +60,10 @@ void App::run() {
     while (!window.windowShouldClose()) {
         InputSystem::update();
 
-        uiSystem.update(scene.registry);
+        uiSystem.update(scene);
         puzzleViewSystem.update();
         pieceViewSystem.update();
 
-<<<<<<< HEAD
         renderer.render(scene);
         DebugWindow::Action act = debugWindow.render(scene);
 
@@ -96,36 +87,26 @@ void App::run() {
                 initScene(renderer, puzzle);
             #endif
         }
-=======
-        renderer.render(scene.registry);
-        debugWindow.render(scene.registry);
->>>>>>> origin/main
 
         window.update();
     }
 }
 
-<<<<<<< HEAD
 void App::resetScene() {
     scene.clear();
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
-=======
-void App::initExplodedViewTestScene() {
-    auto background = scene.registry.create();
-    scene.registry.emplace<Background>(background, glm::vec3(0.6f, 0.6f, 0.62f));
->>>>>>> origin/main
 
-    auto dirLight = scene.registry.create();
-    scene.registry.emplace<DirLight>(dirLight,
+    auto dirLight = scene.create();
+    scene.emplace<DirLight>(dirLight,
                             glm::vec3(-0.4f, 0.14f, -1.0f),
                             glm::vec3(1.0f),
                             glm::vec3(1.0f),
                             glm::vec3(1.0f)
     );
 
-    auto camera = scene.registry.create();
-    scene.registry.emplace<Camera>(camera,
+    auto camera = scene.create();
+    scene.emplace<Camera>(camera,
                           glm::vec3(0.0f, 0.0f, 7.0f),
                           glm::vec3(0.0f, 0.0f, -1.0f),
                           glm::vec3(0.0f, 1.0f, 0.0f),
@@ -133,48 +114,26 @@ void App::initExplodedViewTestScene() {
     );
 }
 
-<<<<<<< HEAD
 void App::initScene(Renderer &renderer, entt::entity puzzle){
     auto uiCanvas = scene.create();
     scene.emplace<UICanvas>(uiCanvas);
     scene.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
     scene.emplace<Children>(uiCanvas);
-=======
-    entt::entity puzzle;
-
-    #ifndef LOAD_TEST_PUZZLE
-    puzzle = addPuzzleFromModel();
-    #else
-    puzzle = addTestPuzzle();
-    #endif
-
-    // UI
-    auto uiCanvas = scene.registry.create();
-    scene.registry.emplace<UICanvas>(uiCanvas);
-    scene.registry.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
-    scene.registry.emplace<Children>(uiCanvas);
->>>>>>> origin/main
 
     addPieceView(uiCanvas, puzzle);
     renderer.load(scene);
 }
 
 entt::entity App::addTestPuzzle() {
-<<<<<<< HEAD
     auto puzzle = scene.create();
     Solution solution;
     scene.emplace<Puzzle>(puzzle);
     scene.emplace<Transform>(puzzle,
-=======
-    auto puzzle = scene.registry.create();
-    scene.registry.emplace<Puzzle>(puzzle);
-    scene.registry.emplace<Transform>(puzzle,
->>>>>>> origin/main
                              glm::vec3(0.0f, 0.0f, 0.0f),
                              glm::vec3(0.0f),
                              glm::vec3(1.0f));
-    scene.registry.emplace<ExplodedView>(puzzle,0.0f);
-    scene.registry.emplace<Children>(puzzle);
+    scene.emplace<ExplodedView>(puzzle,0.0f);
+    scene.emplace<Children>(puzzle);
 
     auto color = glm::vec3(0.6f,0.0f,0.0f);
     auto piece_1 = addPiece(puzzle, glm::vec3(-1.0f, 0.0f, -1.0f), color, solution);
@@ -229,88 +188,88 @@ entt::entity App::addTestPuzzle() {
 
 entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
 {
-    auto& canvasChildren = scene.registry.get<Children>(canvas);
+    auto& canvasChildren = scene.get<Children>(canvas);
 
-    auto pieceView = scene.registry.create();
-    scene.registry.emplace<Parent>(pieceView, canvas);
+    auto pieceView = scene.create();
+    scene.emplace<Parent>(pieceView, canvas);
     canvasChildren.children.push_front(pieceView);
-    scene.registry.emplace<Transform2D>(pieceView, 
+    scene.emplace<Transform2D>(pieceView, 
         glm::vec2(float(WINDOW_WIDTH) - float(PIECE_VIEW_WIDTH) / 2.0f, 
         float(WINDOW_HEIGHT) / 2.0f), 0.0f, 
         glm::vec2(1.0f)
     );
-    auto& pieceViewComponent = scene.registry.emplace<PiecesView>(pieceView);
+    auto& pieceViewComponent = scene.emplace<PiecesView>(pieceView);
     pieceViewComponent.puzzle = puzzle;
-    scene.registry.emplace<CanvasElement>(pieceView, 0,
+    scene.emplace<CanvasElement>(pieceView, 0,
         float(WINDOW_HEIGHT) / 2.0f, -float(WINDOW_HEIGHT) / 2.0f,
         -float(PIECE_VIEW_WIDTH) / 2.0f, float(PIECE_VIEW_WIDTH) / 2.0f
     );
-    auto& pieceViewChildren = scene.registry.emplace<Children>(pieceView);
+    auto& pieceViewChildren = scene.emplace<Children>(pieceView);
 
-    auto pieceViewBackground = scene.registry.create();
-    scene.registry.emplace<Parent>(pieceViewBackground, pieceView);
+    auto pieceViewBackground = scene.create();
+    scene.emplace<Parent>(pieceViewBackground, pieceView);
     pieceViewChildren.children.push_front(pieceViewBackground);
-    scene.registry.emplace<CanvasElement>(pieceViewBackground, 0);
-    scene.registry.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
-    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.3f, 0.3f, 0.34f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
+    scene.emplace<CanvasElement>(pieceViewBackground, 0);
+    scene.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
+    scene.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.05f, 0.05f, 0.08f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
     pieceViewComponent.background = pieceViewBackground;
 
-    auto pieceViewScrollView = addScrollView(scene.registry,
+    auto pieceViewScrollView = addScrollView(scene,
         1,
         -float(WINDOW_HEIGHT) / 2.0f, float(WINDOW_HEIGHT) / 2.0f,
         -float(PIECE_VIEW_WIDTH) / 2.0f, float(PIECE_VIEW_WIDTH) / 2.0f,
         glm::vec2(0.0f)
     );
-    scene.registry.emplace<Parent>(pieceViewScrollView, pieceView);
+    scene.emplace<Parent>(pieceViewScrollView, pieceView);
     pieceViewChildren.children.push_front(pieceViewScrollView);
     pieceViewComponent.scrollView = pieceViewScrollView;
 
     const float pieceViewSinglePieceViewWidth = float(WINDOW_WIDTH) / 7.0f;
     const float pieceViewSinglePieceViewHeight = float(WINDOW_HEIGHT) / 3.0f;
 
-    auto& puzzleChildren = scene.registry.get<Children>(puzzle);
+    auto& puzzleChildren = scene.get<Children>(puzzle);
 
     int i = 0;
     for (auto pieceEntity : puzzleChildren.children) {
-        auto& pieceChildren = scene.registry.get<Children>(pieceEntity);
+        auto& pieceChildren = scene.get<Children>(pieceEntity);
 
-        auto pieceViewSinglePieceView = scene.registry.create();
-        auto& singlePieceViewComponent = scene.registry.emplace<SinglePieceView>(pieceViewSinglePieceView,
-            glm::vec3(0.5f, 0.5f, 0.56f),
-            glm::vec3(0.6f, 0.6f, 0.66f),
+        auto pieceViewSinglePieceView = scene.create();
+        auto& singlePieceViewComponent = scene.emplace<SinglePieceView>(pieceViewSinglePieceView,
+            glm::vec3(0.15f, 0.15f, 0.18f),
+            glm::vec3(0.22f, 0.22f, 0.25f),
             pieceEntity
         );
-        scene.registry.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
+        scene.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
             pieceViewSinglePieceViewHeight / 2.0f, -pieceViewSinglePieceViewHeight / 2.0f,
             -pieceViewSinglePieceViewWidth / 2.0f, pieceViewSinglePieceViewWidth / 2.0f
         );
         //TODO: store offset somewhere/make offset specific?
-        scene.registry.emplace<Transform2D>(pieceViewSinglePieceView, 
+        scene.emplace<Transform2D>(pieceViewSinglePieceView, 
             glm::vec2(0.0f, -(float(i) * (pieceViewSinglePieceViewHeight + 50.0f))), 
             0.0f, 
             glm::vec3(1.0f)
         );
-        auto& pieceViewSinglePieceViewChildren = scene.registry.emplace<Children>(pieceViewSinglePieceView);
+        auto& pieceViewSinglePieceViewChildren = scene.emplace<Children>(pieceViewSinglePieceView);
 
-        auto pieceViewSinglePieceViewBackGround = scene.registry.create();
-        scene.registry.emplace<Parent>(pieceViewSinglePieceViewBackGround, pieceViewSinglePieceView);
+        auto pieceViewSinglePieceViewBackGround = scene.create();
+        scene.emplace<Parent>(pieceViewSinglePieceViewBackGround, pieceViewSinglePieceView);
         pieceViewSinglePieceViewChildren.children.push_front(pieceViewSinglePieceViewBackGround);
-        scene.registry.emplace<CanvasElement>(pieceViewSinglePieceViewBackGround, 0);
-        scene.registry.emplace<Transform2D>(pieceViewSinglePieceViewBackGround, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
-        scene.registry.emplace<Fill2D>(pieceViewSinglePieceViewBackGround, 
-            glm::vec3(0.1f, 0.1f, 0.12f), 
+        scene.emplace<CanvasElement>(pieceViewSinglePieceViewBackGround, 0);
+        scene.emplace<Transform2D>(pieceViewSinglePieceViewBackGround, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
+        scene.emplace<Fill2D>(pieceViewSinglePieceViewBackGround, 
+            glm::vec3(0.15f, 0.15f, 0.18f), 
             pieceViewSinglePieceViewWidth, 
             pieceViewSinglePieceViewHeight,
             30.0f
         );
         singlePieceViewComponent.background = pieceViewSinglePieceViewBackGround;
 
-        auto pieceUIScene = scene.registry.create();
-        scene.registry.emplace<Parent>(pieceUIScene, pieceViewSinglePieceView);
+        auto pieceUIScene = scene.create();
+        scene.emplace<Parent>(pieceUIScene, pieceViewSinglePieceView);
         pieceViewSinglePieceViewChildren.children.push_front(pieceUIScene);
-        scene.registry.emplace<CanvasElement>(pieceUIScene, 1);
-        scene.registry.emplace<Transform2D>(pieceUIScene, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
-        auto& uiScene = scene.registry.emplace<UIScene>(pieceUIScene);
+        scene.emplace<CanvasElement>(pieceUIScene, 1);
+        scene.emplace<Transform2D>(pieceUIScene, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec3(1.0f));
+        auto& uiScene = scene.emplace<UIScene>(pieceUIScene);
         uiScene.width = pieceViewSinglePieceViewWidth;
         uiScene.height = pieceViewSinglePieceViewHeight;
         singlePieceViewComponent.subscene = pieceUIScene;
@@ -339,17 +298,17 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
         for (auto block : pieceChildren.children) {
             auto uiScenePieceBlock = uiScene.scene.create();
             uiScene.scene.emplace<Parent>(uiScenePieceBlock, uiScenePiece);
-            uiScene.scene.emplace<Model>(uiScenePieceBlock, scene.models["resources/models/wooden-cube/wooden-cube.obj"].get());
+            uiScene.scene.emplace<Model>(uiScenePieceBlock, primitives::cube);
             uiScene.scene.emplace<Shader>(uiScenePieceBlock, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
 
-            auto& transform = scene.registry.get<Transform>(block);
-            auto& material = scene.registry.get<Material>(block);
+            auto& transform = scene.get<Transform>(block);
+            auto& material = scene.get<Material>(block);
 
             uiScene.scene.emplace<Material>(uiScenePieceBlock, material);
             uiScene.scene.emplace<Transform>(uiScenePieceBlock, transform);
         }
 
-        addUIEntityToScrollView(scene.registry, pieceViewScrollView, pieceViewSinglePieceView);
+        addUIEntityToScrollView(scene, pieceViewScrollView, pieceViewSinglePieceView);
 
         i++;
     }
@@ -357,29 +316,19 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     return pieceView;
 }
 
-<<<<<<< HEAD
 entt::entity App::addPuzzleFromModel(std::string path) {
     auto puzzle = scene.create();
-=======
-entt::entity App::addPuzzleFromModel() {
-    auto puzzle = scene.registry.create();
->>>>>>> origin/main
 
-    scene.registry.emplace<Puzzle>(puzzle);
-    scene.registry.emplace<Transform>(puzzle,
+    scene.emplace<Puzzle>(puzzle);
+    scene.emplace<Transform>(puzzle,
                              glm::vec3(0.0f, 0.0f, 0.0f),
                              glm::vec3(0.0f),
                              glm::vec3(1.0f));
-    scene.registry.emplace<ExplodedView>(puzzle,0.0f);
-    scene.registry.emplace<Children>(puzzle);
+    scene.emplace<ExplodedView>(puzzle,0.0f);
+    scene.emplace<Children>(puzzle);
 
-<<<<<<< HEAD
     auto result = loader.LoadSolution(path);
     glm::vec3 size = loader.LoadSize(path);
-=======
-    PuzzleLoader loader = PuzzleLoader();
-    auto result = loader.LoadSolution("resources/data/half_cube-4x4x4.txt");
->>>>>>> origin/main
 
     SolutionFinder finder = SolutionFinder(size);
     std::vector<Solution> solutions = finder.GetSolution(result); 
@@ -400,27 +349,22 @@ entt::entity App::addPuzzleFromModel() {
     return puzzle;
 }
 
-<<<<<<< HEAD
 entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 color, Solution solution) {
     auto puzzleChildren = scene.try_get<Children>(puzzle);
-=======
-entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 color) {
-    auto puzzleChildren = scene.registry.try_get<Children>(puzzle);
->>>>>>> origin/main
     if (puzzleChildren == nullptr) {
         throw std::runtime_error("App::addPiece: cannot add piece to entity without children");
     }
 
-    auto piece = scene.registry.create();
-    scene.registry.emplace<Parent>(piece, puzzle);
-    scene.registry.emplace<Transform>(piece,
+    auto piece = scene.create();
+    scene.emplace<Parent>(piece, puzzle);
+    scene.emplace<Transform>(piece,
                              position,
                              glm::vec3(0.0f),
                              glm::vec3(1.0f));
-    scene.registry.emplace<Children>(piece);
+    scene.emplace<Children>(piece);
 
     puzzleChildren->children.push_front(piece);
-    auto& pieceComponent = scene.registry.emplace<PuzzlePiece>(piece, position);
+    auto& pieceComponent = scene.emplace<PuzzlePiece>(piece, position);
     pieceComponent.selected = false;
     pieceComponent.defaultColor = color;
     pieceComponent.selectionColor = color + glm::vec3(0.3f);
@@ -431,31 +375,31 @@ entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 co
 
 
 entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
-    auto pieceComponent = scene.registry.try_get<PuzzlePiece>(piece);
+    auto pieceComponent = scene.try_get<PuzzlePiece>(piece);
     if ( pieceComponent == nullptr) {
         throw std::runtime_error("App::addBlock: cannot add block to entity that is not a piece");
     }
-    auto pieceChildren = scene.registry.try_get<Children>(piece);
+    auto pieceChildren = scene.try_get<Children>(piece);
     if (pieceChildren == nullptr) {
         throw std::runtime_error("App::addBlock: cannot add block to entity without children");
     }
 
-    auto block = scene.registry.create();
+    auto block = scene.create();
 
-    scene.registry.emplace<Model>(block, scene.models["resources/models/wooden-cube/wooden-cube.obj"].get());
-    scene.registry.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
-    scene.registry.emplace<Material>(block,
+    scene.emplace<Model>(block, primitives::cube);
+    scene.emplace<Shader>(block, "shaders/phong/phong.vert", "shaders/phong/phong.frag");
+    scene.emplace<Material>(block,
         pieceComponent->defaultColor,
         pieceComponent->defaultColor * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
-        glm::vec3(0.12f),
-        4.0f
+        glm::vec3(0.0f),
+        1.0f
     );
-    scene.registry.emplace<Transform>(block,
+    scene.emplace<Transform>(block,
         glm::vec3(position),
         glm::vec3(0.0f),
         glm::vec3(1.0f)
     );
-    scene.registry.emplace<BoundingBox>(block,
+    scene.emplace<BoundingBox>(block,
         glm::vec3(0.0f),
         glm::vec3(0.5f),
         glm::vec3(0.5f),
@@ -463,7 +407,7 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
     );
 
     pieceChildren->children.push_front(block);
-    scene.registry.emplace<Parent>(block, piece);
+    scene.emplace<Parent>(block, piece);
 
     return block;
 }
