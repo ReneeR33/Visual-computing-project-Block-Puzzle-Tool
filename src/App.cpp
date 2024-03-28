@@ -374,6 +374,7 @@ entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 co
     pieceComponent.selected = false;
     pieceComponent.defaultColor = color;
     pieceComponent.selectionColor = color + glm::vec3(0.3f);
+    pieceComponent.otherPieceSelectedTransparency = 0.1f;
 
     scene.registry.emplace<Solution>(piece, solution);
 

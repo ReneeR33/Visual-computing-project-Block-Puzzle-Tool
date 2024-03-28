@@ -28,7 +28,9 @@
 #define ROTATE_SPEED 0.25f
 
 PuzzleViewSystem::PuzzleViewSystem(Scene &scene)
-    : scene(scene) {
+    : scene(scene)
+    , prevMousePos(glm::vec2(0.0f))
+    , pieceSelected(false) {
     InputSystem::event<InputSystem::ScrollEvent>().connect<&PuzzleViewSystem::scrollCallback>(*this);
     InputSystem::event<InputSystem::MouseButtonCallBackEvent>().connect<&PuzzleViewSystem::mouseButtonCallback>(*this);
 }
@@ -38,6 +40,7 @@ void PuzzleViewSystem::update() {
     updateSolution();
     updatePuzzleRotation();
     updateSelectedPieceColor();
+    updatePieceTransparency();
 }
 
 void PuzzleViewSystem::updateExplodedView() {
@@ -136,14 +139,31 @@ void PuzzleViewSystem::updatePuzzleRotation() {
 }
 
 void PuzzleViewSystem::updateSelectedPieceColor() {
+    pieceSelected = false;
+
     for (auto [entity, piece] : scene.registry.view<PuzzlePiece>().each()) {
         auto& children = scene.registry.get<Children>(entity).children;
         for (auto block : children) {
             auto& material = scene.registry.get<Material>(block);
             if (piece.selected) {
+                pieceSelected = true;
                 material.color = piece.selectionColor;
             } else {
                 material.color = piece.defaultColor;
+            }
+        }
+    }
+}
+
+void PuzzleViewSystem::updatePieceTransparency() {
+    for (auto [entity, piece] : scene.registry.view<PuzzlePiece>().each()) {
+        auto& children = scene.registry.get<Children>(entity).children;
+        for (auto block : children) {
+            auto& material = scene.registry.get<Material>(block);
+            if (pieceSelected && !piece.selected) {
+                material.transparency = piece.otherPieceSelectedTransparency;
+            } else {
+                material.transparency = 1.0f;
             }
         }
     }
