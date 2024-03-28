@@ -2,9 +2,10 @@
 #define PRIMITIVES_HPP
 
 #include "Components/Model.hpp"
+#include "ModelData.hpp"
 
 namespace primitives {
-    static Model cube = {
+    static ModelData cube_data = {
         .meshes = {{
             .VAO = 0, 
             .VBO = 0, 

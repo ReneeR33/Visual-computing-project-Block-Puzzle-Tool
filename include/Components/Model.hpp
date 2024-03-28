@@ -1,12 +1,10 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
-#include <vector>
-#include <string>
-#include "Mesh.hpp"
+#include "ModelData.hpp"
 
 struct Model {
-    std::vector<Mesh> meshes;
+    ModelData* modelData;
 };
 
 #endif //MODEL_HPP

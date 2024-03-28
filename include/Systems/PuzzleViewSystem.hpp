@@ -5,14 +5,15 @@
 #include <entt/entt.hpp>
 #include "Components/BoundingBox.hpp"
 #include "InputSystem.hpp"
+#include "Scene.hpp"
 
 class PuzzleViewSystem {
 public:
-    PuzzleViewSystem(entt::registry& scene);
+    PuzzleViewSystem(Scene& scene);
     void update();
 
 private:
-    entt::registry &scene;
+    Scene &scene;
 
     glm::vec2 prevMousePos;
 

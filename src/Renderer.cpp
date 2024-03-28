@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 #include "Components/Parent.hpp"
 #include "Components/Fill2D.hpp"
 #include "Components/Transform2D.hpp"
@@ -48,7 +51,9 @@ Renderer::Renderer()
     glGenFramebuffers(1, &depthMapFrameBuffer);
 
     glGenTextures(1, &depthMapTexture);
+
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+
     glTexImage2D(
         GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
         SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 
@@ -66,26 +71,24 @@ Renderer::Renderer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::load(entt::registry &scene) {
-    auto view = scene.view<Model>();
-    for(auto [entity, model]: view.each()) {
-        for (auto& mesh : model.meshes) {
+void Renderer::load(Scene &scene) {
+    //TODO: load primitives?
+
+    for(auto& [name, model]: scene.models) {
+        for (auto& mesh : model->meshes) {
             load(mesh);
         }
-    }
-
-    auto uiSceneView = scene.view<UIScene>();
-    for (auto [entity, uiScene]: uiSceneView.each()) {
-        auto view = uiScene.scene.view<Model>();
-        for(auto [entity, model]: view.each()) {
-            for (auto& mesh : model.meshes) {
-                load(mesh);
-            }
+        for (auto& texture : model->textures) {
+            load(texture);
         }
     }
 }
 
 void Renderer::load(Mesh &mesh) {
+    if (mesh.vertices.empty()) {
+        return;
+    }
+
     glGenVertexArrays(1, &mesh.VAO);
     glGenBuffers(1, &mesh.VBO);
     if (!mesh.indices.empty()) {
@@ -108,7 +111,61 @@ void Renderer::load(Mesh &mesh) {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
 
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texcoords));
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, tangent));
+
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bitTangent));
+
     glBindVertexArray(0);
+}
+
+void Renderer::load(TextureData& textureData) {
+    glGenTextures(1, &textureData.id);
+    glBindTexture(GL_TEXTURE_2D, textureData.id);
+
+    stbi_set_flip_vertically_on_load(true);
+
+    int nrChannels;
+    unsigned char* data = stbi_load(textureData.path.c_str(), &textureData.width, &textureData.height, &nrChannels, 0);
+
+    if ( !data )
+    {
+        throw std::runtime_error("Failed to load texture");
+    }
+    
+    GLenum format;
+
+    switch (nrChannels)
+    {
+    case 1:
+        format = GL_RED;
+        break;
+
+    case 3:
+        format = GL_RGB;
+        break;
+
+    case 4:
+        format = GL_RGBA;
+        break;
+    
+    default:
+        break;
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, format, textureData.width, textureData.height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
 }
 
 void Renderer::render(entt::registry &scene) {
@@ -151,6 +208,9 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 
     renderDepthMap(scene, lightSpaceMatrix);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto& entity : entitiesView) {
         renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
@@ -188,7 +248,7 @@ void Renderer::renderWorldObject(
     shader.setVec3("dirLight.ambient", dirlight.ambient);
     shader.setVec3("dirLight.specular", dirlight.specular);
 
-    for(auto& mesh : model.meshes) {
+    for(auto& mesh : model.modelData->meshes) {
         draw(mesh);
     }
 }
@@ -269,7 +329,7 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
         shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         shadowMapShader.setMat4("model", modelMatrix);
 
-        for (auto& mesh : model.meshes) {
+        for (auto& mesh : model.modelData->meshes) {
             draw(mesh);
         }
     }
@@ -280,6 +340,15 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
 
 void Renderer::draw(Mesh &mesh) {
     glBindVertexArray(mesh.VAO);
+    
+    if (mesh.texture != nullptr) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mesh.texture->id);
+    }
+    if (mesh.normalMapTexture != nullptr) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, mesh.normalMapTexture->id);
+    }
     
     if (!mesh.indices.empty()) {
         glDrawElements(GL_TRIANGLES, (GLsizei)mesh.indices.size(), GL_UNSIGNED_INT, 0);

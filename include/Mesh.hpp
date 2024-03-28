@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Vertex.hpp"
+#include "TextureData.hpp"
 
 struct Mesh {
     unsigned int VAO;
@@ -11,6 +12,9 @@ struct Mesh {
 
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
+
+    TextureData* texture;
+    TextureData* normalMapTexture;
 };
 
 #endif //MESH_HPP

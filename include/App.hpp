@@ -7,6 +7,7 @@
 #include "Components/Solution.hpp"
 #include "Systems/Renderer.hpp"
 #include "PuzzleLoader.hpp"
+#include "Scene.hpp"
 
 class App {
 public:
@@ -16,7 +17,7 @@ public:
 private:
     PuzzleLoader loader;
     GlfwWindow window;
-    entt::registry scene;
+    Scene scene;
 
     void resetScene();
     void initScene(Renderer &renderer, entt::entity puzzle);
