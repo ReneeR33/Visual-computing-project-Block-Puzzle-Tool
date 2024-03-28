@@ -12,6 +12,15 @@
 
 #define uint unsigned int
 
+PuzzleLoader::PuzzleLoader()
+{
+}
+
+PuzzleLoader::~PuzzleLoader()
+{
+
+}
+
 
 glm::vec3 PuzzleLoader::LoadSize(std::string path)
 {
