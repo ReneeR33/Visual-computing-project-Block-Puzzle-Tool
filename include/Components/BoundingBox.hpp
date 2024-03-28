@@ -4,10 +4,9 @@
 #include "glm/glm.hpp"
 
 struct BoundingBox {
-    glm::vec3 center;
-    glm::vec3 right;
-    glm::vec3 top;
-    glm::vec3 front;
+    float right;
+    float top;
+    float front;
 };
 
 #endif //BOUNDING_BOX_HPP

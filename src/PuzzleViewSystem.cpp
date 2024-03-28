@@ -229,8 +229,8 @@ bool PuzzleViewSystem::mouseHoveringOverPieceView() {
 bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::vec3 rayDirection, BoundingBox boundingBox, float& intersectionLambda) {
     float lambdaX = std::numeric_limits<float>::infinity();
     if (rayDirection.x != 0) {
-        float lambdaX1 = ((boundingBox.center.x - boundingBox.right.x) - rayStart.x) / rayDirection.x;
-        float lambdaX2 = ((boundingBox.center.x + boundingBox.right.x) - rayStart.x) / rayDirection.x;
+        float lambdaX1 = ((-boundingBox.right) - rayStart.x) / rayDirection.x;
+        float lambdaX2 = ((boundingBox.right) - rayStart.x) / rayDirection.x;
         if (lambdaX1 >= 0 && lambdaX1 < lambdaX) {
             lambdaX = lambdaX1;
         }
@@ -239,8 +239,8 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
         }
         if (!std::isinf(lambdaX)) {
             auto intersect = rayStart + rayDirection * lambdaX;
-            if ((intersect.y > boundingBox.center.y - boundingBox.top.y && intersect.y < boundingBox.center.y + boundingBox.top.y) &&
-                (intersect.z > boundingBox.center.z - boundingBox.front.z && intersect.z < boundingBox.center.z + boundingBox.front.z)) 
+            if ((intersect.y > -boundingBox.top && intersect.y < boundingBox.top) &&
+                (intersect.z > -boundingBox.front && intersect.z < boundingBox.front)) 
             {
                 intersectionLambda = lambdaX;
                 return true;
@@ -250,8 +250,8 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
 
     float lambdaY = std::numeric_limits<float>::infinity();
     if (rayDirection.y != 0) {
-        float lambdaY1 = ((boundingBox.center.y + boundingBox.top.y) - rayStart.y) / rayDirection.y;
-        float lambdaY2 = ((boundingBox.center.y - boundingBox.top.y) - rayStart.y) / rayDirection.y;
+        float lambdaY1 = ((boundingBox.top) - rayStart.y) / rayDirection.y;
+        float lambdaY2 = ((-boundingBox.top) - rayStart.y) / rayDirection.y;
         if (lambdaY1 >= 0 && lambdaY1 < lambdaY) {
             lambdaY = lambdaY1;
         }
@@ -260,8 +260,8 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
         }
         if (!std::isinf(lambdaY)) {
             auto intersect = rayStart + rayDirection * lambdaY;
-            if ((intersect.z > boundingBox.center.z - boundingBox.front.z && intersect.z < boundingBox.center.z + boundingBox.front.z) &&
-                (intersect.x > boundingBox.center.x - boundingBox.right.x && intersect.x < boundingBox.center.x + boundingBox.right.x)) 
+            if ((intersect.z > -boundingBox.front && intersect.z < boundingBox.front) &&
+                (intersect.x > -boundingBox.right && intersect.x < boundingBox.right)) 
             {
                 intersectionLambda = lambdaY;
                 return true;
@@ -271,8 +271,8 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
 
     float lambdaZ = std::numeric_limits<float>::infinity();
     if (rayDirection.z != 0) {
-        float lambdaZ1 = ((boundingBox.center.z + boundingBox.front.z) - rayStart.z) / rayDirection.z;
-        float lambdaZ2 = ((boundingBox.center.z - boundingBox.front.z) - rayStart.z) / rayDirection.z;
+        float lambdaZ1 = ((boundingBox.front) - rayStart.z) / rayDirection.z;
+        float lambdaZ2 = ((-boundingBox.front) - rayStart.z) / rayDirection.z;
         if (lambdaZ1 >= 0 && lambdaZ1 < lambdaZ) {
             lambdaZ = lambdaZ1;
         }
@@ -281,8 +281,8 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
         }
         if (!std::isinf(lambdaZ)) {
             auto intersect = rayStart + rayDirection * lambdaZ;
-            if ((intersect.y > boundingBox.center.y - boundingBox.top.y && intersect.y < boundingBox.center.y + boundingBox.top.y) &&
-                (intersect.x > boundingBox.center.x - boundingBox.right.x && intersect.x < boundingBox.center.x + boundingBox.right.x)) 
+            if ((intersect.y > -boundingBox.top && intersect.y < boundingBox.top) &&
+                (intersect.x > -boundingBox.right && intersect.x < boundingBox.right)) 
             {
                 intersectionLambda = lambdaZ;
                 return true;

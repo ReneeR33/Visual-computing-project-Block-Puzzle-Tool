@@ -405,10 +405,9 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
         glm::vec3(1.0f)
     );
     scene.registry.emplace<BoundingBox>(block,
-        glm::vec3(0.0f),
-        glm::vec3(0.5f),
-        glm::vec3(0.5f),
-        glm::vec3(0.5f) 
+        0.5f,
+        0.5f,
+        0.5f
     );
 
     pieceChildren->children.push_front(block);
