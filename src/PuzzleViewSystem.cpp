@@ -42,9 +42,7 @@ void PuzzleViewSystem::update() {
 
 glm::vec3 getBezierPoint( std::vector<glm::vec3> points, float t ) 
 {
-    std::cout << "length points: " << points.size() << std::endl;
     std::vector<glm::vec3> tmp(points);
-    // int i = points.size() - 1;
     
     for(int i = points.size() - 1; i > 0; i--)
     {
@@ -78,7 +76,7 @@ void PuzzleViewSystem::updateSolution() {
         }
         else if(current_step < 0.0)
         {
-            transform.position =  getBezierPoint(solution.Solution, 0.f);
+            transform.position = getBezierPoint(solution.Solution, 0.f);
         }
         else
         {

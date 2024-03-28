@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include "GlfwWindow.hpp"
 #include "Components/Solution.hpp"
+#include "Systems/Renderer.hpp"
 #include "ModelLoader.hpp"
 
 class App {
@@ -17,7 +18,8 @@ private:
     GlfwWindow window;
     entt::registry scene;
 
-    void initExplodedViewTestScene();
+    void resetScene();
+    void initScene(Renderer &renderer, entt::entity puzzle);
 
     entt::entity addTestPuzzle();
     entt::entity addPieceView(entt::entity canvas, entt::entity puzzle);

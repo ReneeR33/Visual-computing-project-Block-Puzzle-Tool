@@ -51,7 +51,7 @@ void App::run() {
     PuzzleViewSystem puzzleViewSystem(scene);
     PieceViewSystem pieceViewSystem(scene);
 
-    initExplodedViewTestScene();
+    resetScene();
 
     renderer.load(scene);
     loader = ModelLoader();
@@ -69,24 +69,30 @@ void App::run() {
 
         if(act == DebugWindow::Action::load)
         {
+            #ifndef LOAD_TEST_PUZZLE
 	        char const * filter[2] = { "*.txt", "*.text" };
             char const * filename = tinyfd_openFileDialog(
                 "Solution file", "./resources/solutions", 2, filter, "text files", 1);
 
             if (filename)
             {
-                initExplodedViewTestScene();
+                resetScene();
                 std::string path(filename);
-                addPuzzleFromModel(path);
-                renderer.load(scene);
+                entt::entity puzzle = addPuzzleFromModel(path);
+                initScene(renderer, puzzle);
             }
+            #else
+                resetScene();
+                entt::entity puzzle = addTestPuzzle();
+                initScene(renderer, puzzle);
+            #endif
         }
 
         window.update();
     }
 }
 
-void App::initExplodedViewTestScene() {
+void App::resetScene() {
     scene.clear();
     auto background = scene.create();
     scene.emplace<Background>(background, glm::vec3(0.15f, 0.15f, 0.17f));
@@ -106,22 +112,16 @@ void App::initExplodedViewTestScene() {
                           glm::vec3(0.0f, 1.0f, 0.0f),
                           0.1f, 100.0f, 70.0f
     );
+}
 
-    entt::entity puzzle;
-
-    #ifndef LOAD_TEST_PUZZLE
-    puzzle = addPuzzleFromModel();
-    #else
-    puzzle = addTestPuzzle();
-    #endif
-
-    // UI
+void App::initScene(Renderer &renderer, entt::entity puzzle){
     auto uiCanvas = scene.create();
     scene.emplace<UICanvas>(uiCanvas);
     scene.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
     scene.emplace<Children>(uiCanvas);
 
     addPieceView(uiCanvas, puzzle);
+    renderer.load(scene);
 }
 
 entt::entity App::addTestPuzzle() {
