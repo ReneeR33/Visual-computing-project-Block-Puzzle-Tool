@@ -41,6 +41,10 @@ Renderer::Renderer()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
+    // for transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     //TODO: clearing mesh?
     load(fillMesh);
 
@@ -48,9 +52,7 @@ Renderer::Renderer()
     glGenFramebuffers(1, &depthMapFrameBuffer);
 
     glGenTextures(1, &depthMapTexture);
-
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
-
     glTexImage2D(
         GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
         SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 
@@ -237,6 +239,7 @@ void Renderer::renderWorldObject(
     shader.setVec3("ambient", material.ambientColor);
     shader.setVec3("specular", material.specularColor);
     shader.setFloat("specularPow", material.specularPow);
+    shader.setFloat("transparency", material.transparency);
 
     shader.setVec3("viewPos", camera.position);
 

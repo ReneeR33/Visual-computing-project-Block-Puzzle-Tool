@@ -8,6 +8,8 @@ struct Material {
     glm::vec3 ambientColor;
     glm::vec3 specularColor;
     float specularPow;
+
+    float transparency;
 };
 
 #endif //MATERIAL_HPP

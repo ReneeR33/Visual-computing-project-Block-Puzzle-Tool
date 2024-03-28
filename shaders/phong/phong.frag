@@ -18,6 +18,7 @@ uniform vec3 color;
 uniform vec3 ambient;
 uniform vec3 specular;
 uniform float specularPow;
+uniform float transparency;
 
 struct DirLight {
     vec3 direction;
@@ -52,7 +53,7 @@ void main()
     vec3 ambientColor = dirLight.ambient * ambient;
     result += ambientColor;
 
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(result, transparency);
 }
 
 vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)
