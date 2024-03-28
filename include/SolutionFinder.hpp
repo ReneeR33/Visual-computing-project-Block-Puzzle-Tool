@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#include "ModelLoader.hpp"
+#include "PuzzleLoader.hpp"
 #include "Components/Solution.hpp"
 
 
@@ -15,10 +15,10 @@ public:
     SolutionFinder(glm::vec3 size);
    ~SolutionFinder();
 
-    std::vector<Solution> GetSolution(ModelLoader::LoaderPuzzleResult pieces);
+    std::vector<Solution> GetSolution(PuzzleLoader::LoaderPuzzleResult pieces);
 private:
     Solution AStar(std::vector<std::vector<std::vector<bool>>> map, glm::vec3 start, glm::vec3 goal);
-    std::vector<std::vector<std::vector<bool>>> CreateMap(ModelLoader::LoaderPuzzleResult pieces, ModelLoader::LoaderPieceResult piece);
+    std::vector<std::vector<std::vector<bool>>> CreateMap(PuzzleLoader::LoaderPuzzleResult pieces, PuzzleLoader::LoaderPieceResult piece);
 
     struct cell 
     {

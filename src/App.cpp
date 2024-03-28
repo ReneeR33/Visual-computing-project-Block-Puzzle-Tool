@@ -28,7 +28,7 @@
 #include "tinyfiledialogs.h"
 #include "tinyfiledialogs.c"
 #include "SolutionFinder.hpp"
-#include "ModelLoader.hpp"
+#include "PuzzleLoader.hpp"
 #include "UI.hpp"
 #include "entity.hpp"
 
@@ -54,7 +54,7 @@ void App::run() {
     resetScene();
 
     renderer.load(scene);
-    loader = ModelLoader();
+    loader = PuzzleLoader();
     DebugWindow debugWindow(window);
 
     while (!window.windowShouldClose()) {

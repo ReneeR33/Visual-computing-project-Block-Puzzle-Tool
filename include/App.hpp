@@ -6,7 +6,7 @@
 #include "GlfwWindow.hpp"
 #include "Components/Solution.hpp"
 #include "Systems/Renderer.hpp"
-#include "ModelLoader.hpp"
+#include "PuzzleLoader.hpp"
 
 class App {
 public:
@@ -14,7 +14,7 @@ public:
 
     void run();
 private:
-    ModelLoader loader;
+    PuzzleLoader loader;
     GlfwWindow window;
     entt::registry scene;
 

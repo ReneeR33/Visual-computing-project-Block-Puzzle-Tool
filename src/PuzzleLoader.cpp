@@ -5,24 +5,24 @@
 #include <typeinfo>
 #include <string>
 
-#include "ModelLoader.hpp"
+#include "PuzzleLoader.hpp"
 #include "Components/Material.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Shader.hpp"
 
 #define uint unsigned int
 
-ModelLoader::ModelLoader()
+PuzzleLoader::PuzzleLoader()
 {
 }
 
-ModelLoader::~ModelLoader()
+PuzzleLoader::~PuzzleLoader()
 {
 
 }
 
 
-glm::vec3 ModelLoader::LoadSize(std::string path)
+glm::vec3 PuzzleLoader::LoadSize(std::string path)
 {
     std::string line;
     std::ifstream myfile (path);
@@ -77,7 +77,7 @@ glm::vec3 ModelLoader::LoadSize(std::string path)
 }
 
 
-ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
+PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
 {
     std::vector<LoaderPieceResult> file_result;
     LoaderPuzzleResult result;
@@ -125,7 +125,7 @@ ModelLoader::LoaderPuzzleResult ModelLoader::LoadSolution(std::string path)
 }
 
 
-ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line, glm::vec3 size)
+PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadPiece(std::string line, glm::vec3 size)
 {
     LoaderPieceResult piece;
     std::stringstream ss(line);
@@ -176,7 +176,7 @@ ModelLoader::LoaderPieceResult ModelLoader::LoadPiece(std::string line, glm::vec
     return piece;
 }
 
-ModelLoader::LoaderPieceResult ModelLoader::LoadModel(std::string path)
+PuzzleLoader::LoaderPieceResult PuzzleLoader::LoadModel(std::string path)
 {
     std::ifstream check(path);
     LoaderPieceResult result;

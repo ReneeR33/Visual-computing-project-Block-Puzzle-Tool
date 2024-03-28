@@ -1,12 +1,12 @@
-#ifndef MODELLOADER_HPP
-#define MODELLOADER_HPP
+#ifndef PUZZLELOADER_HPP
+#define PUZZLELOADER_HPP
 
 #include <entt/entt.hpp>
 #include "Components/Model.hpp"
 #include "Components/Material.hpp"
 #include "Components/PuzzlePiece.hpp"
 
-class ModelLoader {
+class PuzzleLoader {
 public:
     struct LoaderPieceResult {
         std::vector<glm::vec3> blocks;
@@ -18,8 +18,8 @@ public:
         std::vector<LoaderPieceResult> pieces;
     };
 
-    ModelLoader();
-   ~ModelLoader();
+    PuzzleLoader();
+   ~PuzzleLoader();
 
     LoaderPuzzleResult LoadSolution(std::string path);
     glm::vec3 LoadSize(std::string path);
@@ -32,4 +32,4 @@ private:
     std::vector<Material> colors;
 };
 
-#endif //MODELLOADER_HPP
+#endif //PUZZLELOADER_HPP

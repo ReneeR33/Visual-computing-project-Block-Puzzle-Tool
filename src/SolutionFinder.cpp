@@ -39,7 +39,7 @@ SolutionFinder::~SolutionFinder()
 
 }
 
-std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResult pieces)
+std::vector<Solution> SolutionFinder::GetSolution(PuzzleLoader::LoaderPuzzleResult pieces)
 {
     std::vector<Solution> result;
     std::vector<glm::vec3> goalLocs;
@@ -59,7 +59,7 @@ std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResul
 
             auto piece = pieces.pieces[i];
 
-            ModelLoader::LoaderPuzzleResult otherPieces;
+            PuzzleLoader::LoaderPuzzleResult otherPieces;
             for(uint32_t i = 0; i < pieces.pieces.size(); i++)
             {
                 if(!isSolved[i]) otherPieces.pieces.push_back(pieces.pieces[i]);
@@ -84,8 +84,8 @@ std::vector<Solution> SolutionFinder::GetSolution(ModelLoader::LoaderPuzzleResul
 }
 
 std::vector<std::vector<std::vector<bool>>> SolutionFinder::CreateMap(
-                                ModelLoader::LoaderPuzzleResult pieces, 
-                                ModelLoader::LoaderPieceResult piece)
+                                PuzzleLoader::LoaderPuzzleResult pieces, 
+                                PuzzleLoader::LoaderPieceResult piece)
 {
     std::vector<std::vector<std::vector<bool>>> map;
     std::vector<glm::vec3> shape = piece.blocks;
