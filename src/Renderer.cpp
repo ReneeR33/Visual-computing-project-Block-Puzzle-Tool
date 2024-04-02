@@ -516,15 +516,16 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
 
     auto entitiesView = scene.view<Model, Material, Transform>();
     for (auto [entity, model, material, transform] : entitiesView.each()) {
+        if (material.transparency == 1.0) {
+            auto modelMatrix = getModelMatrix(scene, entity);
 
-        auto modelMatrix = getModelMatrix(scene, entity);
+            shadowMapShader.use();
+            shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+            shadowMapShader.setMat4("model", modelMatrix);
 
-        shadowMapShader.use();
-        shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        shadowMapShader.setMat4("model", modelMatrix);
-
-        for (auto& mesh : model.modelData->meshes) {
-            draw(mesh);
+            for (auto& mesh : model.modelData->meshes) {
+                draw(mesh);
+            }
         }
     }
 
