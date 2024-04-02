@@ -310,12 +310,28 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 
     // -------------------------------------------------------------------------------
     
+    renderWorldOpaqueObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+}
+
+void Renderer::renderWorldOpaqueObjects(
+    entt::registry& scene,
+    Camera camera, DirLight dirlight, 
+    glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
+) {
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto [entity, model, material, shader, transform] : entitiesView.each()) {
         if (material.transparency == 1.0f) {
-            renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+            renderWorldObject(scene, entity, camera, dirlight, view, projection, lightSpace, eTransform);
         }
     }
+}
+
+void Renderer::renderWorldTransparentObjects(
+    entt::registry& scene,
+    Camera camera, DirLight dirlight, 
+    glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
+) {
+
 }
 
 void Renderer::renderBackBufferToScreen() {
