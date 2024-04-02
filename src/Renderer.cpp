@@ -5,6 +5,8 @@
 #include <algorithm>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include <vector>
+#include <utility>
 
 #include "Components/Parent.hpp"
 #include "Components/Fill2D.hpp"
@@ -211,9 +213,29 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
 
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
+    std::vector<std::pair<entt::entity, float>> renderableEntities;
+
+
+    // Sorting objects for transparency ---------------------------------------------
+
     for (auto& entity : entitiesView) {
+        glm::vec4 entityWorldPos = getModelMatrix(scene, entity)[3];
+        auto entityViewPos = view * entityWorldPos;
+        renderableEntities.push_back(std::pair<entt::entity, float>(entity, entityViewPos.z));
+    }
+    std::sort(renderableEntities.begin(), renderableEntities.end(), [](const std::pair<entt::entity, float>& e1, const std::pair<entt::entity, float>& e2) {
+        return e1.second < e2.second;
+    });
+
+    for (auto [entity, viewposz] : renderableEntities) {
         renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
     }
+
+    // -------------------------------------------------------------------------------
+
+    /*for (auto& entity : entitiesView) {
+        renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+    }*/
 }
 
 void Renderer::renderWorldObject(
