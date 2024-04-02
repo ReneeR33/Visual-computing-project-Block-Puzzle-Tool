@@ -1,13 +1,14 @@
 #version 420 core
 
-layout (location = 0) in vec3 iPos;
-layout (location = 1) in vec3 iNormal;
-layout (location = 2) in vec2 iTexcoords;
-layout (location = 3) in vec3 iTangent;
-layout (location = 4) in vec3 iBitTangent;
+out vec4 FragColor;
+
+in vec2 Texcoords;
+
+layout (binding = 0) uniform sampler2D screen;
 
 void main()
 {
-    vec4 iPosH = vec4(iPos, 1.0);
-    gl_Position = iPosH;
+    vec4 color = texture(screen, Texcoords);
+
+    FragColor = vec4(color.xyz, 1.0);
 }

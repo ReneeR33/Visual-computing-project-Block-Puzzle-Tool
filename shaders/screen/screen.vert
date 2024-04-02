@@ -1,13 +1,17 @@
 #version 420 core
 
-out vec4 FragColor;
+layout (location = 0) in vec3 iPos;
+layout (location = 1) in vec3 iNormal;
+layout (location = 2) in vec2 iTexcoords;
+layout (location = 3) in vec3 iTangent;
+layout (location = 4) in vec3 iBitTangent;
 
-layout (binding = 0) uniform sampler2D screen;
+out vec2 Texcoords;
 
 void main()
 {
-    ivec2 coords = ivec2(gl_FragCoord.xy);
-    vec4 color = texelFetch(screen, coords, 0);
+    Texcoords = iTexcoords;
 
-    FragColor = vec4(color.rgb, 1.0);
+    vec4 iPosH = vec4(iPos, 1.0);
+    gl_Position = iPosH;
 }

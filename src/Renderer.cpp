@@ -56,7 +56,8 @@ Mesh Renderer::screenMesh = {
 
 Renderer::Renderer()
     : fillShader("shaders/fill/fill.vert", "shaders/fill/fill.frag")
-    , shadowMapShader("shaders/shadowmap/shadowmap.vert", "shaders/shadowmap/shadowmap.frag") {
+    , shadowMapShader("shaders/shadowmap/shadowmap.vert", "shaders/shadowmap/shadowmap.frag")
+    , screenShader("shaders/screen/screen.vert", "shaders/screen/screen.frag") {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
@@ -66,6 +67,7 @@ Renderer::Renderer()
 
     //TODO: clearing mesh?
     load(fillMesh);
+    load(screenMesh);
 
     // For depth mapping
     glGenFramebuffers(1, &depthMapFrameBuffer);
@@ -87,6 +89,8 @@ Renderer::Renderer()
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    prepareRenderFramebuffers();
 }
 
 void Renderer::load(Scene &scene) {
@@ -191,7 +195,7 @@ void Renderer::prepareRenderFramebuffers() {
 
     glGenTextures(1, &opaqueTexture);
     glBindTexture(GL_TEXTURE_2D, opaqueTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -221,8 +225,15 @@ void Renderer::render(entt::registry &scene) {
     auto width = static_cast<float>(m_viewport[2]);
     auto height = static_cast<float>(m_viewport[3]);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     renderWorld(scene, width, height, glm::mat4(1.0f));
     renderUI(scene, width, height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    renderBackBufferToScreen();
 }
 
 void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform) {
@@ -252,12 +263,10 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
 
-    auto entitiesView = scene.view<Model, Material, Shader, Transform>();
-    std::vector<std::pair<entt::entity, float>> renderableEntities;
-
-
     // Sorting objects for transparency ---------------------------------------------
 
+    /*
+    // std::vector<std::pair<entt::entity, float>> renderableEntities;
     for (auto& entity : entitiesView) {
         glm::vec4 entityWorldPos = getModelMatrix(scene, entity)[3];
         auto entityViewPos = view * entityWorldPos;
@@ -269,13 +278,23 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 
     for (auto [entity, viewposz] : renderableEntities) {
         renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
-    }
+    }*/
 
     // -------------------------------------------------------------------------------
-
-    /*for (auto& entity : entitiesView) {
+    
+    auto entitiesView = scene.view<Model, Material, Shader, Transform>();
+    for (auto& entity : entitiesView) {
         renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
-    }*/
+    }
+}
+
+void Renderer::renderBackBufferToScreen() {
+    screenShader.use();
+    
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, opaqueFrameBuffer);
+
+    draw(screenMesh);
 }
 
 void Renderer::renderWorldObject(
@@ -378,6 +397,9 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+
     glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFrameBuffer);
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -396,7 +418,7 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
         }
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
     glViewport(0, 0, m_viewport[2], m_viewport[3]);
 }
 

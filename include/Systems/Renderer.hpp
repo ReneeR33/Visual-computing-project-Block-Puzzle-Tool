@@ -25,6 +25,7 @@ public:
 private:
     Shader fillShader;
     Shader shadowMapShader;
+    Shader screenShader;
     static Mesh fillMesh;
     static Mesh screenMesh;
 
@@ -44,6 +45,7 @@ private:
     void prepareRenderFramebuffers();
 
     void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform);
+    void renderBackBufferToScreen();
     void renderWorldObject(
         entt::registry& scene, const entt::entity& object, 
         Camera camera, DirLight dirlight, 
