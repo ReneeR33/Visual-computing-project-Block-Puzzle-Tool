@@ -26,6 +26,10 @@ private:
     Shader fillShader;
     Shader shadowMapShader;
     Shader screenShader;
+    // TODO: move this somewhere else
+    Shader phongTransparent;
+    // ----
+
     static Mesh fillMesh;
     static Mesh screenMesh;
 
@@ -38,6 +42,11 @@ private:
     unsigned int opaqueTexture;
     // TODO: this does not need to be a texture
     unsigned int opaqueDepthTexture;
+    // ---
+
+    unsigned int transparentFrameBuffer;
+    unsigned int transparentAccumTexture;
+    unsigned int transparentRevealTexture;
 
     void load(Mesh& mesh);
     void load(TextureData& textureData);

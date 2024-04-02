@@ -57,7 +57,8 @@ Mesh Renderer::screenMesh = {
 Renderer::Renderer()
     : fillShader("shaders/fill/fill.vert", "shaders/fill/fill.frag")
     , shadowMapShader("shaders/shadowmap/shadowmap.vert", "shaders/shadowmap/shadowmap.frag")
-    , screenShader("shaders/screen/screen.vert", "shaders/screen/screen.frag") {
+    , screenShader("shaders/screen/screen.vert", "shaders/screen/screen.frag")
+    , phongTransparent("shaders/phongtransparent/phongtransparent.vert", "shaders/phongtransparent/phongtransparent.frag") {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
@@ -210,6 +211,33 @@ void Renderer::prepareRenderFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, opaqueTexture, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, opaqueDepthTexture, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glGenFramebuffers(1, &transparentFrameBuffer);
+
+    glGenTextures(1, &transparentAccumTexture);
+    glBindTexture(GL_TEXTURE_2D, transparentAccumTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &transparentRevealTexture);
+    glBindTexture(GL_TEXTURE_2D, transparentRevealTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RED, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // TODO: check if framebuffer is complete?
+	glBindFramebuffer(GL_FRAMEBUFFER, transparentFrameBuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, transparentAccumTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, transparentRevealTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, opaqueDepthTexture, 0);
+
+    const GLenum transparentDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, transparentDrawBuffers);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
