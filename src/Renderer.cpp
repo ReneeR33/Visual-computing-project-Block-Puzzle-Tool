@@ -291,25 +291,6 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
-
-    // Sorting objects for transparency ---------------------------------------------
-
-    /*
-    // std::vector<std::pair<entt::entity, float>> renderableEntities;
-    for (auto& entity : entitiesView) {
-        glm::vec4 entityWorldPos = getModelMatrix(scene, entity)[3];
-        auto entityViewPos = view * entityWorldPos;
-        renderableEntities.push_back(std::pair<entt::entity, float>(entity, entityViewPos.z));
-    }
-    std::sort(renderableEntities.begin(), renderableEntities.end(), [](const std::pair<entt::entity, float>& e1, const std::pair<entt::entity, float>& e2) {
-        return e1.second < e2.second;
-    });
-
-    for (auto [entity, viewposz] : renderableEntities) {
-        renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
-    }*/
-
-    // -------------------------------------------------------------------------------
     
     renderWorldOpaqueObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
     renderWorldTransparentObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
