@@ -5,6 +5,8 @@
 #include <algorithm>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include <vector>
+#include <utility>
 
 #include "Components/Parent.hpp"
 #include "Components/Fill2D.hpp"
@@ -14,6 +16,10 @@
 #include "Components/CanvasElement.hpp"
 #include "Components/UIScene.hpp"
 #include "entity.hpp"
+
+// TODO: move this somewhere else
+#define WINDOW_WIDTH 1800
+#define WINDOW_HEIGHT 950
 
 #define SHADOW_MAP_HEIGHT 2024
 #define SHADOW_MAP_WIDTH 2024
@@ -35,22 +41,41 @@ Mesh Renderer::fillMesh = {
     }
 };
 
+Mesh Renderer::screenMesh = {
+    .vertices = {
+            { .position = glm::vec3(-1.0f, -1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(0.0, 0.0) },
+            { .position = glm::vec3(-1.0f, 1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(0.0, 1.0) },
+            { .position = glm::vec3(1.0f, -1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(1.0, 0.0) },
+            { .position = glm::vec3(1.0f, 1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(1.0, 1.0) },
+            },
+    .indices = {
+            0, 1, 2,
+            3, 1, 2
+    }
+};
+
 Renderer::Renderer()
     : fillShader("shaders/fill/fill.vert", "shaders/fill/fill.frag")
-    , shadowMapShader("shaders/shadowmap/shadowmap.vert", "shaders/shadowmap/shadowmap.frag") {
+    , shadowMapShader("shaders/shadowmap/shadowmap.vert", "shaders/shadowmap/shadowmap.frag")
+    , screenShader("shaders/screen/screen.vert", "shaders/screen/screen.frag")
+    , compositeShader("shaders/composite/composite.vert", "shaders/composite/composite.frag")
+    , phongTransparent("shaders/phongtransparent/phongtransparent.vert", "shaders/phongtransparent/phongtransparent.frag") {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
+    // for transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     //TODO: clearing mesh?
     load(fillMesh);
+    load(screenMesh);
 
     // For depth mapping
     glGenFramebuffers(1, &depthMapFrameBuffer);
 
     glGenTextures(1, &depthMapTexture);
-
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
-
     glTexImage2D(
         GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
         SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 
@@ -66,6 +91,8 @@ Renderer::Renderer()
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    prepareRenderFramebuffers();
 }
 
 void Renderer::load(Scene &scene) {
@@ -165,11 +192,57 @@ void Renderer::load(TextureData& textureData) {
     stbi_image_free(data);
 }
 
+void Renderer::prepareRenderFramebuffers() {
+    glGenFramebuffers(1, &opaqueFrameBuffer);
+
+    glGenTextures(1, &opaqueTexture);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, opaqueTexture);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+    
+    glGenRenderbuffers(1, &opaqueDepthBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, opaqueDepthBuffer);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, opaqueTexture, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, opaqueDepthBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glGenFramebuffers(1, &transparentFrameBuffer);
+
+    glGenTextures(1, &transparentAccumTexture);
+    glBindTexture(GL_TEXTURE_2D, transparentAccumTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &transparentRevealTexture);
+    glBindTexture(GL_TEXTURE_2D, transparentRevealTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RED, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenRenderbuffers(1, &transparentDepthBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, transparentDepthBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, transparentFrameBuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, transparentAccumTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, transparentRevealTexture, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, transparentDepthBuffer);
+
+    const GLenum transparentDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, transparentDrawBuffers);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Renderer::render(entt::registry &scene) {
     auto& background = scene.get<Background>(scene.view<Background>().front());
     auto backgroundColor = background.color;
-    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
@@ -177,8 +250,17 @@ void Renderer::render(entt::registry &scene) {
     auto width = static_cast<float>(m_viewport[2]);
     auto height = static_cast<float>(m_viewport[3]);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     renderWorld(scene, width, height, glm::mat4(1.0f));
     renderUI(scene, width, height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    renderBackBufferToScreen();
 }
 
 void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform) {
@@ -207,19 +289,122 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+    
+    renderWorldOpaqueObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+    renderWorldTransparentObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+    renderComposite();
+}
 
+void Renderer::renderWorldOpaqueObjects(
+    entt::registry& scene,
+    Camera camera, DirLight dirlight, 
+    glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
+) {
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
-    for (auto& entity : entitiesView) {
-        renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+    for (auto [entity, model, material, shader, transform] : entitiesView.each()) {
+        if (material.transparency == 1.0f) {
+            renderWorldObject(scene, entity, shader, camera, dirlight, view, projection, lightSpace, eTransform);
+        }
     }
 }
 
+void Renderer::renderWorldTransparentObjects(
+    entt::registry& scene,
+    Camera camera, DirLight dirlight, 
+    glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
+) {
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, opaqueFrameBuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, transparentFrameBuffer);
+    glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, transparentFrameBuffer);
+
+    glDepthMask(GL_FALSE);
+    glEnable(GL_BLEND);
+    glBlendFunci(0, GL_ONE, GL_ONE); // accumulation blend target
+    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR); // revealge blend target
+    glBlendEquation(GL_FUNC_ADD);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+
+    // use a four component float array or a glm::vec4(0.0)
+    glm::vec4 accumClearColor = glm::vec4(0.0f);
+    glClearBufferfv(GL_COLOR, 0, &accumClearColor[0]); 
+    // use a four component float array or a glm::vec4(1.0)
+    glm::vec4 revealClearColor = glm::vec4(1.0f);
+    glClearBufferfv(GL_COLOR, 1, &revealClearColor[0]);
+
+    auto entitiesView = scene.view<Model, Material, Shader, Transform>();
+    for (auto [entity, model, material, shader, transform] : entitiesView.each()) {
+        if (material.transparency != 1.0f) {
+            renderWorldObject(scene, entity, phongTransparent, camera, dirlight, view, projection, lightSpace, eTransform);
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+}
+
+void Renderer::renderComposite() {
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
+
+    glDepthFunc(GL_ALWAYS);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, transparentAccumTexture);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, transparentRevealTexture);
+
+    compositeShader.use();
+
+    draw(screenMesh);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+}
+
+void Renderer::renderBackBufferToScreen() {
+    /*screenShader.use();
+    
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, opaqueTexture);
+
+    draw(screenMesh);*/
+
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, opaqueFrameBuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+}
+
 void Renderer::renderWorldObject(
-        entt::registry& scene, const entt::entity &object, 
+        entt::registry& scene, const entt::entity &object, Shader& shader,
         Camera camera, DirLight dirlight, 
         glm::mat4 &view, glm::mat4 &projection, glm::mat4 &lightSpace, glm::mat4& eTransform
     ) {
-    auto& shader = scene.get<Shader>(object);
+    // auto& shader = scene.get<Shader>(object);
     auto& material = scene.get<Material>(object);
     auto& model = scene.get<Model>(object);
 
@@ -237,6 +422,7 @@ void Renderer::renderWorldObject(
     shader.setVec3("ambient", material.ambientColor);
     shader.setVec3("specular", material.specularColor);
     shader.setFloat("specularPow", material.specularPow);
+    shader.setFloat("transparency", material.transparency);
 
     shader.setVec3("viewPos", camera.position);
 
@@ -313,25 +499,29 @@ void Renderer::renderDepthMap(entt::registry& scene, glm::mat4& lightSpaceMatrix
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+
     glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFrameBuffer);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     auto entitiesView = scene.view<Model, Material, Transform>();
     for (auto [entity, model, material, transform] : entitiesView.each()) {
+        if (material.transparency == 1.0) {
+            auto modelMatrix = getModelMatrix(scene, entity);
 
-        auto modelMatrix = getModelMatrix(scene, entity);
+            shadowMapShader.use();
+            shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+            shadowMapShader.setMat4("model", modelMatrix);
 
-        shadowMapShader.use();
-        shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        shadowMapShader.setMat4("model", modelMatrix);
-
-        for (auto& mesh : model.modelData->meshes) {
-            draw(mesh);
+            for (auto& mesh : model.modelData->meshes) {
+                draw(mesh);
+            }
         }
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
     glViewport(0, 0, m_viewport[2], m_viewport[3]);
 }
 

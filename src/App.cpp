@@ -309,7 +309,9 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
             auto& transform = scene.registry.get<Transform>(block);
             auto& material = scene.registry.get<Material>(block);
 
-            uiScene.scene.emplace<Material>(uiScenePieceBlock, material);
+            auto& uiSceneMaterial = uiScene.scene.emplace<Material>(uiScenePieceBlock, material);
+            uiSceneMaterial.transparency = 1.0f;
+
             uiScene.scene.emplace<Transform>(uiScenePieceBlock, transform);
         }
 
@@ -372,6 +374,7 @@ entt::entity App::addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 co
     pieceComponent.selected = false;
     pieceComponent.defaultColor = color;
     pieceComponent.selectionColor = color + glm::vec3(0.3f);
+    pieceComponent.otherPieceSelectedTransparency = 0.1f;
 
     scene.registry.emplace<Solution>(piece, solution);
 
@@ -397,12 +400,13 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
         pieceComponent->defaultColor,
         pieceComponent->defaultColor * 0.15f + glm::vec3(0.1f, 0.1f, 0.12f),
         glm::vec3(0.12f),
-        4.0f
+        4.0f,
+        1.0f
     );
     scene.registry.emplace<Transform>(block,
         glm::vec3(position),
         glm::vec3(0.0f),
-        glm::vec3(1.0f)
+        glm::vec3(0.9999f)
     );
     scene.registry.emplace<BoundingBox>(block,
         0.5f,

@@ -1,6 +1,7 @@
 #version 420 core
 
-out vec4 FragColor;
+layout (location = 0) out vec4 Accum;
+layout (location = 1) out float Reveal;
 
 in vec3 FragPos;
 in vec4 LightSpaceFragPos;
@@ -53,7 +54,13 @@ void main()
     vec3 ambientColor = dirLight.ambient * ambient;
     result += ambientColor;
 
-    FragColor = vec4(result, transparency);
+    vec4 color = vec4(result, transparency);
+
+    float weight = clamp(pow(min(1.0, color.a * 10.0) + 0.01, 3.0) * 1e8 * 
+                         pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
+
+    Accum = vec4(color.rgb * color.a, color.a) * weight;
+    Reveal = color.a;
 }
 
 vec3 CalculateDirLight(vec3 normal, vec3 viewDir, vec3 diffuseColor)

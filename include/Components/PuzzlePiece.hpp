@@ -12,6 +12,7 @@ struct PuzzlePiece {
     bool selected;
     glm::vec3 defaultColor;
     glm::vec3 selectionColor;
+    float otherPieceSelectedTransparency;
 };
 
 #endif //PUZZLE_PIECE_HPP

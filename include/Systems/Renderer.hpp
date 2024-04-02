@@ -25,18 +25,48 @@ public:
 private:
     Shader fillShader;
     Shader shadowMapShader;
+    Shader screenShader;
+    Shader compositeShader;
+    // TODO: move this somewhere else
+    Shader phongTransparent;
+    // ----
+
     static Mesh fillMesh;
+    static Mesh screenMesh;
 
     // shadow mapping
     unsigned int depthMapFrameBuffer;
     unsigned int depthMapTexture;
 
+    // OIP transparency
+    unsigned int opaqueFrameBuffer;
+    unsigned int opaqueTexture;
+    unsigned int opaqueDepthBuffer;
+    // ---
+
+    unsigned int transparentFrameBuffer;
+    unsigned int transparentAccumTexture;
+    unsigned int transparentRevealTexture;
+    unsigned int transparentDepthBuffer;
+
     void load(Mesh& mesh);
     void load(TextureData& textureData);
 
+    void prepareRenderFramebuffers();
+
     void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform);
+    void renderWorldOpaqueObjects(
+        entt::registry& scene,
+        Camera camera, DirLight dirlight, 
+        glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform);
+    void renderWorldTransparentObjects(
+        entt::registry& scene,
+        Camera camera, DirLight dirlight, 
+        glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform);
+    void renderComposite();
+    void renderBackBufferToScreen();
     void renderWorldObject(
-        entt::registry& scene, const entt::entity& object, 
+        entt::registry& scene, const entt::entity& object, Shader& shader,
         Camera camera, DirLight dirlight, 
         glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
     );
