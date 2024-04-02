@@ -196,22 +196,17 @@ void Renderer::prepareRenderFramebuffers() {
     glGenFramebuffers(1, &opaqueFrameBuffer);
 
     glGenTextures(1, &opaqueTexture);
-    glBindTexture(GL_TEXTURE_2D, opaqueTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // TODO: does this need to be a texture?
-    glGenTextures(1, &opaqueDepthTexture);
-    glBindTexture(GL_TEXTURE_2D, opaqueDepthTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WINDOW_WIDTH, WINDOW_HEIGHT,
-                0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, opaqueTexture);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+    
+    glGenRenderbuffers(1, &opaqueDepthBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, opaqueDepthBuffer);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, opaqueTexture, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, opaqueDepthTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, opaqueTexture, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, opaqueDepthBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glGenFramebuffers(1, &transparentFrameBuffer);
@@ -230,11 +225,14 @@ void Renderer::prepareRenderFramebuffers() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // TODO: check if framebuffer is complete?
+    glGenRenderbuffers(1, &transparentDepthBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, transparentDepthBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, transparentFrameBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, transparentAccumTexture, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, transparentRevealTexture, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, opaqueDepthTexture, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, transparentDepthBuffer);
 
     const GLenum transparentDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, transparentDrawBuffers);
@@ -318,6 +316,10 @@ void Renderer::renderWorldTransparentObjects(
     GLint drawFboId = 0;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
 
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, opaqueFrameBuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, transparentFrameBuffer);
+    glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
     glBindFramebuffer(GL_FRAMEBUFFER, transparentFrameBuffer);
 
     glDepthMask(GL_FALSE);
@@ -380,12 +382,21 @@ void Renderer::renderComposite() {
 }
 
 void Renderer::renderBackBufferToScreen() {
-    screenShader.use();
+    /*screenShader.use();
     
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, opaqueTexture);
 
-    draw(screenMesh);
+    draw(screenMesh);*/
+
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, opaqueFrameBuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
 }
 
 void Renderer::renderWorldObject(

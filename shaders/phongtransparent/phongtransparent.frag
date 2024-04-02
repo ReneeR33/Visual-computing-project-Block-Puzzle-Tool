@@ -54,14 +54,12 @@ void main()
     vec3 ambientColor = dirLight.ambient * ambient;
     result += ambientColor;
 
-
     vec4 color = vec4(result, transparency);
-    // weight function
+
     float weight = clamp(pow(min(1.0, color.a * 10.0) + 0.01, 3.0) * 1e8 * 
                          pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
-    // store pixel color accumulation
+
     Accum = vec4(color.rgb * color.a, color.a) * weight;
-    // store pixel revealage threshold
     Reveal = color.a;
 }
 

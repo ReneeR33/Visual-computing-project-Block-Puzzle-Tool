@@ -41,13 +41,13 @@ private:
     // OIP transparency
     unsigned int opaqueFrameBuffer;
     unsigned int opaqueTexture;
-    // TODO: this does not need to be a texture
-    unsigned int opaqueDepthTexture;
+    unsigned int opaqueDepthBuffer;
     // ---
 
     unsigned int transparentFrameBuffer;
     unsigned int transparentAccumTexture;
     unsigned int transparentRevealTexture;
+    unsigned int transparentDepthBuffer;
 
     void load(Mesh& mesh);
     void load(TextureData& textureData);
