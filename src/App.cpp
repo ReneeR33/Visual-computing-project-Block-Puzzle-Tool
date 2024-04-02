@@ -406,7 +406,7 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
     scene.registry.emplace<Transform>(block,
         glm::vec3(position),
         glm::vec3(0.0f),
-        glm::vec3(1.0f)
+        glm::vec3(0.9999f)
     );
     scene.registry.emplace<BoundingBox>(block,
         0.5f,
