@@ -244,8 +244,6 @@ void Renderer::prepareRenderFramebuffers() {
 void Renderer::render(entt::registry &scene) {
     auto& background = scene.get<Background>(scene.view<Background>().front());
     auto backgroundColor = background.color;
-    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
@@ -254,13 +252,16 @@ void Renderer::render(entt::registry &scene) {
     auto height = static_cast<float>(m_viewport[3]);
 
     glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     renderWorld(scene, width, height, glm::mat4(1.0f));
-    renderUI(scene, width, height);
+    //renderUI(scene, width, height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     renderBackBufferToScreen();
 }
 
@@ -311,6 +312,7 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
     // -------------------------------------------------------------------------------
     
     renderWorldOpaqueObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+    renderWorldTransparentObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
 }
 
 void Renderer::renderWorldOpaqueObjects(
@@ -321,7 +323,7 @@ void Renderer::renderWorldOpaqueObjects(
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
     for (auto [entity, model, material, shader, transform] : entitiesView.each()) {
         if (material.transparency == 1.0f) {
-            renderWorldObject(scene, entity, camera, dirlight, view, projection, lightSpace, eTransform);
+            renderWorldObject(scene, entity, shader, camera, dirlight, view, projection, lightSpace, eTransform);
         }
     }
 }
@@ -331,24 +333,57 @@ void Renderer::renderWorldTransparentObjects(
     Camera camera, DirLight dirlight, 
     glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
 ) {
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, transparentFrameBuffer);
+
+    glDepthMask(GL_FALSE);
+    glEnable(GL_BLEND);
+    glBlendFunci(0, GL_ONE, GL_ONE); // accumulation blend target
+    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR); // revealge blend target
+    glBlendEquation(GL_FUNC_ADD);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+
+    // use a four component float array or a glm::vec4(0.0)
+    glm::vec4 accumClearColor = glm::vec4(0.0f);
+    glClearBufferfv(GL_COLOR, 0, &accumClearColor[0]); 
+    // use a four component float array or a glm::vec4(1.0)
+    glm::vec4 revealClearColor = glm::vec4(1.0f);
+    glClearBufferfv(GL_COLOR, 1, &revealClearColor[0]);
+
+    auto entitiesView = scene.view<Model, Material, Shader, Transform>();
+    for (auto [entity, model, material, shader, transform] : entitiesView.each()) {
+        if (material.transparency != 1.0f) {
+            renderWorldObject(scene, entity, phongTransparent, camera, dirlight, view, projection, lightSpace, eTransform);
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 }
 
 void Renderer::renderBackBufferToScreen() {
     screenShader.use();
     
     glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, opaqueFrameBuffer);
+	glBindTexture(GL_TEXTURE_2D, opaqueTexture);
 
     draw(screenMesh);
 }
 
 void Renderer::renderWorldObject(
-        entt::registry& scene, const entt::entity &object, 
+        entt::registry& scene, const entt::entity &object, Shader& shader,
         Camera camera, DirLight dirlight, 
         glm::mat4 &view, glm::mat4 &projection, glm::mat4 &lightSpace, glm::mat4& eTransform
     ) {
-    auto& shader = scene.get<Shader>(object);
+    // auto& shader = scene.get<Shader>(object);
     auto& material = scene.get<Material>(object);
     auto& model = scene.get<Model>(object);
 

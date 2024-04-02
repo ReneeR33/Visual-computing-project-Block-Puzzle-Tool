@@ -64,7 +64,7 @@ private:
         glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform);
     void renderBackBufferToScreen();
     void renderWorldObject(
-        entt::registry& scene, const entt::entity& object, 
+        entt::registry& scene, const entt::entity& object, Shader& shader,
         Camera camera, DirLight dirlight, 
         glm::mat4& view, glm::mat4& projection, glm::mat4& lightSpace, glm::mat4& eTransform
     );
