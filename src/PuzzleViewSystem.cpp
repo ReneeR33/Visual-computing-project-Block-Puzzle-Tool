@@ -83,22 +83,22 @@ void PuzzleViewSystem::updateSolution() {
     auto puzzleEntity = puzzleView.front();
     auto& puzzle = scene.registry.get<Puzzle>(puzzleEntity);
     float current_step = puzzle.solutionStep;
-
     for (auto [entity, piece, transform, solution] : piecesView.each()) 
     {
         if(solution.Solution.size() == 0) {continue;}
-        if(current_step > 1.0)
+        if(current_step >= 1.0)
         {
-            transform.position = getBezierPoint(solution.Solution, 1.f);
+            // transform.position = getBezierPoint(solution, current_step);
+            transform.position = solution.Solution[solution.Solution.size()-1];
             current_step -= 1;
         }
-        else if(current_step < 0.0)
+        else if(current_step <= 0.0)
         {
-            transform.position = getBezierPoint(solution.Solution, 0.f);
+            transform.position = solution.Solution[0];
         }
         else
         {
-            transform.position = getBezierPoint(solution.Solution, current_step);
+            transform.position = getBezierPoint(solution, current_step);
             current_step -= 1;
         }
     }
@@ -293,14 +293,42 @@ bool PuzzleViewSystem::getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::ve
     return false;
 }
 
-glm::vec3 PuzzleViewSystem::getBezierPoint( std::vector<glm::vec3> points, float t ) {
-    std::vector<glm::vec3> tmp(points);
+glm::vec3 PuzzleViewSystem::getBezierPoint(Solution solution, float t ) {
+    std::vector<glm::vec3> points = solution.Solution;
+    std::vector<bool> HasNeighbours = solution.HasNeighbours;
+    float index = t * points.size();
+
+    int indexhigh = std::min(int(std::ceil(index)), int(HasNeighbours.size()) - 1);
+    int indexlow = std::max(int(std::floor(index)), 0);
     
-    for(int i = points.size() - 1; i > 0; i--)
+    // if there are neighbours, return linear interpolation
+    if(HasNeighbours[indexlow] || HasNeighbours[indexhigh])
+    {
+        glm::vec3 pos = points[indexlow];
+        pos += (points[indexhigh] - points[indexlow]) * glm::vec3(index - std::floor(index));
+        return pos;
+    }
+    
+    // no neighbours, so bezier can be used.
+    // first recalculate t to smaller frame
+    // current assumption is only one bezier segment per solution
+    auto it_strt = std::find(HasNeighbours.begin(), HasNeighbours.end(), false);
+    auto it_end = std::find(HasNeighbours.rbegin(), HasNeighbours.rend(), false).base();
+    auto strt = std::distance(HasNeighbours.begin(), it_strt);
+    auto end = std::distance(HasNeighbours.begin(), it_end);
+
+    // convert subrange to full range and handle float error bullshit
+    t = t - (strt/points.size());
+    t *= 1 / ((end/points.size()) - (strt/points.size()));
+    if (t <= 0.01) {t = 0.0;}
+    if (t >= 0.99) {t = 1.0;}
+    
+    //calculate bezier
+    std::vector<glm::vec3> tmp(points.begin() + strt, points.begin() + end);
+    for(int i = tmp.size() - 1; i > 0; i--)
     {
         for (int k = 0; k < i; k++)
             tmp[k] = tmp[k] + t * ( tmp[k+1] - tmp[k] );
-        i--;
     }
 
     return tmp[0];

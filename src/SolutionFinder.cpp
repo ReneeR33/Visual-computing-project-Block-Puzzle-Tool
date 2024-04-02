@@ -136,9 +136,12 @@ bool IsWall(std::vector<std::vector<std::vector<bool>>> map, glm::vec3 loc)
     return map[loc.x][loc.y][loc.z];
 }
 
-Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal, glm::vec3 world_offset)
+Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> details, 
+                                  std::vector<std::vector<std::vector<bool>>> map, 
+                                  glm::vec3 goal, glm::vec3 world_offset)
 {
     std::vector<glm::vec3> path;
+    std::vector<bool> HasNeighbours;
     glm::vec3 curr = goal;
 
     while(details[curr.x][curr.y][curr.z].parent != curr)
@@ -146,7 +149,30 @@ Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> de
         path.push_back(curr);
         curr = details[curr.x][curr.y][curr.z].parent;
     }
+
     path.push_back(curr);
+    HasNeighbours.resize(path.size());
+
+    // check for neighbours for bezier animation
+    for (uint32_t i = 0; i < path.size(); i++)
+    {
+        auto step = path[i];
+        std::vector<glm::vec3> neighbhours;
+        neighbhours.push_back(step + glm::vec3(0, 0, 1));
+        neighbhours.push_back(step + glm::vec3(0, 1, 0));
+        neighbhours.push_back(step + glm::vec3(1, 0, 0));
+        neighbhours.push_back(step + glm::vec3(0, 0, -1));
+        neighbhours.push_back(step + glm::vec3(0, -1, 0));
+        neighbhours.push_back(step + glm::vec3(-1, 0, 0));
+
+        for (auto nb : neighbhours)
+        {
+            if (posIsValid(nb) && IsWall(map, nb)) 
+            {
+                HasNeighbours[i] = true;
+            }
+        }
+    }
 
     // translate back into puzzle coordinates
     glm::vec3 offset = puzzleSize;
@@ -156,7 +182,8 @@ Solution SolutionFinder::calcPath(std::vector<std::vector<std::vector<cell>>> de
     }
 
     std::reverse(path.begin(), path.end());
-    return {.Solution = path, .step = 0};
+    std::reverse(HasNeighbours.begin(), HasNeighbours.end());
+    return {.Solution = path, .HasNeighbours = HasNeighbours};
 }
 
 // TODO: path takes diagonals sometimes, look into why
@@ -164,7 +191,6 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
 {
 
     Solution path;
-    path.step = 0;
     glm::vec3 world_offset = start - glm::floor(start);
     start = glm::floor(start);
 
@@ -202,14 +228,6 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
     bool finished = false;
     std::vector<step> openList;
     openList.push_back(std::make_pair(0, start));
-
-    std::vector<glm::vec3> test;
-    test.push_back(openList[0].second + glm::vec3(0, 0, 1));
-    test.push_back(openList[0].second  + glm::vec3(0, 1, 0));
-    test.push_back(openList[0].second  + glm::vec3(1, 0, 0));
-    test.push_back(openList[0].second  + glm::vec3(0, 0, -1));
-    test.push_back(openList[0].second  + glm::vec3(0, -1, 0));
-    test.push_back(openList[0].second  + glm::vec3(-1, 0, 0));
     
     while (!openList.empty()) 
     {
@@ -233,7 +251,7 @@ Solution SolutionFinder::AStar(std::vector<std::vector<std::vector<bool>>> map, 
                 if (nb == goal) 
                 {
                     details[nb.x][nb.y][nb.z].parent = itemLoc;
-                    path = calcPath(details, goal, world_offset);
+                    path = calcPath(details, map, goal, world_offset);
                     finished = true;
                     break;
                 }

@@ -5,7 +5,7 @@
 
 struct Solution {
     std::vector<glm::vec3> Solution;
-    int step;
+    std::vector<bool> HasNeighbours; 
 };
 
 #endif //SOLUTION_HPP
