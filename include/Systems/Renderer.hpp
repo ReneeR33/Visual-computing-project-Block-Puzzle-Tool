@@ -26,13 +26,22 @@ private:
     Shader fillShader;
     Shader shadowMapShader;
     static Mesh fillMesh;
+    static Mesh screenMesh;
 
     // shadow mapping
     unsigned int depthMapFrameBuffer;
     unsigned int depthMapTexture;
 
+    // OIP transparency
+    unsigned int opaqueFrameBuffer;
+    unsigned int opaqueTexture;
+    // TODO: this does not need to be a texture
+    unsigned int opaqueDepthTexture;
+
     void load(Mesh& mesh);
     void load(TextureData& textureData);
+
+    void prepareRenderFramebuffers();
 
     void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform);
     void renderWorldObject(

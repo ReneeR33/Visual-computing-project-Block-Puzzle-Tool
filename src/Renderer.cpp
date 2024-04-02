@@ -17,6 +17,10 @@
 #include "Components/UIScene.hpp"
 #include "entity.hpp"
 
+// TODO: move this somewhere else
+#define WINDOW_WIDTH 1800
+#define WINDOW_HEIGHT 950
+
 #define SHADOW_MAP_HEIGHT 2024
 #define SHADOW_MAP_WIDTH 2024
 #define SHADOW_MAP_FRUSTUM_LEFT -10.0f
@@ -30,6 +34,19 @@ Mesh Renderer::fillMesh = {
             { .position = glm::vec3(-0.5f, 0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
             { .position = glm::vec3(0.5f, -0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
             { .position = glm::vec3(0.5f, 0.5f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f) },
+            },
+    .indices = {
+            0, 1, 2,
+            3, 1, 2
+    }
+};
+
+Mesh Renderer::screenMesh = {
+    .vertices = {
+            { .position = glm::vec3(-1.0f, -1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(0.0, 0.0) },
+            { .position = glm::vec3(-1.0f, 1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(0.0, 1.0) },
+            { .position = glm::vec3(1.0f, -1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(1.0, 0.0) },
+            { .position = glm::vec3(1.0f, 1.0f, 0.0f), .normal = glm::vec3(0.0f, 0.0f, 1.0f), .texcoords = glm::vec2(1.0, 1.0) },
             },
     .indices = {
             0, 1, 2,
@@ -167,6 +184,29 @@ void Renderer::load(TextureData& textureData) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(data);
+}
+
+void Renderer::prepareRenderFramebuffers() {
+    glGenFramebuffers(1, &opaqueFrameBuffer);
+
+    glGenTextures(1, &opaqueTexture);
+    glBindTexture(GL_TEXTURE_2D, opaqueTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // TODO: does this need to be a texture?
+    glGenTextures(1, &opaqueDepthTexture);
+    glBindTexture(GL_TEXTURE_2D, opaqueDepthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WINDOW_WIDTH, WINDOW_HEIGHT,
+                0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, opaqueTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, opaqueDepthTexture, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::render(entt::registry &scene) {
