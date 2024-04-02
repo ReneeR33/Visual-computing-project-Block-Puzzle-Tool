@@ -4,6 +4,7 @@
 #include "glm/glm.hpp"
 #include <entt/entt.hpp>
 #include "Components/BoundingBox.hpp"
+#include "Components/Solution.hpp"
 #include "InputSystem.hpp"
 #include "Scene.hpp"
 
@@ -25,7 +26,7 @@ private:
     void updatePieceSelection();
     bool mouseHoveringOverPieceView();
     bool getRayBoundingBoxIntersection(glm::vec3 rayStart, glm::vec3 rayDirection, BoundingBox boundingBox, float& intersectionLambda);
-    glm::vec3 getBezierPoint( std::vector<glm::vec3> points, float t );
+    glm::vec3 getBezierPoint(Solution solution, float t);
 
     void scrollCallback(InputSystem::ScrollEvent scrollEvent);
     void mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent);

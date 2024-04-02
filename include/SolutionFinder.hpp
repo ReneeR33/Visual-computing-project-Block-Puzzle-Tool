@@ -27,7 +27,10 @@ private:
         float from_goal;
     };
 
-    Solution calcPath(std::vector<std::vector<std::vector<cell>>> details, glm::vec3 goal, glm::vec3 world_offset);
+    Solution calcPath(std::vector<std::vector<std::vector<cell>>> details,
+                      std::vector<std::vector<std::vector<bool>>> map, 
+                      glm::vec3 goal, glm::vec3 world_offset);
+
     typedef std::pair<float, glm::vec3> step;
     float calcDist(glm::vec3 a, glm::vec3 b);
     bool posIsValid(glm::vec3 pos);
