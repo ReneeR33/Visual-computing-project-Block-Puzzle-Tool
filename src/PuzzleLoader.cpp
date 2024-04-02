@@ -103,16 +103,21 @@ PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
         return result;
     } 
 
+    //TODO: fix this!!!!! Not having enough colors breaks transparency...
     glm::vec3 input_colors[] = 
     {
-        glm::vec3(1.000000, 0.106535, 0.151241),
-        glm::vec3(0.064279, 0.242948, 1.000000),
-        glm::vec3(1.000000, 0.023907, 0.932830),
-        glm::vec3(0.019089, 1.000000, 0.049019),
-        glm::vec3(1.000000, 1.000000, 1.000000),
-        glm::vec3(0.147655, 0.099908, 0.025475),
-        glm::vec3(0.057968, 0.057968, 0.057968),
-        glm::vec3(0.008985, 0.309690, 0.274033),
+        glm::vec3(0.3, 0.0, 0.0),
+        glm::vec3(0.0, 0.3, 0.0),
+        glm::vec3(0.0, 0.0, 0.3),
+        glm::vec3(0.3, 0.3, 0.0),
+        glm::vec3(0.0, 0.3, 0.3),
+        glm::vec3(0.3, 0.0, 0.3),
+        glm::vec3(0.3, 0.3, 0.3),
+        glm::vec3(0.6, 0.3, 0.3),
+        glm::vec3(0.3, 0.6, 0.3),
+        glm::vec3(0.3, 0.3, 0.6),
+        glm::vec3(0.6, 0.6, 0.3),
+        glm::vec3(0.6, 0.6, 0.6)
     };
 
     for (uint i = 0; i < file_result.size(); i++)

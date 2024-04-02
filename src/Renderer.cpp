@@ -58,6 +58,7 @@ Renderer::Renderer()
     : fillShader("shaders/fill/fill.vert", "shaders/fill/fill.frag")
     , shadowMapShader("shaders/shadowmap/shadowmap.vert", "shaders/shadowmap/shadowmap.frag")
     , screenShader("shaders/screen/screen.vert", "shaders/screen/screen.frag")
+    , compositeShader("shaders/composite/composite.vert", "shaders/composite/composite.frag")
     , phongTransparent("shaders/phongtransparent/phongtransparent.vert", "shaders/phongtransparent/phongtransparent.frag") {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -256,10 +257,9 @@ void Renderer::render(entt::registry &scene) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     renderWorld(scene, width, height, glm::mat4(1.0f));
-    //renderUI(scene, width, height);
+    renderUI(scene, width, height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     renderBackBufferToScreen();
@@ -313,6 +313,7 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
     
     renderWorldOpaqueObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
     renderWorldTransparentObjects(scene, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+    renderComposite();
 }
 
 void Renderer::renderWorldOpaqueObjects(
@@ -360,6 +361,34 @@ void Renderer::renderWorldTransparentObjects(
             renderWorldObject(scene, entity, phongTransparent, camera, dirlight, view, projection, lightSpace, eTransform);
         }
     }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+}
+
+void Renderer::renderComposite() {
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
+
+    glDepthFunc(GL_ALWAYS);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, transparentAccumTexture);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, transparentRevealTexture);
+
+    compositeShader.use();
+
+    draw(screenMesh);
 
     glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
 
