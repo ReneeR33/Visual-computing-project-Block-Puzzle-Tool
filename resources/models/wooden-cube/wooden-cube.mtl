@@ -1,7 +1,7 @@
-# Blender 4.0.2 MTL File: 'wooden-cube.blend'
+# Blender 4.1.0 MTL File: 'wooden-cube.blend'
 # www.blender.org
 
-newmtl Wood
+newmtl wood
 Ns 43.719025
 Ka 1.000000 1.000000 1.000000
 Ks 0.250000 0.250000 0.250000
@@ -10,4 +10,3 @@ Ni 1.450000
 d 1.000000
 illum 2
 map_Kd wooden-cube-diffuse.png
-map_Bump -bm 1.000000 wooden-cube-normal.png
