@@ -195,7 +195,7 @@ void Renderer::prepareRenderFramebuffers() {
 
     glGenTextures(1, &opaqueTexture);
     glBindTexture(GL_TEXTURE_2D, opaqueTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -283,8 +283,10 @@ void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float vie
     // -------------------------------------------------------------------------------
     
     auto entitiesView = scene.view<Model, Material, Shader, Transform>();
-    for (auto& entity : entitiesView) {
-        renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+    for (auto [entity, model, material, shader, transform] : entitiesView.each()) {
+        if (material.transparency == 1.0f) {
+            renderWorldObject(scene, entity, camera, dirLight, view, projection, lightSpaceMatrix, eTransform);
+        }
     }
 }
 
