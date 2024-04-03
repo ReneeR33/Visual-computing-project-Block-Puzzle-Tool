@@ -48,6 +48,9 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
     ModelLoader modelLoader;
     modelLoader.loadModel(scene, "resources/models/wooden-cube/wooden-cube.obj");
     scene.models["cube"] = std::make_unique<ModelData>(primitives::cube_data);
+    scene.textures["background"] = std::make_unique<TextureData>(TextureData{
+        .path = "resources/textures/background.jpg"
+    });
 }
 
 void App::run() {
@@ -78,6 +81,7 @@ void App::run() {
         pieceViewSystem.update();
 
         renderer.render(scene.registry);
+        debugWindow.render(scene.registry);
 
         window.update();
     }
