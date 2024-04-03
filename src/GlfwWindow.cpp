@@ -16,7 +16,7 @@ GlfwWindow::GlfwWindow(int width, int height, const std::string& name)
     // disable resizing for now
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     // antialiasing
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    // glfwWindowHint(GLFW_SAMPLES, 4);
 
     window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (window == nullptr)

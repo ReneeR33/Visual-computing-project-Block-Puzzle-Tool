@@ -17,11 +17,13 @@ private:
     Scene &scene;
 
     glm::vec2 prevMousePos;
+    bool pieceSelected;
 
     void updateExplodedView();
     void updateSolution();
     void updatePuzzleRotation();
     void updateSelectedPieceColor();
+    void updatePieceTransparency();
 
     void updatePieceSelection();
     bool mouseHoveringOverPieceView();
