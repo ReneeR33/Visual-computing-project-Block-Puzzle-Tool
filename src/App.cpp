@@ -49,7 +49,7 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
     modelLoader.loadModel(scene, "resources/models/wooden-cube/wooden-cube.obj");
     scene.models["cube"] = std::make_unique<ModelData>(primitives::cube_data);
     scene.textures["background"] = std::make_unique<TextureData>(TextureData{
-        .path = "resources/textures/background.jpg"
+        .path = "resources/textures/background.png"
     });
 }
 
@@ -221,7 +221,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     pieceViewChildren.children.push_front(pieceViewBackground);
     scene.registry.emplace<CanvasElement>(pieceViewBackground, 0);
     scene.registry.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
-    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.3f, 0.3f, 0.34f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
+    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.639f, 0.6157f, 0.61176f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
     pieceViewComponent.background = pieceViewBackground;
 
     auto pieceViewScrollView = addScrollView(scene.registry,
@@ -245,8 +245,8 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
 
         auto pieceViewSinglePieceView = scene.registry.create();
         auto& singlePieceViewComponent = scene.registry.emplace<SinglePieceView>(pieceViewSinglePieceView,
-            glm::vec3(0.5f, 0.5f, 0.56f),
-            glm::vec3(0.6f, 0.6f, 0.66f),
+            glm::vec3(0.54118f, 0.47059f, 0.4745f),
+            glm::vec3(0.64118f,  0.57059f, 0.5745f),
             pieceEntity
         );
         scene.registry.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
@@ -468,6 +468,6 @@ void App::onLoadPuzzleButtonPressed() {
     #else
         resetScene();
         entt::entity puzzle = addTestPuzzle();
-        initScene(renderer, puzzle);
+        initScene(puzzle);
     #endif
 }
