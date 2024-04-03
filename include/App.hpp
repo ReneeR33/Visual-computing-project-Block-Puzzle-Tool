@@ -30,6 +30,8 @@ private:
 
     entt::entity addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 color, Solution solution);
     entt::entity addBlock(entt::entity piece, glm::vec3 position);
+
+    void onLoadPuzzleButtonPressed();
 };
 
 #endif //APP_HPP

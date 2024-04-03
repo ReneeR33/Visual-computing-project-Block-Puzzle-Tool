@@ -10,7 +10,8 @@ struct Button {
     friend class UISystem;
 
     Button() 
-    : buttonPressEvent(buttonPressEventSignal) {}
+    : buttonPressEvent(buttonPressEventSignal)
+    , prevPressed(false) {}
 
     glm::vec3 color;
     glm::vec3 hoverColor;
@@ -22,6 +23,7 @@ struct Button {
 
 private:
     entt::sigh<void()> buttonPressEventSignal;
+    bool prevPressed;
 };
 
 #endif //BUTTON_HPP

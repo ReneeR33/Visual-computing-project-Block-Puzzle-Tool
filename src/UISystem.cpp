@@ -4,13 +4,22 @@
 #include "Components/Transform2D.hpp"
 #include "Components/CanvasElement.hpp"
 #include "Components/Fill2D.hpp"
+#include "Components/Button.hpp"
+#include "UI.hpp"
 
+#include <iostream>
 
-void UISystem::update(entt::registry &scene) {
-    updateScrollView(scene);
+UISystem::UISystem(entt::registry& scene) 
+    : scene(scene) {
+    InputSystem::event<InputSystem::MouseButtonCallBackEvent>().connect<&UISystem::mouseButtonCallback>(*this);
 }
 
-void UISystem::updateScrollView(entt::registry &scene) {
+void UISystem::update() {
+    updateScrollView();
+    updateButtons();
+}
+
+void UISystem::updateScrollView() {
     for (auto [entity, scrollView] : scene.view<ScrollView>().each()) {
         auto& scrollViewCanvas = scene.get<CanvasElement>(entity);
 
@@ -34,6 +43,30 @@ void UISystem::updateScrollView(entt::registry &scene) {
             auto indicatorHeight = indicatorCanvas->top - indicatorCanvas->bottom;
             float indicatorOffset = (scrollView.value / scrollView.maxValue) * (scrollViewHeight - indicatorHeight);
             indicatorTransform->position.y = scrollViewCanvas.top - indicatorCanvas->top - indicatorOffset;
+        }
+    }
+}
+
+void UISystem::updateButtons() {
+    for (auto [entity, button] : scene.view<Button>().each()) {
+        // do something
+    }
+}
+
+void UISystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent) {
+    if (mouseButtonCallbackEvent.button == GLFW_MOUSE_BUTTON_LEFT && mouseButtonCallbackEvent.action == GLFW_PRESS) {
+        double xpos, ypos;
+        InputSystem::getCursorPos(xpos, ypos);
+
+        for (auto [entity, button] : scene.view<Button>().each()) {
+            auto& canvas = scene.get<CanvasElement>(entity);
+            auto buttonScreenPos = UIEntityScreenPosition(scene, entity);
+            
+            if ((xpos > buttonScreenPos.x + canvas.left && xpos < buttonScreenPos.x + canvas.right) &&
+                (ypos > buttonScreenPos.y + canvas.bottom && ypos < buttonScreenPos.y + canvas.top)) {
+                std::cout << "press btn\n";
+                button.buttonPressEventSignal.publish();
+            }
         }
     }
 }

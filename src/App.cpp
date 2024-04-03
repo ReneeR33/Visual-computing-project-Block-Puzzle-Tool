@@ -35,6 +35,8 @@
 
 #include "ModelLoader.hpp"
 
+#include <iostream>
+
 #define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
 #define WINDOW_NAME "puzzle tool"
@@ -53,7 +55,7 @@ void App::run() {
     InputSystem::init(window);
 
     Renderer renderer;
-    UISystem uiSystem;
+    UISystem uiSystem(scene.registry);
     PuzzleViewSystem puzzleViewSystem(scene);
     PieceViewSystem pieceViewSystem(scene);
 
@@ -72,7 +74,7 @@ void App::run() {
     while (!window.windowShouldClose()) {
         InputSystem::update();
 
-        uiSystem.update(scene.registry);
+        uiSystem.update();
         puzzleViewSystem.update();
         pieceViewSystem.update();
 
@@ -366,6 +368,9 @@ entt::entity App::addUI(entt::entity canvas) {
     scene.registry.emplace<Parent>(button, UIEntity);
     UIChildren.children.push_back(button);
 
+    auto& buttonComponent = scene.registry.get<Button>(button);
+    buttonComponent.buttonPressEvent.connect<&App::onLoadPuzzleButtonPressed>(*this);
+
     return UIEntity;
 }
 
@@ -464,4 +469,8 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
     scene.registry.emplace<Parent>(block, piece);
 
     return block;
+}
+
+void App::onLoadPuzzleButtonPressed() {
+    std::cout << "Load puzzle button pressed\n";
 }

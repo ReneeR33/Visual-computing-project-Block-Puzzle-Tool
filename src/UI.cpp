@@ -59,7 +59,7 @@ entt::entity addButton(entt::registry& scene, int layer, float bottom, float top
     scene.emplace<CanvasElement>(background, 1,
         top, bottom, left, right
     );
-    scene.emplace<Transform2D>(background, position, 0.0f, glm::vec2(1.0f));
+    scene.emplace<Transform2D>(background, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
     scene.emplace<Fill2D>(background,
         button.color,
         right - left, top - bottom,

@@ -3,12 +3,21 @@
 
 #include <entt/entt.hpp>
 
+#include "InputSystem.hpp"
+
 class UISystem {
 public:
-    void update(entt::registry& scene);
+    UISystem(entt::registry& scene);
+
+    void update();
 
 private:
-    void updateScrollView(entt::registry& scene);
+    entt::registry& scene;
+
+    void updateScrollView();
+    void updateButtons();
+
+    void mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseButtonCallbackEvent);
 };
 
 #endif //UI_SYSTEM_HPP
