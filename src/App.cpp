@@ -68,7 +68,7 @@ void App::run() {
     scene.registry.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
     scene.registry.emplace<Children>(uiCanvas);
 
-    addUI(uiCanvas);
+    //addUI(uiCanvas);
 
     renderer.load(scene);
     DebugWindow debugWindow(window);
@@ -149,7 +149,7 @@ void App::initScene(entt::entity puzzle) {
     // TODO: color tuning
     // TODO: fill2d + transform bug
     
-    addUI(uiCanvas);
+    //addUI(uiCanvas);
 
     // ----------------------------
 }
