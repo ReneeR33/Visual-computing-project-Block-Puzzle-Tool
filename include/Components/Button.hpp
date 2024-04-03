@@ -17,6 +17,8 @@ struct Button {
     glm::vec3 hoverColor;
     glm::vec3 pressColor;
 
+    entt::entity background;
+
     bool pressed;
 
     entt::sink<entt::sigh<void()>> buttonPressEvent;

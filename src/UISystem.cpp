@@ -48,7 +48,21 @@ void UISystem::updateScrollView() {
 
 void UISystem::updateButtons() {
     for (auto [entity, button] : scene.view<Button>().each()) {
-        // do something
+        double xpos, ypos;
+        InputSystem::getCursorPos(xpos, ypos);
+
+        //TODO: move this to function
+        auto& canvas = scene.get<CanvasElement>(entity);
+        auto buttonScreenPos = UIEntityScreenPosition(scene, entity);
+
+        auto& backgroundFill = scene.get<Fill2D>(button.background);
+
+        if ((xpos > buttonScreenPos.x + canvas.left && xpos < buttonScreenPos.x + canvas.right) &&
+            (ypos > buttonScreenPos.y + canvas.bottom && ypos < buttonScreenPos.y + canvas.top)) {
+            backgroundFill.color = button.hoverColor;
+        } else {
+            backgroundFill.color = button.color;
+        }
     }
 }
 

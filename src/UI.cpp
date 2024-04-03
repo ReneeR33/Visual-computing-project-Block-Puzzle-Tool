@@ -65,6 +65,7 @@ entt::entity addButton(entt::registry& scene, int layer, float bottom, float top
         right - left, top - bottom,
         10.0f
     );
+    button.background = background;
 
     return buttonEntity;
 }
