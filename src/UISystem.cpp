@@ -7,7 +7,6 @@
 #include "Components/Button.hpp"
 #include "UI.hpp"
 
-#include <iostream>
 
 UISystem::UISystem(entt::registry& scene) 
     : scene(scene) {
@@ -64,7 +63,6 @@ void UISystem::mouseButtonCallback(InputSystem::MouseButtonCallBackEvent mouseBu
             
             if ((xpos > buttonScreenPos.x + canvas.left && xpos < buttonScreenPos.x + canvas.right) &&
                 (ypos > buttonScreenPos.y + canvas.bottom && ypos < buttonScreenPos.y + canvas.top)) {
-                std::cout << "press btn\n";
                 button.buttonPressEventSignal.publish();
             }
         }

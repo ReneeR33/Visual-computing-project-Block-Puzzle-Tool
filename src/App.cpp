@@ -35,7 +35,6 @@
 
 #include "ModelLoader.hpp"
 
-#include <iostream>
 
 #define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
@@ -79,28 +78,6 @@ void App::run() {
         pieceViewSystem.update();
 
         renderer.render(scene.registry);
-        
-        DebugWindow::Action act = debugWindow.render(scene.registry);
-        if(act == DebugWindow::Action::load)
-        {
-            #ifndef LOAD_TEST_PUZZLE
-	        char const * filter[2] = { "*.txt", "*.text" };
-            char const * filename = tinyfd_openFileDialog(
-                "Solution file", "./resources/solutions", 2, filter, "text files", 1);
-
-            if (filename)
-            {
-                resetScene();
-                std::string path(filename);
-                entt::entity puzzle = addPuzzleFromModel(path);
-                initScene(renderer, puzzle);
-            }
-            #else
-                resetScene();
-                entt::entity puzzle = addTestPuzzle();
-                initScene(renderer, puzzle);
-            #endif
-        }
 
         window.update();
     }
@@ -129,7 +106,7 @@ void App::resetScene() {
     );
 }
 
-void App::initScene(Renderer &renderer, entt::entity puzzle) {
+void App::initScene(entt::entity puzzle) {
     auto uiCanvas = scene.registry.create();
     scene.registry.emplace<UICanvas>(uiCanvas);
     scene.registry.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
@@ -472,5 +449,21 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
 }
 
 void App::onLoadPuzzleButtonPressed() {
-    std::cout << "Load puzzle button pressed\n";
+    #ifndef LOAD_TEST_PUZZLE
+    char const * filter[2] = { "*.txt", "*.text" };
+    char const * filename = tinyfd_openFileDialog(
+        "Solution file", "./resources/solutions", 2, filter, "text files", 1);
+
+    if (filename)
+    {
+        resetScene();
+        std::string path(filename);
+        entt::entity puzzle = addPuzzleFromModel(path);
+        initScene(puzzle);
+    }
+    #else
+        resetScene();
+        entt::entity puzzle = addTestPuzzle();
+        initScene(renderer, puzzle);
+    #endif
 }

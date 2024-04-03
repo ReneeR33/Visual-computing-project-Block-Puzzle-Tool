@@ -21,7 +21,7 @@ private:
 
     //void initExplodedViewTestScene();
     void resetScene();
-    void initScene(Renderer &renderer, entt::entity puzzle);
+    void initScene(entt::entity puzzle);
 
     entt::entity addTestPuzzle();
     entt::entity addPieceView(entt::entity canvas, entt::entity puzzle);
