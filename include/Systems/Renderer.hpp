@@ -54,6 +54,7 @@ private:
 
     void prepareRenderFramebuffers();
 
+    void renderBackground(entt::registry& scene, float viewportWidth, float viewportHeight);
     void renderWorld(entt::registry& scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform);
     void renderWorldOpaqueObjects(
         entt::registry& scene,

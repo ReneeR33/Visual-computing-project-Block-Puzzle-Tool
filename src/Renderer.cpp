@@ -64,6 +64,7 @@ Renderer::Renderer()
     glEnable(GL_MULTISAMPLE);
 
     // for transparency
+    // TODO: disable
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -105,6 +106,10 @@ void Renderer::load(Scene &scene) {
         for (auto& texture : model->textures) {
             load(texture);
         }
+    }
+
+    for(auto& [name, texture] : scene.textures) {
+        load(*texture);
     }
 }
 
@@ -241,8 +246,8 @@ void Renderer::prepareRenderFramebuffers() {
 }
 
 void Renderer::render(entt::registry &scene) {
-    auto& background = scene.get<Background>(scene.view<Background>().front());
-    auto backgroundColor = background.color;
+    //auto& background = scene.get<Background>(scene.view<Background>().front());
+    //auto backgroundColor = background.color;
 
     GLint m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
@@ -251,16 +256,43 @@ void Renderer::render(entt::registry &scene) {
     auto height = static_cast<float>(m_viewport[3]);
 
     glBindFramebuffer(GL_FRAMEBUFFER, opaqueFrameBuffer);
-    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    renderBackground(scene, width, height);
     renderWorld(scene, width, height, glm::mat4(1.0f));
     renderUI(scene, width, height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     renderBackBufferToScreen();
+}
+
+void Renderer::renderBackground(entt::registry& scene, float viewportWidth, float viewportHeight) {
+    auto& background = scene.get<Background>(scene.view<Background>().front());
+
+    screenShader.use();
+
+    auto texture = background.texture;
+    auto aspect = float(WINDOW_WIDTH) / float(WINDOW_HEIGHT);
+    auto aspectTexture = texture->width / texture->height;
+
+    glm::mat4 model(1.0f);
+    if (aspectTexture > aspect) {
+        model = glm::scale(model, glm::vec3(aspectTexture, 1.0f, 1.0f));
+    } else {
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f / aspectTexture, 1.0f));
+    }
+
+    screenShader.setMat4("model", model);
+    
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture->id);
+
+    draw(screenMesh);
+
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::renderWorld(entt::registry &scene, float viewportWidth, float viewportHeight, glm::mat4 eTransform) {
@@ -382,13 +414,6 @@ void Renderer::renderComposite() {
 }
 
 void Renderer::renderBackBufferToScreen() {
-    /*screenShader.use();
-    
-    glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, opaqueTexture);
-
-    draw(screenMesh);*/
-
     GLint drawFboId = 0;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
 

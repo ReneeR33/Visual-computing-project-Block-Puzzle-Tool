@@ -37,7 +37,7 @@ DebugWindow::Action DebugWindow::render(entt::registry& scene) {
         ImGui::Begin("Debug");
 
         auto& background = scene.get<Background>(scene.view<Background>().front());
-        ImGui::ColorEdit3("background", &background.color.x);
+        //ImGui::ColorEdit3("background", &background.color.x);
 
         auto scrollViewView = scene.view<ScrollView>();
         if (!scrollViewView.empty()) {

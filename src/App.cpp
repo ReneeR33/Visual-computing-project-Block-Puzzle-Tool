@@ -91,7 +91,7 @@ void App::resetScene() {
     scene.registry.clear();
     auto background = scene.registry.create();
     // TODO: change background
-    scene.registry.emplace<Background>(background, glm::vec3(0.6f, 0.6f, 0.62f));
+    scene.registry.emplace<Background>(background, scene.textures["background"].get());
 
     auto dirLight = scene.registry.create();
     scene.registry.emplace<DirLight>(dirLight,
