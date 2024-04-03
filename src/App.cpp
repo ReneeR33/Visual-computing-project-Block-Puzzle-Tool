@@ -260,14 +260,21 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
 
     auto& puzzleChildren = scene.registry.get<Children>(puzzle);
 
+    glm::vec3 singlePieceViewColors[] = {
+        glm::vec3(0.54118f, 0.47059f, 0.4745f),
+        glm::vec3(0.54118f, 0.50588f, 0.47059f),
+        glm::vec3(0.50196f, 0.541176f, 0.47059f)
+    };
+
     int i = 0;
     for (auto pieceEntity : puzzleChildren.children) {
         auto& pieceChildren = scene.registry.get<Children>(pieceEntity);
 
         auto pieceViewSinglePieceView = scene.registry.create();
+        int colorindex = i % singlePieceViewColors->length();
         auto& singlePieceViewComponent = scene.registry.emplace<SinglePieceView>(pieceViewSinglePieceView,
-            glm::vec3(0.54118f, 0.47059f, 0.4745f),
-            glm::vec3(0.64118f,  0.57059f, 0.5745f),
+            singlePieceViewColors[colorindex],
+            singlePieceViewColors[colorindex] + glm::vec3(0.1f),
             pieceEntity
         );
         scene.registry.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
