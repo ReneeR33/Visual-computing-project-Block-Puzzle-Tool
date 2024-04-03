@@ -81,7 +81,28 @@ void App::run() {
         pieceViewSystem.update();
 
         renderer.render(scene.registry);
-        debugWindow.render(scene.registry);
+
+        DebugWindow::Action act = debugWindow.render(scene.registry);
+            if(act == DebugWindow::Action::load)
+        {
+            #ifndef LOAD_TEST_PUZZLE
+	        char const * filter[2] = { "*.txt", "*.text" };
+            char const * filename = tinyfd_openFileDialog(
+                "Solution file", "./resources/solutions", 2, filter, "text files", 1);
+
+            if (filename)
+            {
+                resetScene();
+                std::string path(filename);
+                entt::entity puzzle = addPuzzleFromModel(path);
+                initScene(puzzle);
+            }
+            #else
+                resetScene();
+                entt::entity puzzle = addTestPuzzle();
+                initScene(puzzle);
+            #endif
+        }
 
         window.update();
     }
