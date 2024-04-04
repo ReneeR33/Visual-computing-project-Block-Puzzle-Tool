@@ -1,10 +1,10 @@
 #ifndef BACKGROUND_HPP
 #define BACKGROUND_HPP
 
-#include "glm/glm.hpp"
+#include "TextureData.hpp"
 
 struct Background {
-    glm::vec3 color;
+    TextureData* texture;
 };
 
 

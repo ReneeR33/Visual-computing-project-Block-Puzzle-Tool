@@ -8,10 +8,12 @@ layout (location = 4) in vec3 iBitTangent;
 
 out vec2 Texcoords;
 
+uniform mat4 model;
+
 void main()
 {
     Texcoords = iTexcoords;
 
     vec4 iPosH = vec4(iPos, 1.0);
-    gl_Position = iPosH;
+    gl_Position = model * iPosH;
 }

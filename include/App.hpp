@@ -21,14 +21,17 @@ private:
 
     //void initExplodedViewTestScene();
     void resetScene();
-    void initScene(Renderer &renderer, entt::entity puzzle);
+    void initScene(entt::entity puzzle);
 
     entt::entity addTestPuzzle();
     entt::entity addPieceView(entt::entity canvas, entt::entity puzzle);
+    entt::entity addUI(entt::entity canvas);
     entt::entity addPuzzleFromModel(std::string path);
 
     entt::entity addPiece(entt::entity puzzle, glm::vec3 position, glm::vec3 color, Solution solution);
     entt::entity addBlock(entt::entity piece, glm::vec3 position);
+
+    void onLoadPuzzleButtonPressed();
 };
 
 #endif //APP_HPP

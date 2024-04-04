@@ -8,6 +8,7 @@
 #include "Components/CanvasElement.hpp"
 #include "Components/Transform2D.hpp"
 #include "Components/Fill2D.hpp"
+#include "Components/Button.hpp"
 
 #define SCROLL_INDICATOR_WIDTH 10.0f
 #define SCROLL_INDICATOR_OFFSET 3.0f
@@ -34,6 +35,39 @@ glm::vec2 UIEntityScreenPosition(entt::registry& scene, entt::entity uiEntity) {
     }
 
     return glm::vec2(model[3]);
+}
+
+entt::entity addButton(entt::registry& scene, int layer, float bottom, float top, float left, float right, glm::vec2 position) {
+    auto buttonEntity = scene.create();
+
+    scene.emplace<CanvasElement>(buttonEntity, layer,
+        top, bottom, left, right
+    );
+    scene.emplace<Transform2D>(buttonEntity, position, 0.0f, glm::vec2(1.0f));
+    auto& button = scene.emplace<Button>(buttonEntity);
+    
+    // TODO: configure this somewhere else?
+    button.color = glm::vec3(0.4f, 0.4f, 0.4f);
+    button.hoverColor = glm::vec3(0.5f, 0.5f, 0.5f);
+    button.pressColor = glm::vec3(0.6f, 0.6f, 0.6f);
+
+    auto& buttonChildren = scene.emplace<Children>(buttonEntity);
+
+    auto background = scene.create();
+    scene.emplace<Parent>(background, buttonEntity);
+    buttonChildren.children.push_back(background);
+    scene.emplace<CanvasElement>(background, 1,
+        top, bottom, left, right
+    );
+    scene.emplace<Transform2D>(background, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
+    scene.emplace<Fill2D>(background,
+        button.color,
+        right - left, top - bottom,
+        10.0f
+    );
+    button.background = background;
+
+    return buttonEntity;
 }
 
 entt::entity addScrollView(entt::registry& scene, int layer, float bottom, float top, float left, float right, glm::vec2 position) {
@@ -63,7 +97,7 @@ entt::entity addScrollView(entt::registry& scene, int layer, float bottom, float
         0.0f, 0.0f, -SCROLL_INDICATOR_WIDTH / 2, SCROLL_INDICATOR_WIDTH / 2
     );
     scene.emplace<Fill2D>(scrollIndicator,
-        glm::vec3(0.45f, 0.45f, 0.45f),
+        glm::vec3(0.83f, 0.83f, 0.84f),
         SCROLL_INDICATOR_WIDTH, 0.0f,
         SCROLL_INDICATOR_WIDTH / 2
     );

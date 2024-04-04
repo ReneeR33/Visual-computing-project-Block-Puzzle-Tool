@@ -22,6 +22,7 @@
 #include "Components/ScrollView.hpp"
 #include "Components/SinglePieceView.hpp"
 #include "Components/BoundingBox.hpp"
+#include "Components/Button.hpp"
 #include "InputSystem.hpp"
 #include "primitives.hpp"
 #include "PuzzleLoader.hpp"
@@ -33,6 +34,7 @@
 #include "SolutionFinder.hpp"
 
 #include "ModelLoader.hpp"
+
 
 #define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 950
@@ -46,17 +48,27 @@ App::App() : window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME) {
     ModelLoader modelLoader;
     modelLoader.loadModel(scene, "resources/models/wooden-cube/wooden-cube.obj");
     scene.models["cube"] = std::make_unique<ModelData>(primitives::cube_data);
+    scene.textures["background"] = std::make_unique<TextureData>(TextureData{
+        .path = "resources/textures/background.png"
+    });
 }
 
 void App::run() {
     InputSystem::init(window);
 
     Renderer renderer;
-    UISystem uiSystem;
+    UISystem uiSystem(scene.registry);
     PuzzleViewSystem puzzleViewSystem(scene);
     PieceViewSystem pieceViewSystem(scene);
 
     resetScene();
+
+    auto uiCanvas = scene.registry.create();
+    scene.registry.emplace<UICanvas>(uiCanvas);
+    scene.registry.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
+    scene.registry.emplace<Children>(uiCanvas);
+
+    //addUI(uiCanvas);
 
     renderer.load(scene);
     DebugWindow debugWindow(window);
@@ -64,14 +76,14 @@ void App::run() {
     while (!window.windowShouldClose()) {
         InputSystem::update();
 
-        uiSystem.update(scene.registry);
+        uiSystem.update();
         puzzleViewSystem.update();
         pieceViewSystem.update();
 
         renderer.render(scene.registry);
-        
+
         DebugWindow::Action act = debugWindow.render(scene.registry);
-                if(act == DebugWindow::Action::load)
+            if(act == DebugWindow::Action::load)
         {
             #ifndef LOAD_TEST_PUZZLE
 	        char const * filter[2] = { "*.txt", "*.text" };
@@ -83,12 +95,12 @@ void App::run() {
                 resetScene();
                 std::string path(filename);
                 entt::entity puzzle = addPuzzleFromModel(path);
-                initScene(renderer, puzzle);
+                initScene(puzzle);
             }
             #else
                 resetScene();
                 entt::entity puzzle = addTestPuzzle();
-                initScene(renderer, puzzle);
+                initScene(puzzle);
             #endif
         }
 
@@ -100,7 +112,7 @@ void App::resetScene() {
     scene.registry.clear();
     auto background = scene.registry.create();
     // TODO: change background
-    scene.registry.emplace<Background>(background, glm::vec3(0.6f, 0.6f, 0.62f));
+    scene.registry.emplace<Background>(background, scene.textures["background"].get());
 
     auto dirLight = scene.registry.create();
     scene.registry.emplace<DirLight>(dirLight,
@@ -119,13 +131,27 @@ void App::resetScene() {
     );
 }
 
-void App::initScene(Renderer &renderer, entt::entity puzzle) {
+void App::initScene(entt::entity puzzle) {
     auto uiCanvas = scene.registry.create();
     scene.registry.emplace<UICanvas>(uiCanvas);
     scene.registry.emplace<Transform2D>(uiCanvas, glm::vec2(0.0f), 0.0f, glm::vec2(1.0f));
-    scene.registry.emplace<Children>(uiCanvas);
+    auto& canvasChildren = scene.registry.emplace<Children>(uiCanvas);
+
+    auto pieceViewEntityView = scene.registry.view<PiecesView>();
+    if (!pieceViewEntityView.empty()) {
+        auto pieceViewEntity = pieceViewEntityView.front();
+        scene.registry.destroy(pieceViewEntity);
+    }
 
     addPieceView(uiCanvas, puzzle);
+
+    // UI -------------------------
+    // TODO: color tuning
+    // TODO: fill2d + transform bug
+    
+    //addUI(uiCanvas);
+
+    // ----------------------------
 }
 
 entt::entity App::addTestPuzzle() {
@@ -216,7 +242,7 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     pieceViewChildren.children.push_front(pieceViewBackground);
     scene.registry.emplace<CanvasElement>(pieceViewBackground, 0);
     scene.registry.emplace<Transform2D>(pieceViewBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
-    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.3f, 0.3f, 0.34f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
+    scene.registry.emplace<Fill2D>(pieceViewBackground, glm::vec3(0.639f, 0.6157f, 0.61176f), float(PIECE_VIEW_WIDTH), float(WINDOW_HEIGHT));
     pieceViewComponent.background = pieceViewBackground;
 
     auto pieceViewScrollView = addScrollView(scene.registry,
@@ -234,14 +260,21 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
 
     auto& puzzleChildren = scene.registry.get<Children>(puzzle);
 
+    glm::vec3 singlePieceViewColors[] = {
+        glm::vec3(0.54118f, 0.47059f, 0.4745f),
+        glm::vec3(0.54118f, 0.50588f, 0.47059f),
+        glm::vec3(0.50196f, 0.541176f, 0.47059f)
+    };
+
     int i = 0;
     for (auto pieceEntity : puzzleChildren.children) {
         auto& pieceChildren = scene.registry.get<Children>(pieceEntity);
 
         auto pieceViewSinglePieceView = scene.registry.create();
+        int colorindex = i % singlePieceViewColors->length();
         auto& singlePieceViewComponent = scene.registry.emplace<SinglePieceView>(pieceViewSinglePieceView,
-            glm::vec3(0.5f, 0.5f, 0.56f),
-            glm::vec3(0.6f, 0.6f, 0.66f),
+            singlePieceViewColors[colorindex],
+            singlePieceViewColors[colorindex] + glm::vec3(0.1f),
             pieceEntity
         );
         scene.registry.emplace<CanvasElement>(pieceViewSinglePieceView, 1,
@@ -321,6 +354,33 @@ entt::entity App::addPieceView(entt::entity canvas, entt::entity puzzle)
     }
 
     return pieceView;
+}
+
+entt::entity App::addUI(entt::entity canvas) {
+    auto& canvasChildren = scene.registry.get<Children>(canvas);
+
+    auto UIEntity = scene.registry.create();
+    scene.registry.emplace<Parent>(UIEntity, canvas);
+    canvasChildren.children.push_back(UIEntity);
+    scene.registry.emplace<CanvasElement>(UIEntity, 1, 300.0f, -300.0f, -200.0f, 200.0f);
+    scene.registry.emplace<Transform2D>(UIEntity, glm::vec2(210.0f, 540.0f), 0.0f, glm::vec2(1.0f));
+    auto& UIChildren = scene.registry.emplace<Children>(UIEntity);
+
+    auto UIBackground = scene.registry.create();
+    scene.registry.emplace<Parent>(UIBackground, UIEntity);
+    UIChildren.children.push_front(UIBackground);
+    scene.registry.emplace<CanvasElement>(UIBackground, 0);
+    scene.registry.emplace<Transform2D>(UIBackground, glm::vec2(0.0f), 0.0f, glm::vec3(1.0f));
+    scene.registry.emplace<Fill2D>(UIBackground, glm::vec3(0.3f, 0.3f, 0.34f), 400.0f, 600.0f, 50.0f);
+
+    auto button = addButton(scene.registry, 1, -50.0f, 50.0f, -100.0f, 100.0f, glm::vec2(0.0f, 80.0f));
+    scene.registry.emplace<Parent>(button, UIEntity);
+    UIChildren.children.push_back(button);
+
+    auto& buttonComponent = scene.registry.get<Button>(button);
+    buttonComponent.buttonPressEvent.connect<&App::onLoadPuzzleButtonPressed>(*this);
+
+    return UIEntity;
 }
 
 entt::entity App::addPuzzleFromModel(std::string path) {
@@ -418,4 +478,24 @@ entt::entity App::addBlock(entt::entity piece, glm::vec3 position) {
     scene.registry.emplace<Parent>(block, piece);
 
     return block;
+}
+
+void App::onLoadPuzzleButtonPressed() {
+    #ifndef LOAD_TEST_PUZZLE
+    char const * filter[2] = { "*.txt", "*.text" };
+    char const * filename = tinyfd_openFileDialog(
+        "Solution file", "./resources/solutions", 2, filter, "text files", 1);
+
+    if (filename)
+    {
+        resetScene();
+        std::string path(filename);
+        entt::entity puzzle = addPuzzleFromModel(path);
+        initScene(puzzle);
+    }
+    #else
+        resetScene();
+        entt::entity puzzle = addTestPuzzle();
+        initScene(puzzle);
+    #endif
 }
