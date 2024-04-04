@@ -103,7 +103,6 @@ PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
         return result;
     } 
 
-    //TODO: fix this!!!!! Not having enough colors breaks transparency...
     glm::vec3 input_colors[] = 
     {
         glm::vec3(0.3, 0.0, 0.0),
