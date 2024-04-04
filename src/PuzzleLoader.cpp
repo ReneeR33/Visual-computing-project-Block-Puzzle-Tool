@@ -122,7 +122,7 @@ PuzzleLoader::LoaderPuzzleResult PuzzleLoader::LoadSolution(std::string path)
 
     for (uint i = 0; i < file_result.size(); i++)
     {
-        file_result[i].color = input_colors[i] + glm::vec3(0.2f);
+        file_result[i].color = input_colors[i%13] + glm::vec3(0.2f);
         result.pieces.push_back(file_result[i]);
     }
 

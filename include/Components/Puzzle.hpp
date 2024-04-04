@@ -3,6 +3,7 @@
 
 struct Puzzle {
     bool disableMouseRotation;
+    bool EnableExplodedView;
     float solutionStep;
 };
 
