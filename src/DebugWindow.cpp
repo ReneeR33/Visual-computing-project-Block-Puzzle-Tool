@@ -49,6 +49,7 @@ DebugWindow::Action DebugWindow::render(entt::registry& scene) {
         if (!puzzleView.empty()) {
             auto& puzzle = scene.get<Puzzle>(puzzleView.front());
             ImGui::Checkbox("disable puzzle mouse rotation", &puzzle.disableMouseRotation);
+            ImGui::Checkbox("enable exploded view", &puzzle.EnableExplodedView);
         }
 
         action = LoadFile();

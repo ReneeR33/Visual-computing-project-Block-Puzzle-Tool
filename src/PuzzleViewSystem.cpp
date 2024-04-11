@@ -36,8 +36,23 @@ PuzzleViewSystem::PuzzleViewSystem(Scene &scene)
 }
 
 void PuzzleViewSystem::update() {
-    updateExplodedView();
-    updateSolution();
+    auto puzzleView = scene.registry.view<Puzzle>();
+
+    if (!puzzleView.empty()) {
+        auto puzzleEntity = puzzleView.front();
+        auto& puzzle = scene.registry.get<Puzzle>(puzzleEntity);
+        bool EnableExplodedView = puzzle.EnableExplodedView;
+
+        if(EnableExplodedView)
+        {
+            updateExplodedView();
+        }
+        else
+        {
+            updateSolution();
+        }
+    }
+
     updatePuzzleRotation();
     updateSelectedPieceColor();
     updatePieceTransparency();
