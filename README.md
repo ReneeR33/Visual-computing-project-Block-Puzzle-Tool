@@ -6,11 +6,9 @@ assuming cmake is installed on your system, executing the following commands wil
 
 ```
 cmake -S . -B build
-cd build
-make
+cmake --build build
 ```
-
-after this the application can be started by running the resulting executable.
+after this the application can be started by running the resulting executable. For linux this is placed in the build folder, in windows this is placed in build/debug
 
 
 ## Application functions
