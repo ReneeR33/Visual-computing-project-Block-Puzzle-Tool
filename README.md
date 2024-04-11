@@ -17,7 +17,8 @@ after this the application can be started by running the resulting executable.
 This application has several different functions that allow for better understanding of the puzzle:
 
 ### Menu 
-![menu](images/menu.png "menu")
+![menu](images/menu.png "menu")  
+
 The controls for the application is performed using the menu, initially there will not be any puzzles on screen, but these can be loaded using the load solution button. 
 
 The exploded view and solution steps cannot be shown at the same time. initially the step-by-step is enabled, and it can be shown using the designated slider. to enable the exploded view you can enable the checkbox appropriate checkbox. 
