@@ -171,21 +171,19 @@ void PuzzleViewSystem::updatePieceTransparency() {
 
 void PuzzleViewSystem::updatePieceSelection() {
     float aspect = float(WINDOW_WIDTH) / float(WINDOW_HEIGHT);
-
+    
     auto& camera = scene.registry.get<Camera>(scene.registry.view<Camera>().front());
+    auto perspective = glm::perspective(glm::radians(camera.fov), aspect, camera.near, camera.far);
     auto view = camera.viewMatrix();
 
     double x, y;
     InputSystem::getCursorPos(x, y);
 
-    float viewPortWorldHeight = 2 * camera.near * tan(glm::radians(camera.fov / 2));
-    float viewPortWorldWidth = aspect * viewPortWorldHeight;
+    x = (x / float(WINDOW_WIDTH)) * 2 - 1;
+    y = (y / float(WINDOW_HEIGHT)) * 2 - 1;
 
-    x = (x / float(WINDOW_WIDTH)) * viewPortWorldWidth - (viewPortWorldWidth / 2);
-    y = (y / float(WINDOW_HEIGHT)) * viewPortWorldHeight - (viewPortWorldHeight / 2);
-
-    auto cursorCameraPos = glm::vec4(x, y, -camera.near, 1);
-    auto cursorWorldPos = glm::inverse(view) * cursorCameraPos;
+    auto cursorWorldPos = glm::inverse(perspective * view) * glm::vec4(x, y, 1, 1);
+    cursorWorldPos = cursorWorldPos / cursorWorldPos.w;
 
     entt::entity closestPiece;
     float lambda = std::numeric_limits<float>::infinity();

@@ -25,7 +25,7 @@ void main()
 
     FragPos = vec3(model * iPosH);
     LightSpaceFragPos = lightSpaceMatrix * model * iPosH;
-    Normal = mat3(transpose(inverse(model))) * iNormal;
+    Normal = vec3(model * vec4(iNormal, 0));
 
     Texcoords = iTexcoords;
 
